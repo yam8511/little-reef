@@ -1,7 +1,7 @@
 {
   "name": "little-reef",
   "identifier": "dev.mygo.examples.aquarium",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "license": "MIT",
   "icon": "assets/icon.png",
   "out": "build",
