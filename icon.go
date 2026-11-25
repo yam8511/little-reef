@@ -1,5 +1,5 @@
 // The 小海底 mark: the focus ring with a fish inside. It is drawn in code so
-// the menu bar, Dock, web page and packaged icons stay in sync.
+// the menu bar, Dock, window and packaged icons stay in sync.
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
 	"runtime"
 )
 
-// Mark colors; the accent matches web/style.css.
+// Mark colors; the accent matches reef-realistic's accent token.
 var (
 	markInk   = color.NRGBA{R: 0xa8, G: 0xde, B: 0xba, A: 0xff}
 	badgeTile = color.NRGBA{R: 0x10, G: 0x27, B: 0x30, A: 0xff}
@@ -238,16 +238,13 @@ func trayFrames() [][]byte {
 	return frames
 }
 
-// exportIconAssets rewrites the icon files the web page and packaging use.
-// favicon/mark live under web/public so Vite copies them verbatim into dist.
+// exportIconAssets rewrites the packaged app icon.
 func exportIconAssets() error {
 	files := []struct {
 		path string
 		data []byte
 	}{
 		{filepath.Join("assets", "icon.png"), markBadgePNG(1024)},
-		{filepath.Join("web", "public", "favicon.png"), markBadgePNG(128)},
-		{filepath.Join("web", "public", "mark.png"), markPNG(128, markInk)},
 	}
 	for _, file := range files {
 		if err := os.MkdirAll(filepath.Dir(file.path), 0o755); err != nil {
@@ -256,7 +253,7 @@ func exportIconAssets() error {
 		if err := os.WriteFile(file.path, file.data, 0o644); err != nil {
 			return err
 		}
-		log.Printf("已写入 %s（%d 字节）", file.path, len(file.data))
+		log.Printf("已寫入 %s（%d 位元組）", file.path, len(file.data))
 	}
 	return nil
 }

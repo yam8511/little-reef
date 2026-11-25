@@ -127,18 +127,19 @@ func newAquarium(path string) (*Aquarium, error) {
 	}
 	if len(data) > 0 {
 		if err := json.Unmarshal(data, &a.state); err != nil {
-			return nil, errors.New("无法读取水族馆存档，请保留原文件并检查存档格式")
+			return nil, errors.New("無法讀取水族館存檔，請保留原檔案並檢查存檔格式")
 		}
 		if err := validatePreferences(a.state.Preferences); err != nil {
 			return nil, err
 		}
 		if err := validateSnapshot(a.state); err != nil {
-			return nil, errors.New("水族馆存档中的计时数据无效")
+			return nil, errors.New("水族館存檔中的計時資料無效")
 		}
 		if a.state.Session.Status == "running" {
 			a.state.Session.Status = "paused"
-			a.state.Notice = "上次专注已暂停，准备好后再继续。"
+			a.state.Notice = "上次專注已暫停，準備好後再繼續。"
 		}
+		refreshVisitorNames(&a.state)
 	}
 	a.state.LastVisitor = ""
 	a.state.Revision++
@@ -147,13 +148,13 @@ func newAquarium(path string) (*Aquarium, error) {
 
 func validatePreferences(p Preferences) error {
 	if p.FocusMinutes < 1 || p.FocusMinutes > 120 || p.BreakMinutes < 1 || p.BreakMinutes > 30 {
-		return errors.New("专注时长须为 1–120 分钟，休息时长须为 1–30 分钟")
+		return errors.New("專注時長須為 1–120 分鐘，休息時長須為 1–30 分鐘")
 	}
 	if !slices.Contains([]string{"waves", "rain", "bubbles", "wind", "fire", "stream", "pink", "clock", "boil", "knock", "thunder", "cafe", "musicbox", "morning", "summer", "night", "forest", "deepsea", "desert", "traffic"}, p.Sound) {
-		return errors.New("请先选择一种背景音")
+		return errors.New("請先選擇一種背景音")
 	}
 	if math.IsNaN(p.Volume) || math.IsInf(p.Volume, 0) || p.Volume < 0 || p.Volume > 1 {
-		return errors.New("音量须在 0–100% 之间")
+		return errors.New("音量須在 0–100% 之間")
 	}
 	return nil
 }
@@ -164,7 +165,7 @@ func validateSnapshot(s Snapshot) error {
 		!slices.Contains([]string{"idle", "running", "paused", "complete"}, s.Session.Status) ||
 		s.Session.DurationMS <= 0 || s.Session.DurationMS > 120*60*1000 ||
 		s.Session.ElapsedMS < 0 || s.Completed < 0 || s.TotalSecs < 0 {
-		return errors.New("存档内容有问题，没有导入。你的海底保持原样。")
+		return errors.New("存檔內容有問題，沒有匯入。你的海底保持原樣。")
 	}
 	return nil
 }
@@ -213,7 +214,7 @@ func (a *Aquarium) ImportArchive(text string) (Snapshot, error) {
 func (a *Aquarium) importArchive(ctx context.Context, text string) (Snapshot, error) {
 	var shell archiveShell
 	if err := json.Unmarshal([]byte(text), &shell); err != nil {
-		return Snapshot{}, errors.New("这个文件不是小海底的存档，什么都没有改动。")
+		return Snapshot{}, errors.New("這個檔案不是小海底的存檔，什麼都沒有改動。")
 	}
 	content := shell.Aquarium
 	legacy := false
@@ -221,11 +222,11 @@ func (a *Aquarium) importArchive(ctx context.Context, text string) (Snapshot, er
 		content = []byte(text)
 		legacy = true
 	} else if shell.Version > archiveVersion {
-		return Snapshot{}, errors.New("这是更新版本的存档，先把小海底升级到最新版。")
+		return Snapshot{}, errors.New("這是更新版本的存檔，先把小海底升級到最新版。")
 	}
 	var next Snapshot
 	if err := json.Unmarshal(content, &next); err != nil {
-		return Snapshot{}, errors.New("这个文件不是小海底的存档，什么都没有改动。")
+		return Snapshot{}, errors.New("這個檔案不是小海底的存檔，什麼都沒有改動。")
 	}
 	if err := validateSnapshot(next); err != nil {
 		return Snapshot{}, err
@@ -237,13 +238,14 @@ func (a *Aquarium) importArchive(ctx context.Context, text string) (Snapshot, er
 			return err
 		}
 		a.state = next
+		refreshVisitorNames(&a.state)
 		if a.state.Session.Status == "running" {
 			a.state.Session.Status = "paused"
 		}
 		if legacy {
-			a.state.Notice = "这是小海底的存档，已安全导入。"
+			a.state.Notice = "這是小海底的存檔，已安全匯入。"
 		} else {
-			a.state.Notice = "海底回来了，一切如初。"
+			a.state.Notice = "海底回來了，一切如初。"
 		}
 		return nil
 	})
@@ -381,7 +383,7 @@ func (a *Aquarium) change(fn func() error) (Snapshot, error) {
 			a.segment = a.now()
 		}
 		a.mu.Unlock()
-		return Snapshot{}, errors.New("保存失败，请检查存档目录是否可写；本次操作未生效")
+		return Snapshot{}, errors.New("儲存失敗，請檢查存檔目錄是否可寫；本次操作未生效")
 	}
 	s := a.snapshotLocked()
 	a.mu.Unlock()
@@ -395,7 +397,7 @@ func (a *Aquarium) change(fn func() error) (Snapshot, error) {
 // choice lives in dataDir/theme.json, so switching cannot rewrite aquarium.json.
 func (a *Aquarium) SetTheme(id string) (Snapshot, error) {
 	if id == "" {
-		return Snapshot{}, errors.New("未知的主题")
+		return Snapshot{}, errors.New("未知的主題")
 	}
 	return a.setThemeSelection(id, false, false)
 }
@@ -414,7 +416,7 @@ func (a *Aquarium) setThemeSelection(id string, auto, shuffle bool) (Snapshot, e
 	a.mu.Lock()
 	if a.themes == nil {
 		a.mu.Unlock()
-		return Snapshot{}, errors.New("主题暂时不可用")
+		return Snapshot{}, errors.New("主題暫時不可用")
 	}
 	if id == "" {
 		id = a.snapshotLocked().Theme
@@ -455,19 +457,19 @@ func (a *Aquarium) GetThemes() ([]ThemeOption, error) {
 func (a *Aquarium) Start(kind, task string) (Snapshot, error) {
 	return a.change(func() error {
 		if kind != "focus" && kind != "break" {
-			return errors.New("无效的计时类型")
+			return errors.New("無效的計時類型")
 		}
 		if a.state.Session.Status == "running" || a.state.Session.Status == "paused" {
-			return errors.New("请先完成或结束当前计时")
+			return errors.New("請先完成或結束當前計時")
 		}
 		task = strings.TrimSpace(task)
 		if len([]rune(task)) > 80 {
-			return errors.New("任务名称最多 80 个字")
+			return errors.New("任務名稱最多 80 個字")
 		}
 		minutes := a.state.Preferences.FocusMinutes
 		if kind == "break" {
 			minutes = a.state.Preferences.BreakMinutes
-			task = "让眼睛也休息一下"
+			task = "讓眼睛也休息一下"
 		}
 		now := a.now()
 		a.state.Session = Session{
@@ -492,7 +494,7 @@ func (a *Aquarium) captureLocked() {
 func (a *Aquarium) Pause() (Snapshot, error) {
 	return a.change(func() error {
 		if a.state.Session.Status != "running" {
-			return errors.New("当前没有正在进行的计时")
+			return errors.New("當前沒有正在進行的計時")
 		}
 		a.captureLocked()
 		a.state.Session.Status = "paused"
@@ -504,7 +506,7 @@ func (a *Aquarium) Pause() (Snapshot, error) {
 func (a *Aquarium) Resume() (Snapshot, error) {
 	return a.change(func() error {
 		if a.state.Session.Status != "paused" {
-			return errors.New("当前没有暂停的计时")
+			return errors.New("當前沒有暫停的計時")
 		}
 		a.state.Session.Status = "running"
 		a.segment, a.lastTick = a.now(), a.now()
@@ -532,10 +534,10 @@ func (a *Aquarium) End() (Snapshot, error) {
 func (a *Aquarium) endSession(expectedID int64) (Snapshot, error) {
 	return a.change(func() error {
 		if expectedID != 0 && a.state.Session.ID != expectedID {
-			return errors.New("这一轮已变化，请重新确认。")
+			return errors.New("這一輪已變化，請重新確認。")
 		}
 		if a.state.Session.Status != "running" && a.state.Session.Status != "paused" {
-			return errors.New("当前没有可以结束的计时")
+			return errors.New("當前沒有可以結束的計時")
 		}
 		a.captureLocked()
 		if a.state.Session.Kind == "focus" {
@@ -543,7 +545,7 @@ func (a *Aquarium) endSession(expectedID int64) (Snapshot, error) {
 		}
 		a.state.Session.Status = "idle"
 		a.state.Session.ElapsedMS = 0
-		a.state.Notice = "这段时间也算数。已有的水草与鱼儿都在，准备好再开始。"
+		a.state.Notice = "這段時間也算數。已有的水草與魚兒都在，準備好再開始。"
 		return nil
 	})
 }
@@ -588,30 +590,43 @@ func (a *Aquarium) Feed() (Snapshot, error) {
 	return a.change(func() error {
 		s := a.state.Session
 		if s.Kind != "break" || s.Status != "running" {
-			return errors.New("休息时再来喂鱼吧")
+			return errors.New("休息時再來餵魚吧")
 		}
 		if a.state.FedSession == s.ID {
-			return errors.New("这一轮已经喂过，鱼儿很满足了")
+			return errors.New("這一輪已經餵過，魚兒很滿足了")
 		}
 		a.state.FedSession = s.ID
-		a.state.Notice = "鱼儿吃饱啦，去看看窗外吧。"
+		a.state.Notice = "魚兒吃飽啦，去看看窗外吧。"
 		return nil
 	})
 }
 
+// refreshVisitorNames shows every known visitor under its current name:
+// archives written before the app went Traditional Chinese saved names
+// such as 小丑鱼, which the species table now spells 小丑魚.
+func refreshVisitorNames(s *Snapshot) {
+	for i, v := range s.Visitors {
+		for _, sp := range species {
+			if sp.Species == v.Species {
+				s.Visitors[i].Name = sp.Name
+			}
+		}
+	}
+}
+
 // species lists every visitor, fish first, then shrimp and crabs. The ids
-// are saved in the visitor book and drawn by web/creatures/species.js.
+// are saved in the visitor book and drawn by internal/reef.
 var species = []Visitor{
-	{Species: "clown", Name: "小丑鱼"},
-	{Species: "tang", Name: "蓝吊鱼"},
-	{Species: "angel", Name: "神仙鱼"},
+	{Species: "clown", Name: "小丑魚"},
+	{Species: "tang", Name: "藍吊魚"},
+	{Species: "angel", Name: "神仙魚"},
 	{Species: "puffer", Name: "小河豚"},
-	{Species: "cleaner", Name: "清洁虾"},
-	{Species: "fire", Name: "火焰虾"},
-	{Species: "harlequin", Name: "油彩蜡膜虾"},
-	{Species: "pistol", Name: "枪虾"},
-	{Species: "mantis", Name: "皮皮虾"},
-	{Species: "slipper", Name: "琵琶虾"},
+	{Species: "cleaner", Name: "清潔蝦"},
+	{Species: "fire", Name: "火焰蝦"},
+	{Species: "harlequin", Name: "油彩蠟膜蝦"},
+	{Species: "pistol", Name: "槍蝦"},
+	{Species: "mantis", Name: "皮皮蝦"},
+	{Species: "slipper", Name: "琵琶蝦"},
 	{Species: "hermit", Name: "寄居蟹"},
 	{Species: "emerald", Name: "翡翠蟹"},
 	{Species: "porcelain", Name: "瓷蟹"},
@@ -641,12 +656,12 @@ func (a *Aquarium) completeLocked() {
 	s := &a.state.Session
 	s.ElapsedMS, s.Status = s.DurationMS, "complete"
 	if s.Kind == "break" {
-		a.state.Notice = "休息结束，准备好再开始下一轮。"
+		a.state.Notice = "休息結束，準備好再開始下一輪。"
 		return
 	}
 	a.recordLocked(true)
 	a.state.Completed++
-	a.state.Notice = "专注完成，水草又长大了一点。"
+	a.state.Notice = "專注完成，水草又長大了一點。"
 	a.state.LastVisitor = ""
 	// The first encounter is guaranteed; later rounds leave occasional surprises.
 	if a.state.Completed == 1 || a.roll(3) == 0 {
@@ -660,7 +675,7 @@ func (a *Aquarium) completeLocked() {
 			a.state.Visitors = append(a.state.Visitors, v)
 		}
 		a.state.LastVisitor = v.Name
-		a.state.Notice += " " + v.Name + "来做客了，已留下图鉴记录。"
+		a.state.Notice += " " + v.Name + "來做客了，已留下圖鑑記錄。"
 	}
 }
 
@@ -696,7 +711,7 @@ func (a *Aquarium) tick() {
 		a.state.Session.ElapsedMS += max(0, a.lastTick.Sub(a.segment).Milliseconds())
 		a.state.Session.ElapsedMS = min(a.state.Session.DurationMS, a.state.Session.ElapsedMS)
 		a.state.Session.Status = "paused"
-		a.state.Notice = "检测到电脑休眠或计时中断，已暂停。回来后再继续。"
+		a.state.Notice = "檢測到電腦休眠或計時中斷，已暫停。回來後再繼續。"
 	} else {
 		a.captureLocked()
 	}
@@ -708,7 +723,7 @@ func (a *Aquarium) tick() {
 	a.state.Revision++
 	if completed || a.state.Session.Status == "paused" || a.state.Session.ElapsedMS/1000%30 == 0 {
 		if err := a.saveLocked(); err != nil {
-			a.state.Notice = "存档暂时写入失败，当前进度仍保留在内存中。"
+			a.state.Notice = "存檔暫時寫入失敗，當前進度仍保留在記憶體中。"
 		}
 	}
 	s := a.snapshotLocked()

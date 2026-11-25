@@ -1,113 +1,113 @@
-# 背景音换成真实录音 Implementation Plan
+# 背景音換成真實錄音 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 除粉噪外的 19 种背景音换成打包进程序的 CC0 实地录音，循环听不出接缝，交互保持不变。
+**Goal:** 除粉噪外的 19 種背景音換成打包進程式的 CC0 實地錄音，迴圈聽不出接縫，互動保持不變。
 
-**Architecture:** `build-sounds.sh` 下载 Freesound 的高码率试听版，截取片段、对齐响度，在 4 倍过采样下限幅，再编码成 MP3 写入 `web/sounds/`，由现有的 `//go:embed web` 打包进程序。选中某种声音时，`web/audio.js` 读取并解码对应的 MP3，在解码后的缓冲区里原地做等功率交叉淡化，再交给 `AudioBufferSourceNode` 原生循环播放。粉噪保留实时合成。
+**Architecture:** `build-sounds.sh` 下載 Freesound 的高位元速率試聽版，擷取片段、對齊響度，在 4 倍過取樣下限幅，再編碼成 MP3 寫入 `web/sounds/`，由現有的 `//go:embed web` 打包進程式。選中某種聲音時，`web/audio.js` 讀取並解碼對應的 MP3，在解碼後的緩衝區裡原地做等功率交叉淡化，再交給 `AudioBufferSourceNode` 原生迴圈播放。粉噪保留即時合成。
 
-**Tech Stack:** Go 1.27（embed、testing）；Web Audio API；bash 3.2、curl、ffmpeg 8（libmp3lame、ebur128、alimiter）；本机 Google Chrome 无头模式（只用于验收，不提交）。
+**Tech Stack:** Go 1.27（embed、testing）；Web Audio API；bash 3.2、curl、ffmpeg 8（libmp3lame、ebur128、alimiter）；本機 Google Chrome 無頭模式（只用於驗收，不提交）。
 
 **Spec:** `docs/superpowers/specs/2026-10-11-real-ambience-recordings-design.md`
 
-本计划里的录音选择、截取位置、响度数字、文件大小和全部代码，都已按计划原样在临时目录里跑过：
-- 脚本两次运行，产出的文件逐字节相同；
-- 验收页在新 `audio.js` 上通过，在旧 `audio.js` 上失败；
-- Go 测试先失败、后通过；
-- 浏览器模式下页面没有报错。
+本計劃裡的錄音選擇、擷取位置、響度數字、檔案大小和全部程式碼，都已按計劃原樣在臨時目錄裡跑過：
+- 指令碼兩次執行，產出的檔案逐位元組相同；
+- 驗收頁在新 `audio.js` 上透過，在舊 `audio.js` 上失敗；
+- Go 測試先失敗、後透過；
+- 瀏覽器模式下頁面沒有報錯。
 
-## 与设计文档的差异（规划时实测后的调整，请一并确认）
+## 與設計文件的差異（規劃時實測後的調整，請一併確認）
 
-1. **部分声音会比原来轻。** 设计要求每条录音和它替换的合成声音相差不超过 ±1 LU，真峰值不超过 −1 dBTP。实地录音的峰值比合成声音高得多，硬拉到目标响度，浪头、雷声和柴火的噼啪声都会被压扁。所以改为每条最多压限 3 dB；溪流和篝火的峰值是短促的水花和噼啪声，放宽到 6 dB；仍够不到目标的，宁可轻一些。实测与目标的差距：海浪 −0.8、雷雨 −2.4、深海 −0.7、风声 −3.7、篝火 −5.7、车流 −0.4 LU。其余 13 条与目标相差不超过 0.1 LU。
-2. **限幅在 4 倍过采样下进行。** 只在原采样率下限幅时，篝火编码后的真峰值是 −0.5 dBTP。先升到 4 倍采样率限幅、再降回原采样率后，19 条都在 −1.5 dBTP 以下。
-3. **96 kHz 的试听版降到 48 kHz。** MP3 最高只支持 48 kHz，有 6 条试听版是 96 kHz。
-4. **咖啡馆片段是 55 秒。** 选中的录音只有 60 秒，达不到事件型 75–90 秒的要求。
-5. **合计 27.0 MB。** 在 30 MB 上限之内。程序从 14.7 MB 变为 41.9 MB。`mygo build` 会把 `web/` 再嵌入一次，实测 Go 链接器会合并相同内容，体积不会翻倍。
-6. **解码失败时，旧声音也会停下。** 否则界面上选中的是新声音，耳朵里听到的还是旧声音。
+1. **部分聲音會比原來輕。** 設計要求每條錄音和它替換的合成聲音相差不超過 ±1 LU，真峰值不超過 −1 dBTP。實地錄音的峰值比合成聲音高得多，硬拉到目標響度，浪頭、雷聲和柴火的噼啪聲都會被壓扁。所以改為每條最多壓限 3 dB；溪流和篝火的峰值是短促的水花和噼啪聲，放寬到 6 dB；仍夠不到目標的，寧可輕一些。實測與目標的差距：海浪 −0.8、雷雨 −2.4、深海 −0.7、風聲 −3.7、篝火 −5.7、車流 −0.4 LU。其餘 13 條與目標相差不超過 0.1 LU。
+2. **限幅在 4 倍過取樣下進行。** 只在原取樣率下限幅時，篝火編碼後的真峰值是 −0.5 dBTP。先升到 4 倍取樣率限幅、再降回原取樣率後，19 條都在 −1.5 dBTP 以下。
+3. **96 kHz 的試聽版降到 48 kHz。** MP3 最高只支援 48 kHz，有 6 條試聽版是 96 kHz。
+4. **咖啡館片段是 55 秒。** 選中的錄音只有 60 秒，達不到事件型 75–90 秒的要求。
+5. **合計 27.0 MB。** 在 30 MB 上限之內。程式從 14.7 MB 變為 41.9 MB。`mygo build` 會把 `web/` 再嵌入一次，實測 Go 連結器會合並相同內容，體積不會翻倍。
+6. **解碼失敗時，舊聲音也會停下。** 否則介面上選中的是新聲音，耳朵裡聽到的還是舊聲音。
 
 ## Global Constraints
 
-- 只用 Freesound 上 CC0 1.0 授权的录音；`THIRD_PARTY_NOTICES.txt` 列出每条录音的标题、作者和链接。
-- 声音的 ID、名称和顺序不变；`state.go` 的偏好校验不变；`app.js` 不改。
-- `Soundscape` 对外接口不变：`unlock()`、`set(playing, sound, volume)`、`chime()`、`dispose()`。
-- 循环使用 `AudioBufferSourceNode` 的原生 `loop`、`loopStart`、`loopEnd`，播放期间不依赖定时器。
-- 粉噪保留原合成算法：种子 211，18 秒。
-- MP3 用 LAME VBR `-q:a 2`，采样率不超过 48 kHz，保留源声道数；`web/sounds/` 合计不超过 30 MB。
-- 每个 MP3 的真峰值不超过 −1 dBTP。响度目标是被替换合成声音的实测值，压限上限见上面第 1 条。
-- `build-sounds.sh` 兼容 macOS 自带的 bash 3.2，需要 curl、ffmpeg 5 或以上（含 libmp3lame）和网络；平时构建和运行都不需要它。
-- 读取或解码失败时的提示文字：`这段声音暂时无法播放，计时不受影响`。
-- 用户可见文字用中文，代码注释用英文，风格与现有代码一致。
-- Go 测试命令：`CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
+- 只用 Freesound 上 CC0 1.0 授權的錄音；`THIRD_PARTY_NOTICES.txt` 列出每條錄音的標題、作者和連結。
+- 聲音的 ID、名稱和順序不變；`state.go` 的偏好校驗不變；`app.js` 不改。
+- `Soundscape` 對外介面不變：`unlock()`、`set(playing, sound, volume)`、`chime()`、`dispose()`。
+- 迴圈使用 `AudioBufferSourceNode` 的原生 `loop`、`loopStart`、`loopEnd`，播放期間不依賴定時器。
+- 粉噪保留原合成演算法：種子 211，18 秒。
+- MP3 用 LAME VBR `-q:a 2`，取樣率不超過 48 kHz，保留源聲道數；`web/sounds/` 合計不超過 30 MB。
+- 每個 MP3 的真峰值不超過 −1 dBTP。響度目標是被替換合成聲音的實測值，壓限上限見上面第 1 條。
+- `build-sounds.sh` 相容 macOS 自帶的 bash 3.2，需要 curl、ffmpeg 5 或以上（含 libmp3lame）和網路；平時構建和執行都不需要它。
+- 讀取或解碼失敗時的提示文字：`這段聲音暫時無法播放，計時不受影響`。
+- 使用者可見文字用中文，程式碼註釋用英文，風格與現有程式碼一致。
+- Go 測試命令：`CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
 
 ## Review Focus
 
-1. 录音还在解码时连续切换声音，只能响起最后选中的那个，不能两个叠着放（Task 2 验收页第 3 项）。
-2. 录音还在解码时关掉声音，解码完成后也不能出声（第 4 项）。
-3. 切回刚听过的声音时，直接用内存里的解码结果，不重新读取文件；内存里最多保留两种（第 5 项）。
-4. 某条录音无法解码时（例如 Linux 缺少 MP3 插件），旧声音停下并弹出提示，计时照常（第 6 项）。
-5. WebKit 解码 MP3 时会保留编码器在开头补的约 25–50 毫秒静音（macOS 的 `afinfo` 把 31.5 秒的文件报告为 31.536 秒）。即使这样，时钟和木鱼的接缝也要落在两次敲击之间（第 2 项）。
+1. 錄音還在解碼時連續切換聲音，只能響起最後選中的那個，不能兩個疊著放（Task 2 驗收頁第 3 項）。
+2. 錄音還在解碼時關掉聲音，解碼完成後也不能出聲（第 4 項）。
+3. 切回剛聽過的聲音時，直接用記憶體裡的解碼結果，不重新讀取檔案；記憶體裡最多保留兩種（第 5 項）。
+4. 某條錄音無法解碼時（例如 Linux 缺少 MP3 外掛），舊聲音停下並彈出提示，計時照常（第 6 項）。
+5. WebKit 解碼 MP3 時會保留編碼器在開頭補的約 25–50 毫秒靜音（macOS 的 `afinfo` 把 31.5 秒的檔案報告為 31.536 秒）。即使這樣，時鐘和木魚的接縫也要落在兩次敲擊之間（第 2 項）。
 
-## 已选录音
+## 已選錄音
 
-可以点链接在 Freesound 上试听。每种声音还各有两条备选，写在 `build-sounds.sh` 表格的注释行里。
+可以點連結在 Freesound 上試聽。每種聲音還各有兩條備選，寫在 `build-sounds.sh` 表格的註釋行裡。
 
-| 声音 | 录音（作者）与内容 | 截取 | 实测响度 / 目标（LUFS） |
+| 聲音 | 錄音（作者）與內容 | 擷取 | 實測響度 / 目標（LUFS） |
 |---|---|---|---|
-| 海浪 waves | [Big waves hit land.wav](https://freesound.org/s/412308/)（straget）：波罗的海岸边的浪 | 148 秒起，90 秒 | −16.4 / −15.6 |
-| 雨声 rain | [Rain_06.wav](https://freesound.org/s/56311/)（Q.K.）：大雨打在屋顶上 | 44 秒起，60 秒 | −15.7 / −15.7 |
-| 雷雨 thunder | [Rain and thunder in Thailand](https://freesound.org/s/447510/)（felix.blume）：傍晚的雨，片段里有两声远雷 | 755 秒起，90 秒 | −18.9 / −16.5 |
-| 溪流 stream | [Gentle Stream Natural Stream Sound](https://freesound.org/s/446019/)（BurghRecords）：苏格兰的小溪 | 1 秒起，60 秒 | −15.3 / −15.2 |
-| 气泡 bubbles | [aquarium filter bubbling close.flac](https://freesound.org/s/635477/)（kyles）：水族箱过滤器冒泡 | 26 秒起，60 秒 | −24.8 / −24.8 |
-| 煮沸 boil | [pot metal on hot stove water simmering1.flac](https://freesound.org/s/635619/)（kyles）：炉子上锅里的水微微沸腾 | 0 秒起，60 秒 | −16.0 / −16.0 |
-| 深海 deepsea | [Underwater Ambience](https://freesound.org/s/393819/)（Kinoton）：水下的低沉声和气泡，作者做过降调处理 | 26 秒起，60 秒 | −18.0 / −17.3 |
-| 风声 wind | [Wind is blowing in the grass of a patagonian plain…](https://freesound.org/s/139337/)（felix.blume）：巴塔哥尼亚草原上的风 | 82 秒起，60 秒 | −20.8 / −17.1 |
-| 篝火 fire | [campfire in a forest at night.wav](https://freesound.org/s/248303/)（Duophonic）：夜里林中的篝火，背景有树叶声和蟋蟀 | 61 秒起，60 秒 | −24.7 / −19.0 |
-| 森林 forest | [wind in the trees](https://freesound.org/s/150174/)（deleted_user_229898）：林间的风声和鸟鸣 | 13 秒起，90 秒 | −19.1 / −19.1 |
-| 夏日 summer | [AkasakaHieJinjaCicadas_4mics.wav](https://freesound.org/s/79086/)（markystar）：东京日枝神社的蝉鸣 | 44 秒起，60 秒 | −20.9 / −21.0 |
-| 夏夜 night | [Night Woods](https://freesound.org/s/532301/)（widgetstudios）：夜晚树林里的蟋蟀和螽斯 | 62 秒起，90 秒 | −25.9 / −25.9 |
-| 沙漠 desert | [Wind blowing into some cactus spine… Atacama](https://freesound.org/s/156414/)（felix.blume）：阿塔卡马沙漠山顶的风 | 24 秒起，60 秒 | −17.8 / −17.7 |
-| 晨间 morning | [Dawn Chorus Birdsong](https://freesound.org/s/573080/)（squashy555）：清晨四点的鸟群合鸣 | 388 秒起，90 秒 | −22.7 / −22.7 |
-| 时钟 clock | [TicTac of a wall clock](https://freesound.org/s/170445/)（felix.blume）：近距离录的挂钟，每秒一声“嘀嗒” | 0.059 秒起，31.5 秒 | −28.7 / −28.7 |
-| 木鱼 knock | [Mokugyo.wav](https://freesound.org/s/607215/)（jonopodmore）：高野山的小木鱼，只有一下敲击 | 排成 22 下，每 1.35 秒一下 | −30.3 / −30.3 |
-| 咖啡馆 cafe | [Coffee Shop.wav](https://freesound.org/s/404478/)（Trainscough5407）：咖啡馆环境声，以交谈为主 | 5 秒起，55 秒 | −18.7 / −18.7 |
-| 音乐盒 musicbox | [Music Box.wav](https://freesound.org/s/158206/)（Rickbrewin）：老音乐盒演奏勃拉姆斯摇篮曲，上传者给它加了“creepy”（阴森）标签 | 整段 33.8 秒，每 16.94 秒一遍 | −22.4 / −22.4 |
-| 车流 traffic | [Downtown LA, Little Tokyo, late night semi distant traffic.wav](https://freesound.org/s/330427/)（janbezouska）：深夜在洛杉矶一栋楼的四楼听到的车流 | 68 秒起，90 秒 | −16.0 / −15.6 |
+| 海浪 waves | [Big waves hit land.wav](https://freesound.org/s/412308/)（straget）：波羅的海岸邊的浪 | 148 秒起，90 秒 | −16.4 / −15.6 |
+| 雨聲 rain | [Rain_06.wav](https://freesound.org/s/56311/)（Q.K.）：大雨打在屋頂上 | 44 秒起，60 秒 | −15.7 / −15.7 |
+| 雷雨 thunder | [Rain and thunder in Thailand](https://freesound.org/s/447510/)（felix.blume）：傍晚的雨，片段裡有兩聲遠雷 | 755 秒起，90 秒 | −18.9 / −16.5 |
+| 溪流 stream | [Gentle Stream Natural Stream Sound](https://freesound.org/s/446019/)（BurghRecords）：蘇格蘭的小溪 | 1 秒起，60 秒 | −15.3 / −15.2 |
+| 氣泡 bubbles | [aquarium filter bubbling close.flac](https://freesound.org/s/635477/)（kyles）：水族箱過濾器冒泡 | 26 秒起，60 秒 | −24.8 / −24.8 |
+| 煮沸 boil | [pot metal on hot stove water simmering1.flac](https://freesound.org/s/635619/)（kyles）：爐子上鍋裡的水微微沸騰 | 0 秒起，60 秒 | −16.0 / −16.0 |
+| 深海 deepsea | [Underwater Ambience](https://freesound.org/s/393819/)（Kinoton）：水下的低沉聲和氣泡，作者做過降調處理 | 26 秒起，60 秒 | −18.0 / −17.3 |
+| 風聲 wind | [Wind is blowing in the grass of a patagonian plain…](https://freesound.org/s/139337/)（felix.blume）：巴塔哥尼亞草原上的風 | 82 秒起，60 秒 | −20.8 / −17.1 |
+| 篝火 fire | [campfire in a forest at night.wav](https://freesound.org/s/248303/)（Duophonic）：夜裡林中的篝火，背景有樹葉聲和蟋蟀 | 61 秒起，60 秒 | −24.7 / −19.0 |
+| 森林 forest | [wind in the trees](https://freesound.org/s/150174/)（deleted_user_229898）：林間的風聲和鳥鳴 | 13 秒起，90 秒 | −19.1 / −19.1 |
+| 夏日 summer | [AkasakaHieJinjaCicadas_4mics.wav](https://freesound.org/s/79086/)（markystar）：東京日枝神社的蟬鳴 | 44 秒起，60 秒 | −20.9 / −21.0 |
+| 夏夜 night | [Night Woods](https://freesound.org/s/532301/)（widgetstudios）：夜晚樹林裡的蟋蟀和螽斯 | 62 秒起，90 秒 | −25.9 / −25.9 |
+| 沙漠 desert | [Wind blowing into some cactus spine… Atacama](https://freesound.org/s/156414/)（felix.blume）：阿塔卡馬沙漠山頂的風 | 24 秒起，60 秒 | −17.8 / −17.7 |
+| 晨間 morning | [Dawn Chorus Birdsong](https://freesound.org/s/573080/)（squashy555）：清晨四點的鳥群合鳴 | 388 秒起，90 秒 | −22.7 / −22.7 |
+| 時鐘 clock | [TicTac of a wall clock](https://freesound.org/s/170445/)（felix.blume）：近距離錄的掛鐘，每秒一聲“嘀嗒” | 0.059 秒起，31.5 秒 | −28.7 / −28.7 |
+| 木魚 knock | [Mokugyo.wav](https://freesound.org/s/607215/)（jonopodmore）：高野山的小木魚，只有一下敲擊 | 排成 22 下，每 1.35 秒一下 | −30.3 / −30.3 |
+| 咖啡館 cafe | [Coffee Shop.wav](https://freesound.org/s/404478/)（Trainscough5407）：咖啡館環境聲，以交談為主 | 5 秒起，55 秒 | −18.7 / −18.7 |
+| 音樂盒 musicbox | [Music Box.wav](https://freesound.org/s/158206/)（Rickbrewin）：老音樂盒演奏勃拉姆斯搖籃曲，上傳者給它加了“creepy”（陰森）標籤 | 整段 33.8 秒，每 16.94 秒一遍 | −22.4 / −22.4 |
+| 車流 traffic | [Downtown LA, Little Tokyo, late night semi distant traffic.wav](https://freesound.org/s/330427/)（janbezouska）：深夜在洛杉磯一棟樓的四樓聽到的車流 | 68 秒起，90 秒 | −16.0 / −15.6 |
 
-## 文件结构
+## 檔案結構
 
-- 新建 `build-sounds.sh`：录音表，加上下载、截取、对齐响度、限幅、编码、复测和预算检查。只在更换录音时运行。
-- 新建 `web/sounds/<id>.mp3`：19 个文件，由脚本生成，提交进 git。
-- 新建 `sounds_test.go`：检查每种录音都已嵌入、确实是 MP3、合计不超过 30 MB。
-- 修改 `state_test.go`：把声音列表提成包级变量 `advertisedSounds`，两个测试共用。
-- 修改 `THIRD_PARTY_NOTICES.txt`：追加录音出处。
-- 改写 `web/audio.js`：读取录音、原地处理接缝、缓存两种声音、失败时提示；粉噪合成保留。
-- 修改 `README.md`：开头的介绍、Linux 依赖、“背景音说明”、测试覆盖范围。
-- 一次性验收工具 `check_audio.py` 和 `harness.html`：放在临时目录，不提交。
+- 新建 `build-sounds.sh`：錄音表，加上下載、擷取、對齊響度、限幅、編碼、複測和預算檢查。只在更換錄音時執行。
+- 新建 `web/sounds/<id>.mp3`：19 個檔案，由指令碼生成，提交進 git。
+- 新建 `sounds_test.go`：檢查每種錄音都已嵌入、確實是 MP3、合計不超過 30 MB。
+- 修改 `state_test.go`：把聲音列表提成包級變數 `advertisedSounds`，兩個測試共用。
+- 修改 `THIRD_PARTY_NOTICES.txt`：追加錄音出處。
+- 改寫 `web/audio.js`：讀取錄音、原地處理接縫、快取兩種聲音、失敗時提示；粉噪合成保留。
+- 修改 `README.md`：開頭的介紹、Linux 依賴、“背景音說明”、測試覆蓋範圍。
+- 一次性驗收工具 `check_audio.py` 和 `harness.html`：放在臨時目錄，不提交。
 
 ---
 
-### Task 1: 打包录音
+### Task 1: 打包錄音
 
 **Files:**
 - Create: `build-sounds.sh`
 - Create: `sounds_test.go`
-- Create: `web/sounds/*.mp3`（19 个，由脚本生成）
+- Create: `web/sounds/*.mp3`（19 個，由指令碼生成）
 - Modify: `state_test.go:151-163`
 - Modify: `THIRD_PARTY_NOTICES.txt`（在末尾追加）
 
 **Interfaces:**
-- Consumes: 无。
+- Consumes: 無。
 - Produces:
-  - `web/sounds/<id>.mp3`：`<id>` 是除 `pink` 外的 19 个声音 ID。采样率 44.1 或 48 kHz；时钟是单声道，其余是立体声。
-  - `advertisedSounds []string`：`state_test.go` 里的包级测试变量，按 `index.html` 的顺序列出 20 个声音 ID。
-  - Task 2 的接缝参数依赖这些时间点：
-    - `clock.mp3`：第一对“嘀嗒”在 0.600 秒，之后每 1.00003 秒一对，每对里的两下相隔约 0.12 秒。
-    - `knock.mp3`：第 i 下（i = 0…21）在 0.6 + 1.35·i 秒附近（±25 毫秒），循环周期 29.7 秒；第 0 下在 30.3 秒附近再出现一次；文件长 31.3 秒。
-    - `musicbox.mp3`：长 33.8 秒，曲子每 16.94 秒一遍；曲头在 0.32 秒和 16.93 秒，15.06–16.93 秒是曲尾的停顿。
+  - `web/sounds/<id>.mp3`：`<id>` 是除 `pink` 外的 19 個聲音 ID。取樣率 44.1 或 48 kHz；時鐘是單聲道，其餘是立體聲。
+  - `advertisedSounds []string`：`state_test.go` 裡的包級測試變數，按 `index.html` 的順序列出 20 個聲音 ID。
+  - Task 2 的接縫引數依賴這些時間點：
+    - `clock.mp3`：第一對“嘀嗒”在 0.600 秒，之後每 1.00003 秒一對，每對裡的兩下相隔約 0.12 秒。
+    - `knock.mp3`：第 i 下（i = 0…21）在 0.6 + 1.35·i 秒附近（±25 毫秒），迴圈週期 29.7 秒；第 0 下在 30.3 秒附近再出現一次；檔案長 31.3 秒。
+    - `musicbox.mp3`：長 33.8 秒，曲子每 16.94 秒一遍；曲頭在 0.32 秒和 16.93 秒，15.06–16.93 秒是曲尾的停頓。
 
-- [ ] **Step 1: 写失败的测试**
+- [ ] **Step 1: 寫失敗的測試**
 
-把 `state_test.go` 第 151–163 行的 `TestEveryAdvertisedSoundIsAccepted` 整个替换为：
+把 `state_test.go` 第 151–163 行的 `TestEveryAdvertisedSoundIsAccepted` 整個替換為：
 
 ```go
 // advertisedSounds pins the sound panel's choices, in the order index.html lists them.
@@ -163,13 +163,13 @@ func TestEveryRecordedSoundIsEmbedded(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [ ] **Step 2: 執行測試，確認失敗**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 -run TestEveryRecordedSoundIsEmbedded ./...`
 
 Expected: FAIL，共 19 行 `sound "<id>" has no recording: open web/sounds/<id>.mp3: file does not exist`。
 
-- [ ] **Step 3: 写 `build-sounds.sh`**
+- [ ] **Step 3: 寫 `build-sounds.sh`**
 
 ```bash
 #!/bin/bash
@@ -289,9 +289,9 @@ build() {
     -af "aresample=$((rate * 4)),volume=${gain}dB,alimiter=limit=0.75:level=false:latency=true,aresample=$rate" \
     -c:a libmp3lame -q:a 2 -id3v2_version 0 "$out"
   read -r loud peak < <(measure -i "$out")
-  printf '%-9s %5s s  %6s LUFS (目标 %s)  峰值 %5s dBTP  增益 %6s dB\n' "$id" "$length" "$loud" "$target" "$peak" "$gain"
+  printf '%-9s %5s s  %6s LUFS (目標 %s)  峰值 %5s dBTP  增益 %6s dB\n' "$id" "$length" "$loud" "$target" "$peak" "$gain"
   if ! awk -v p="$peak" 'BEGIN { exit !(p <= -1) }'; then
-    printf '%s 的峰值超过 -1 dBTP。\n' "$id" >&2
+    printf '%s 的峰值超過 -1 dBTP。\n' "$id" >&2
     exit 1
   fi
 }
@@ -311,55 +311,55 @@ while read -r id sid start length target cap url; do
 done <<<"$sounds_table"
 
 total=$(cat "$sounds_dir"/*.mp3 | wc -c)
-printf '共 %s 个文件，%s MB。\n' "$(ls "$sounds_dir"/*.mp3 | wc -l | tr -d ' ')" "$(awk -v b="$total" 'BEGIN { printf "%.1f", b / 1048576 }')"
+printf '共 %s 個檔案，%s MB。\n' "$(ls "$sounds_dir"/*.mp3 | wc -l | tr -d ' ')" "$(awk -v b="$total" 'BEGIN { printf "%.1f", b / 1048576 }')"
 if (( total > 30 * 1048576 )); then
-  printf '超出 30 MB 预算：缩短事件型片段，或改用 -q:a 3。\n' >&2
+  printf '超出 30 MB 預算：縮短事件型片段，或改用 -q:a 3。\n' >&2
   exit 1
 fi
 ```
 
-然后运行 `chmod +x build-sounds.sh`。
+然後執行 `chmod +x build-sounds.sh`。
 
-- [ ] **Step 4: 运行脚本**
+- [ ] **Step 4: 執行指令碼**
 
 Run: `./build-sounds.sh`
 
-首次运行会把约 110 MB 的试听版下载到 `${TMPDIR:-/tmp}/little-reef-sounds/`，其中雷雨一条就有 51 MB。网络慢时要十几分钟；中断后重跑会接着下载。
+首次執行會把約 110 MB 的試聽版下載到 `${TMPDIR:-/tmp}/little-reef-sounds/`，其中雷雨一條就有 51 MB。網路慢時要十幾分鍾；中斷後重跑會接著下載。
 
-Expected（实测结果。用同一版本的 ffmpeg 应完全一致；换版本时响度允许相差 0.2）：
+Expected（實測結果。用同一版本的 ffmpeg 應完全一致；換版本時響度允許相差 0.2）：
 
 ```
-waves        90 s   -16.4 LUFS (目标 -15.6)  峰值  -1.9 dBTP  增益   8.50 dB
-rain         60 s   -15.7 LUFS (目标 -15.7)  峰值  -2.6 dBTP  增益   4.90 dB
-thunder      90 s   -18.9 LUFS (目标 -16.5)  峰值  -2.2 dBTP  增益   1.40 dB
-stream       60 s   -15.3 LUFS (目标 -15.2)  峰值  -1.8 dBTP  增益  12.90 dB
-bubbles      60 s   -24.8 LUFS (目标 -24.8)  峰值  -4.5 dBTP  增益  -4.70 dB
-boil         60 s   -16.0 LUFS (目标 -16.0)  峰值  -2.4 dBTP  增益   9.20 dB
-deepsea      60 s   -18.0 LUFS (目标 -17.3)  峰值  -2.5 dBTP  增益  15.60 dB
-wind         60 s   -20.8 LUFS (目标 -17.1)  峰值  -2.4 dBTP  增益  12.60 dB
-fire         60 s   -24.7 LUFS (目标 -19.0)  峰值  -2.1 dBTP  增益   4.50 dB
-forest       90 s   -19.1 LUFS (目标 -19.1)  峰值  -2.5 dBTP  增益  15.60 dB
-summer       60 s   -20.9 LUFS (目标 -21.0)  峰值  -8.4 dBTP  增益   6.10 dB
-night        90 s   -25.9 LUFS (目标 -25.9)  峰值 -14.7 dBTP  增益   3.20 dB
-desert       60 s   -17.8 LUFS (目标 -17.7)  峰值  -2.4 dBTP  增益  17.60 dB
-morning      90 s   -22.7 LUFS (目标 -22.7)  峰值  -4.6 dBTP  增益   1.40 dB
-clock      31.5 s   -28.7 LUFS (目标 -28.7)  峰值  -2.8 dBTP  增益  -1.90 dB
-knock      31.3 s   -30.3 LUFS (目标 -30.3)  峰值 -10.2 dBTP  增益 -10.30 dB
-cafe         55 s   -18.7 LUFS (目标 -18.7)  峰值  -2.7 dBTP  增益   7.30 dB
-musicbox   33.8 s   -22.4 LUFS (目标 -22.4)  峰值  -4.9 dBTP  增益   6.50 dB
-traffic      90 s   -16.0 LUFS (目标 -15.6)  峰值  -2.4 dBTP  增益  27.40 dB
-共 19 个文件，27.0 MB。
+waves        90 s   -16.4 LUFS (目標 -15.6)  峰值  -1.9 dBTP  增益   8.50 dB
+rain         60 s   -15.7 LUFS (目標 -15.7)  峰值  -2.6 dBTP  增益   4.90 dB
+thunder      90 s   -18.9 LUFS (目標 -16.5)  峰值  -2.2 dBTP  增益   1.40 dB
+stream       60 s   -15.3 LUFS (目標 -15.2)  峰值  -1.8 dBTP  增益  12.90 dB
+bubbles      60 s   -24.8 LUFS (目標 -24.8)  峰值  -4.5 dBTP  增益  -4.70 dB
+boil         60 s   -16.0 LUFS (目標 -16.0)  峰值  -2.4 dBTP  增益   9.20 dB
+deepsea      60 s   -18.0 LUFS (目標 -17.3)  峰值  -2.5 dBTP  增益  15.60 dB
+wind         60 s   -20.8 LUFS (目標 -17.1)  峰值  -2.4 dBTP  增益  12.60 dB
+fire         60 s   -24.7 LUFS (目標 -19.0)  峰值  -2.1 dBTP  增益   4.50 dB
+forest       90 s   -19.1 LUFS (目標 -19.1)  峰值  -2.5 dBTP  增益  15.60 dB
+summer       60 s   -20.9 LUFS (目標 -21.0)  峰值  -8.4 dBTP  增益   6.10 dB
+night        90 s   -25.9 LUFS (目標 -25.9)  峰值 -14.7 dBTP  增益   3.20 dB
+desert       60 s   -17.8 LUFS (目標 -17.7)  峰值  -2.4 dBTP  增益  17.60 dB
+morning      90 s   -22.7 LUFS (目標 -22.7)  峰值  -4.6 dBTP  增益   1.40 dB
+clock      31.5 s   -28.7 LUFS (目標 -28.7)  峰值  -2.8 dBTP  增益  -1.90 dB
+knock      31.3 s   -30.3 LUFS (目標 -30.3)  峰值 -10.2 dBTP  增益 -10.30 dB
+cafe         55 s   -18.7 LUFS (目標 -18.7)  峰值  -2.7 dBTP  增益   7.30 dB
+musicbox   33.8 s   -22.4 LUFS (目標 -22.4)  峰值  -4.9 dBTP  增益   6.50 dB
+traffic      90 s   -16.0 LUFS (目標 -15.6)  峰值  -2.4 dBTP  增益  27.40 dB
+共 19 個檔案，27.0 MB。
 ```
 
-如果某条报“峰值超过 -1 dBTP”，或者合计超过 30 MB，就停下来报告，不要自行修改目标响度或压限上限。
+如果某條報“峰值超過 -1 dBTP”，或者合計超過 30 MB，就停下來報告，不要自行修改目標響度或壓限上限。
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [ ] **Step 5: 執行測試，確認透過**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
 
 Expected: `ok  	little-reef`
 
-- [ ] **Step 6: 在 `THIRD_PARTY_NOTICES.txt` 末尾追加录音出处**
+- [ ] **Step 6: 在 `THIRD_PARTY_NOTICES.txt` 末尾追加錄音出處**
 
 先空一行，再追加：
 
@@ -430,21 +430,21 @@ recording and that the set stays within 30 MB.
 EOF
 ```
 
-### Task 2: 播放器改用录音
+### Task 2: 播放器改用錄音
 
 **Files:**
-- Modify: `web/audio.js`（整个文件改写）
-- 临时文件，不提交：`$SCRATCH/harness.html`、`$SCRATCH/check_audio.py`（`SCRATCH` 是用 `mktemp -d` 建的目录）
+- Modify: `web/audio.js`（整個檔案改寫）
+- 臨時檔案，不提交：`$SCRATCH/harness.html`、`$SCRATCH/check_audio.py`（`SCRATCH` 是用 `mktemp -d` 建的目錄）
 
 **Interfaces:**
-- Consumes: Task 1 的 `web/sounds/<id>.mp3`，以及 Task 1 列出的时间点。
+- Consumes: Task 1 的 `web/sounds/<id>.mp3`，以及 Task 1 列出的時間點。
 - Produces:
-  - `export function seam(buffer, { start = .25, loop, fade = 3 } = {})`：原地处理 `AudioBuffer`，返回 `{ loopStart, loopEnd }`（单位：秒）；循环放不下时抛错。
-  - `Soundscape#load(kind)`：返回 `Promise<{ buffer, loopStart, loopEnd, random }>`；失败时以 `这段声音暂时无法播放，计时不受影响` 拒绝。
-  - `Soundscape#loops`：一个 `Map`，最多两项，最近用过的排在后面。
-  - `unlock`、`set`、`chime`、`dispose` 的签名和行为不变。唯一的变化：加载失败时，`set` 会先淡出当前正在播放的声音。
+  - `export function seam(buffer, { start = .25, loop, fade = 3 } = {})`：原地處理 `AudioBuffer`，返回 `{ loopStart, loopEnd }`（單位：秒）；迴圈放不下時拋錯。
+  - `Soundscape#load(kind)`：返回 `Promise<{ buffer, loopStart, loopEnd, random }>`；失敗時以 `這段聲音暫時無法播放，計時不受影響` 拒絕。
+  - `Soundscape#loops`：一個 `Map`，最多兩項，最近用過的排在後面。
+  - `unlock`、`set`、`chime`、`dispose` 的簽名和行為不變。唯一的變化：載入失敗時，`set` 會先淡出當前正在播放的聲音。
 
-- [ ] **Step 1: 写验收页**
+- [ ] **Step 1: 寫驗收頁**
 
 ```bash
 SCRATCH=$(mktemp -d) && echo "$SCRATCH"
@@ -557,13 +557,13 @@ check(s.loops.size === 2 && !s.loops.has("waves"), `cache holds ${[...s.loops.ke
 // 6. A recording that cannot be decoded stops the old sound and says so.
 await s.set(true, "rain", .3); stopped = 0; statuses.length = 0;
 await s.set(true, "volcano", .3);
-check(s.current === null && stopped === 1 && statuses.at(-1)?.message === "这段声音暂时无法播放，计时不受影响" && statuses.at(-1)?.error, `failed load: ${JSON.stringify(statuses)}`);
+check(s.current === null && stopped === 1 && statuses.at(-1)?.message === "這段聲音暫時無法播放，計時不受影響" && statuses.at(-1)?.error, `failed load: ${JSON.stringify(statuses)}`);
 
 report({ done: true, failures });
 </script>
 ```
 
-`$SCRATCH/check_audio.py` 会把 `web/` 复制到临时目录并放进验收页，用本机 Chrome 无头运行，然后解析结果：
+`$SCRATCH/check_audio.py` 會把 `web/` 複製到臨時目錄並放進驗收頁，用本機 Chrome 無頭執行，然後解析結果：
 
 ```python
 # Serve a scratch copy of web/ with the harness and run it in headless Chrome.
@@ -599,15 +599,15 @@ if not done or done["failures"]:
 print("PASS")
 ```
 
-- [ ] **Step 2: 用当前的 `audio.js` 跑验收页，确认失败**
+- [ ] **Step 2: 用當前的 `audio.js` 跑驗收頁，確認失敗**
 
 Run: `python3 -I "$SCRATCH/check_audio.py" web`
 
-Expected: 打印 `Uncaught SyntaxError: The requested module './audio.js' does not provide an export named 'seam'` 和 `FAIL None`，退出码为 1。
+Expected: 列印 `Uncaught SyntaxError: The requested module './audio.js' does not provide an export named 'seam'` 和 `FAIL None`，退出碼為 1。
 
-- [ ] **Step 3: 改写 `web/audio.js`**
+- [ ] **Step 3: 改寫 `web/audio.js`**
 
-整个文件替换为：
+整個檔案替換為：
 
 ```js
 // Ambience from the CC0 field recordings embedded in sounds/, looped seamlessly
@@ -628,7 +628,7 @@ export function seam(buffer, { start = .25, loop, fade = 3 } = {}) {
   const rate = buffer.sampleRate;
   const a = Math.round(start * rate), f = Math.round(fade * rate);
   const n = loop ? Math.round(loop * rate) : buffer.length - a - f - Math.round(.25 * rate);
-  if (n <= f || a + n + f > buffer.length) throw new Error(`循环超出录音长度：${buffer.duration.toFixed(2)} 秒`);
+  if (n <= f || a + n + f > buffer.length) throw new Error(`迴圈超出錄音長度：${buffer.duration.toFixed(2)} 秒`);
   for (let c = 0; c < buffer.numberOfChannels; c++) {
     const data = buffer.getChannelData(c);
     for (let i = 0; i < f; i++) {
@@ -678,18 +678,18 @@ export class Soundscape {
 
   async unlock() {
     const Audio = window.AudioContext || window.webkitAudioContext;
-    if (!Audio) throw new Error("当前系统暂不支持背景音，计时仍可正常使用。");
+    if (!Audio) throw new Error("當前系統暫不支援背景音，計時仍可正常使用。");
     if (!this.context) {
       this.context = new Audio({ latencyHint: "playback" });
       this.output = this.context.createGain();
       this.output.gain.value = .55;
       this.output.connect(this.context.destination);
       this.context.onstatechange = () => {
-        if (this.requested && this.context.state !== "running") this.onStatus("声音已暂停，点击声音按钮恢复");
+        if (this.requested && this.context.state !== "running") this.onStatus("聲音已暫停，點選聲音按鈕恢復");
       };
     }
     await this.context.resume();
-    if (this.context.state !== "running") throw new Error("声音未能启动，请再次点击开启声音。");
+    if (this.context.state !== "running") throw new Error("聲音未能啟動，請再次點選開啟聲音。");
   }
 
   // Keeps the two most recent sounds decoded (20–35 MB each); a failed load is
@@ -714,7 +714,7 @@ export class Soundscape {
       const hint = seams[kind];
       return { buffer, random: hint?.random ?? true, ...seam(buffer, hint) };
     } catch {
-      throw new Error("这段声音暂时无法播放，计时不受影响");
+      throw new Error("這段聲音暫時無法播放，計時不受影響");
     }
   }
 
@@ -736,7 +736,7 @@ export class Soundscape {
     if (!playing) {
       this.fadeOut(this.current);
       this.current = null;
-      this.onStatus("声音已关闭");
+      this.onStatus("聲音已關閉");
       return;
     }
     try {
@@ -761,7 +761,7 @@ export class Soundscape {
         this.fadeOut(this.current);
         this.current = { source, gain, kind: sound };
       }
-      this.onStatus({ waves: "海浪正轻轻陪着你", rain: "窗外仿佛下着细雨", bubbles: "像在安静的水族箱旁", wind: "风从远处轻轻吹来", fire: "篝火噼啪，安静又暖", stream: "溪水在不远处流过", pink: "平稳的底噪替你盖住杂音", clock: "滴答之间，时间在走", boil: "水在咕嘟，慢慢开着", knock: "一声一声，稳稳地", thunder: "远处有雷，雨声更重了", cafe: "像坐在安静的咖啡馆角落", musicbox: "一段很慢的小旋律", morning: "清晨的风和鸟鸣", summer: "蝉鸣阵阵，夏天正盛", night: "夏夜虫鸣，风也安静", forest: "林子里，风穿过树叶", deepsea: "很深很深的海底", desert: "风卷细沙，安静辽阔", traffic: "远处有车流经过" }[sound]);
+      this.onStatus({ waves: "海浪正輕輕陪著你", rain: "窗外彷彿下著細雨", bubbles: "像在安靜的水族箱旁", wind: "風從遠處輕輕吹來", fire: "篝火噼啪，安靜又暖", stream: "溪水在不遠處流過", pink: "平穩的底噪替你蓋住雜音", clock: "滴答之間，時間在走", boil: "水在咕嘟，慢慢開著", knock: "一聲一聲，穩穩地", thunder: "遠處有雷，雨聲更重了", cafe: "像坐在安靜的咖啡館角落", musicbox: "一段很慢的小旋律", morning: "清晨的風和鳥鳴", summer: "蟬鳴陣陣，夏天正盛", night: "夏夜蟲鳴，風也安靜", forest: "林子裡，風穿過樹葉", deepsea: "很深很深的海底", desert: "風捲細沙，安靜遼闊", traffic: "遠處有車流經過" }[sound]);
     } catch (error) {
       if (seq !== this.sequence) return;
       // Stop the previous sound too: it no longer matches the selection.
@@ -791,11 +791,11 @@ export class Soundscape {
 }
 ```
 
-- [ ] **Step 4: 跑验收页，确认通过**
+- [ ] **Step 4: 跑驗收頁，確認透過**
 
 Run: `python3 -I "$SCRATCH/check_audio.py" web`
 
-Expected（实测）：每种声音输出一行结果，共 20 行，每行的 `jump` 都不大于 `typical`。例如：
+Expected（實測）：每種聲音輸出一行結果，共 20 行，每行的 `jump` 都不大於 `typical`。例如：
 
 ```
 {"kind": "clock", "seconds": 30.001, "channels": 1, "jump": 0.0002, "typical": 0.1335, "beats": [1.003, 0.998, 1.002, 1.001, 0.994]}
@@ -807,7 +807,7 @@ Expected（实测）：每种声音输出一行结果，共 20 行，每行的 `
 PASS
 ```
 
-- [ ] **Step 5: 在浏览器模式下冒烟测试**
+- [ ] **Step 5: 在瀏覽器模式下冒煙測試**
 
 ```bash
 DATA=$(mktemp -d)
@@ -848,56 +848,56 @@ previous sound and says so. Pink noise is still synthesized.
 EOF
 ```
 
-### Task 3: 文档与整体验证
+### Task 3: 文件與整體驗證
 
 **Files:**
 - Modify: `README.md:3`、`README.md:32`、`README.md:58`、`README.md:66`
 
 - [ ] **Step 1: 更新 README**
 
-第 3 行替换为：
+第 3 行替換為：
 
 ```markdown
-用专注时间养出一片小海底。Go 后端管理计时和存档，网页界面绘制水族馆，背景音是随程序打包的公共领域实地录音。前端和录音都已嵌入 Go 程序，不需要 Bun 或前端构建，播放时也不联网。
+用專注時間養出一片小海底。Go 後端管理計時和存檔，網頁介面繪製水族館，背景音是隨程式打包的公共領域實地錄音。前端和錄音都已嵌入 Go 程式，不需要 Bun 或前端構建，播放時也不聯網。
 ```
 
-第 32 行在“WebKitGTK 4.1（或 4.0）。”之后插入：
+第 32 行在“WebKitGTK 4.1（或 4.0）。”之後插入：
 
 ```markdown
-Linux 播放背景音还需要 GStreamer 的 MP3 解码插件（gst-plugins-good 1.18 或更高版本）。
+Linux 播放背景音還需要 GStreamer 的 MP3 解碼外掛（gst-plugins-good 1.18 或更高版本）。
 ```
 
-第 58 行（“背景音说明”下面的那一段）替换为两段：
+第 58 行（“背景音說明”下面的那一段）替換為兩段：
 
 ```markdown
-除粉噪外，19 种背景音都是 Freesound 上以 CC0（公共领域）发布的实地录音，出处见 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt)。`build-sounds.sh` 从高码率试听版截取 30 到 90 秒的片段，把响度对齐到原先合成声音的水平（需要压限太多时宁可轻一些），在 4 倍过采样下限幅，再编码为 MP3 写入 `web/sounds`，合计约 27 MB。木鱼由一次真实敲击排成稳定的节奏。更换录音时，修改脚本里的表格后重新运行即可，需要 ffmpeg 和网络；平时构建和运行都不需要它。
+除粉噪外，19 種背景音都是 Freesound 上以 CC0（公共領域）釋出的實地錄音，出處見 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt)。`build-sounds.sh` 從高位元速率試聽版擷取 30 到 90 秒的片段，把響度對齊到原先合成聲音的水平（需要壓限太多時寧可輕一些），在 4 倍過取樣下限幅，再編碼為 MP3 寫入 `web/sounds`，合計約 27 MB。木魚由一次真實敲擊排成穩定的節奏。更換錄音時，修改指令碼里的表格後重新執行即可，需要 ffmpeg 和網路；平時構建和執行都不需要它。
 
-播放时先解码录音，在内存里把首尾交叉淡化，再交给 Web Audio 原生循环，窗口收进托盘也不会断。时钟和木鱼的接缝落在两次敲击之间；音乐盒在曲尾衔接，并从曲头开始播放；其余声音每次从随机位置开始。最近用过的两种声音会留在内存里。粉噪仍由固定种子实时合成。首次不自动播放；保存声音类型、音量与专注播放开关，重启不会自动出声。系统不支持 Web Audio、播放受限或录音无法解码时提示用户，计时继续工作。
+播放時先解碼錄音，在記憶體裡把首尾交叉淡化，再交給 Web Audio 原生迴圈，視窗收進托盤也不會斷。時鐘和木魚的接縫落在兩次敲擊之間；音樂盒在曲尾銜接，並從曲頭開始播放；其餘聲音每次從隨機位置開始。最近用過的兩種聲音會留在記憶體裡。粉噪仍由固定種子即時合成。首次不自動播放；儲存聲音型別、音量與專注播放開關，重啟不會自動出聲。系統不支援 Web Audio、播放受限或錄音無法解碼時提示使用者，計時繼續工作。
 ```
 
-第 66 行替换为：
+第 66 行替換為：
 
 ```markdown
-测试覆盖暂停恢复的实际时间、提前结束、完成仅结算一次、访客存档、休眠暂停、恢复设置、休息不奖励成长、保存失败回滚，以及每种录音都已打包且合计不超过 30 MB。
+測試覆蓋暫停恢復的實際時間、提前結束、完成僅結算一次、訪客存檔、休眠暫停、恢復設定、休息不獎勵成長、儲存失敗回滾，以及每種錄音都已打包且合計不超過 30 MB。
 ```
 
-- [ ] **Step 2: 全量测试与静态检查**
+- [ ] **Step 2: 全量測試與靜態檢查**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./... && CGO_ENABLED=0 go vet ./...`
 
-Expected: `ok  	little-reef`；`go vet` 没有输出。
+Expected: `ok  	little-reef`；`go vet` 沒有輸出。
 
-- [ ] **Step 3: 确认脚本可复现**
+- [ ] **Step 3: 確認指令碼可復現**
 
 Run: `./build-sounds.sh > /dev/null && git status --short web/sounds`
 
-Expected: 没有输出。重跑产出的文件逐字节相同；试听版已缓存，约 20 秒跑完。
+Expected: 沒有輸出。重跑產出的檔案逐位元組相同；試聽版已快取，約 20 秒跑完。
 
-- [ ] **Step 4: 确认程序体积**
+- [ ] **Step 4: 確認程式體積**
 
 Run: `CGO_ENABLED=0 go build -o "$SCRATCH/little-reef" . && ls -l "$SCRATCH/little-reef"`
 
-Expected: 约 41.9 MB（改动前是 14.7 MB）。
+Expected: 約 41.9 MB（改動前是 14.7 MB）。
 
 - [ ] **Step 5: Commit**
 
@@ -912,27 +912,27 @@ MP3 decoder to play them.
 EOF
 ```
 
-- [ ] **Step 6: 交给用户试听**
+- [ ] **Step 6: 交給使用者試聽**
 
-启动桌面版：`CGO_ENABLED=0 go run .`（也可以用浏览器版：`go run . -web 127.0.0.1:4173`）。请用户把 20 种声音逐个点一遍，重点听：
-- 接缝处有没有跳动：时钟和木鱼约每 30 秒一次，其余声音每 50–90 秒一次；
-- 换声音时音量是否忽大忽小：风声、篝火比原来轻 4–6 LU；
-- 音乐盒是否从曲头开始。
+啟動桌面版：`CGO_ENABLED=0 go run .`（也可以用瀏覽器版：`go run . -web 127.0.0.1:4173`）。請使用者把 20 種聲音逐個點一遍，重點聽：
+- 接縫處有沒有跳動：時鐘和木魚約每 30 秒一次，其餘聲音每 50–90 秒一次；
+- 換聲音時音量是否忽大忽小：風聲、篝火比原來輕 4–6 LU；
+- 音樂盒是否從曲頭開始。
 
-记下用户点名要换的声音和原因。
+記下使用者點名要換的聲音和原因。
 
-### 试听后更换录音（按需）
+### 試聽後更換錄音（按需）
 
-用户点名某种声音不满意时：
+使用者點名某種聲音不滿意時：
 
-1. 在 `build-sounds.sh` 里，把这种声音那一行的 Freesound 编号和试听版地址换成某个备选行的值；在 `THIRD_PARTY_NOTICES.txt` 里，把对应条目换成备选录音的标题、作者和链接。
-2. 选截取位置：用下面的命令按秒列出短期响度（第一列是秒数，第二列是 LUFS；开头 3 秒显示 −120.7 属正常）。挑一段没有突兀尖峰、长度与原行相同的片段，把起点和时长填进表格。
+1. 在 `build-sounds.sh` 裡，把這種聲音那一行的 Freesound 編號和試聽版地址換成某個備選行的值；在 `THIRD_PARTY_NOTICES.txt` 裡，把對應條目換成備選錄音的標題、作者和連結。
+2. 選擷取位置：用下面的命令按秒列出短期響度（第一列是秒數，第二列是 LUFS；開頭 3 秒顯示 −120.7 屬正常）。挑一段沒有突兀尖峰、長度與原行相同的片段，把起點和時長填進表格。
 
    ```bash
-   ffmpeg -nostdin -loglevel verbose -i "${TMPDIR:-/tmp}/little-reef-sounds/<编号>.ogg" -af ebur128 -f null - 2>&1 |
+   ffmpeg -nostdin -loglevel verbose -i "${TMPDIR:-/tmp}/little-reef-sounds/<編號>.ogg" -af ebur128 -f null - 2>&1 |
      sed -nE 's/.* t: *([0-9.]+) .* S: *(-?[0-9.]+) .*/\1 \2/p' | awk 'NR % 10 == 0'
    ```
 
-   试听版要先下载到这个缓存目录，下载地址见表格里的备选行；也可以先运行一次脚本，让它自动下载。
-3. 时钟、木鱼和音乐盒的备选还需要重新测量周期和接缝位置，并同步更新 `web/audio.js` 里的 `seams`；其余声音不用改代码。
-4. 重新运行 `./build-sounds.sh`、Task 2 的验收页和 Go 测试，然后提交，提交信息写 `fix(aquarium): swap the <sound> recording`。
+   試聽版要先下載到這個快取目錄，下載地址見表格裡的備選行；也可以先執行一次指令碼，讓它自動下載。
+3. 時鐘、木魚和音樂盒的備選還需要重新測量週期和接縫位置，並同步更新 `web/audio.js` 裡的 `seams`；其餘聲音不用改程式碼。
+4. 重新執行 `./build-sounds.sh`、Task 2 的驗收頁和 Go 測試，然後提交，提交資訊寫 `fix(aquarium): swap the <sound> recording`。

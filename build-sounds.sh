@@ -1,11 +1,11 @@
 #!/bin/bash
-# Rebuild web/public/sounds from public-domain recordings: CC0 Freesound previews,
+# Rebuild assets/sounds from public-domain recordings: CC0 Freesound previews,
 # plus one U.S. government recording from Wikimedia Commons. Needs curl,
 # ffmpeg 5 or later with libmp3lame, and network access; normal builds never
 # run it. Rerun after changing a row in the table below.
 set -euo pipefail
 
-sounds_dir=$(cd "$(dirname "$0")" && pwd)/web/public/sounds
+sounds_dir=$(cd "$(dirname "$0")" && pwd)/assets/sounds
 sounds_cache=${TMPDIR:-/tmp}/little-reef-sounds
 mkdir -p "$sounds_dir" "$sounds_cache"
 
@@ -15,7 +15,7 @@ mkdir -p "$sounds_dir" "$sounds_cache"
 # which sounded harsh at that level), the most limiting allowed to reach it
 # (dB), the source file, and an optional LAME VBR quality (default 2).
 # "#" rows are alternatives. clock, knock and musicbox loop on beats or where
-# the piece ends, as set in web/src/audio/soundscape.ts; a new recording for them needs
+# the piece ends, as set in soundscape.go; a new recording for them needs
 # those values measured again.
 sounds_table='
 waves    412308 148    90    -15.6 3 https://cdn.freesound.org/previews/412/412308_7707368-hq.ogg
@@ -119,9 +119,9 @@ build() {
     -af "aresample=$((rate * 4)),volume=${gain}dB,alimiter=limit=0.75:level=false:latency=true,aresample=$rate" \
     -c:a libmp3lame -q:a "$quality" -id3v2_version 0 "$out"
   read -r loud peak < <(measure -i "$out")
-  printf '%-9s %5s s  %6s LUFS (目标 %s)  峰值 %5s dBTP  增益 %6s dB\n' "$id" "$length" "$loud" "$target" "$peak" "$gain"
+  printf '%-9s %5s s  %6s LUFS (目標 %s)  峰值 %5s dBTP  增益 %6s dB\n' "$id" "$length" "$loud" "$target" "$peak" "$gain"
   if ! awk -v p="$peak" 'BEGIN { exit !(p <= -1) }'; then
-    printf '%s 的峰值超过 -1 dBTP。\n' "$id" >&2
+    printf '%s 的峰值超過 -1 dBTP。\n' "$id" >&2
     exit 1
   fi
 }
@@ -141,8 +141,8 @@ while read -r id sid start length target cap url quality; do
 done <<<"$sounds_table"
 
 total=$(cat "$sounds_dir"/*.mp3 | wc -c)
-printf '共 %s 个文件，%s MB。\n' "$(ls "$sounds_dir"/*.mp3 | wc -l | tr -d ' ')" "$(awk -v b="$total" 'BEGIN { printf "%.1f", b / 1048576 }')"
+printf '共 %s 個檔案，%s MB。\n' "$(ls "$sounds_dir"/*.mp3 | wc -l | tr -d ' ')" "$(awk -v b="$total" 'BEGIN { printf "%.1f", b / 1048576 }')"
 if (( total > 30 * 1048576 )); then
-  printf '超出 30 MB 预算：缩短事件型片段，或在表格末列给较大的文件设更低的编码质量（如 4）。\n' >&2
+  printf '超出 30 MB 預算：縮短事件型片段，或在表格末列給較大的檔案設更低的編碼質量（如 4）。\n' >&2
   exit 1
 fi

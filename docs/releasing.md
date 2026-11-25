@@ -1,38 +1,39 @@
-# macOS 发布流程
+# Windows 釋出流程
 
-当前发行平台为 macOS 12+、Apple 芯片。版本号同时维护在 `mygo.json`、`web/package.json` 和 `web/package-lock.json`，更新说明来自 `CHANGELOG.md` 对应版本节。
+發行平臺為 Windows 10/11（amd64 與 arm64），釋出到 [yam8511/little-reef](https://github.com/yam8511/little-reef) 的 Releases。版本號維護在 `mygo.json`，更新說明來自 `CHANGELOG.md` 對應版本節（標題須為 `## <版本>`）。
 
-## 构建与校验
+## 自動更新的原理
+
+`mygo.json` 的 `updates.github` 指向本倉庫，`updates.publicKey` 是更新簽名的公鑰。已安裝的應用每 4 小時讀取
+`https://github.com/yam8511/little-reef/releases/latest/download/update-windows-<架構>.json`，發現新版本就下載簽名過的安裝包或增量包，用內建公鑰驗證 Ed25519 簽名後替換自己。因此：
+
+- 倉庫必須保持公開；只認 Releases 裡的附件，提交進倉庫的檔案不會被讀取。
+- Release 必須設為 Latest，且附件齊全後才公開。
+- 私鑰（`mygo-update.key`，位於 `%APPDATA%/mygo/update-keys`）不能進倉庫。丟失它，已安裝的應用就再也收不到更新；換鑰匙需要使用者手動重新安裝。
+
+## 一次性設定
+
+1. 在倉庫 Settings → Secrets and variables → Actions 新增 secret `MYGO_UPDATER_PRIVATE_KEY`，內容是 `%APPDATA%/mygo/update-keys/mygo-update.key` 的全文（或 `gh secret set MYGO_UPDATER_PRIVATE_KEY < mygo-update.key`）。
+2. 確認倉庫 Settings → Actions → General 的 Workflow permissions 允許寫入（`release.yml` 已宣告 `contents: write`）。
+
+## 釋出一個版本
+
+1. 把 `mygo.json` 的 `version` 調高，例如 `0.5.0`；把 `CHANGELOG.md` 的「## 未釋出」改成「## 0.5.0」。
+2. 本地確認 `CGO_ENABLED=0 go vet ./...` 與 `CGO_ENABLED=0 go test ./...` 透過，提交併推送到 `main`。
+3. 打標籤並推送：`git tag v0.5.0 && git push origin v0.5.0`。
+4. `.github/workflows/release.yml` 會先檢查標籤與 `mygo.json` 版本一致、CHANGELOG 有該版本段落、私鑰 secret 已設定，再建立草稿 Release；接著在 Ubuntu 上裝 NSIS，分別為 amd64 和 arm64 執行 `go tool mygo build -platform windows/<架構> -upload`，把安裝包、更新包、增量包和 `update-windows-<架構>.json` 上傳到草稿。
+5. 到 Releases 檢查草稿附件齊全，再公開並設為 Latest。公開後下載 `releases/latest/download/update-windows-amd64.json` 核對版本號，並用上一版本實際安裝一次，確認「檢查更新…」能升級。
+
+失敗時在 Actions 頁面用「Re-run failed jobs」重跑，會上傳到同一個草稿。
+
+## 本地手動構建（備用）
+
+需要 [NSIS](https://nsis.sourceforge.io) 才會產出安裝包：
 
 ```sh
-npm --prefix web ci --registry=https://registry.npmjs.org/
-npm --prefix web run typecheck
-npm --prefix web test
-npm --prefix web run build
-CGO_ENABLED=0 go test ./...
-CGO_ENABLED=0 go vet ./...
+export MYGO_UPDATER_PRIVATE_KEY="$(cat "$APPDATA/mygo/update-keys/mygo-update.key")"
+export GH_TOKEN=<有 repo 權限的 token>
+go tool mygo build -platform windows/amd64,windows/arm64 -upload .
 ```
 
-正式构建通过环境变量 `MYGO_UPDATER_PRIVATE_KEY` 提供已有更新签名私钥，不能重新生成密钥或提交私钥。使用配置中的 Developer ID 与钥匙串公证凭据 `clipnest-notary`（可先运行 `xcrun notarytool history --keychain-profile clipnest-notary` 确认可用）：
-
-```sh
-CGO_ENABLED=0 go tool mygo build -o build/release-<版本> .
-```
-
-`buildCommand` 会重新构建前端。`slug: app` 固定更新资产名称，与已发布版本一致。MyGo 自动完成签名、公证、更新压缩包及最近三个版本的增量包。
-
-检查 `.app` 的 `codesign --verify --deep --strict`、`spctl --assess --type execute`，以及 DMG 的 `xcrun stapler validate`。按更新清单中的公钥、SHA-256、Ed25519 签名和字节数校验全量包与所有增量包；在临时目录应用上一版本的补丁，核对文件内容与新版本相同，并重新验证签名。
-
-## 发布资产
-
-- 复制构建出的 `app-<版本>-arm64.dmg` 为 `little-reef-<版本>-macos-arm64.dmg`，保持官网使用的下载命名。
-- 上传 DMG、`app-<版本>-darwin-arm64.tar.gz`、全部 `.delta`、`update-darwin-arm64.json` 和重新计算的 `SHA256SUMS`。更新清单内 URL 的文件名必须与资产完全一致。
-- 将发布源码提交并创建带更新说明的 `v<版本>` 注释标签，推送分支和标签。
-- 先创建草稿 Release，上传并核对所有资产后再公开为 Latest。不要让已安装的应用读到缺少资产的更新清单。
-- 公开后从 `releases/latest/download/update-darwin-arm64.json` 重新下载清单，核对版本、资产长度及 SHA-256。
-
-## 官网
-
-官网仓库是同级的 `echovic-apps`。同步 `products/reef.json` 的 `fallbackTag`、`fallbackAsset`、用户可见功能与安装包大小。更新截图（使用独立的演示存档）和中英文页面；站内更新日志由本仓库 `CHANGELOG.md` 生成。
-
-先发布应用，再在官网仓库执行 `npm run build`，检查中英文静态下载链接指向新版本，并运行 `npx wrangler deploy --dry-run`。提交官网源码后按现有 Cloudflare Workers 流程部署，最后检查中英文主页、更新日志、图片和下载地址。
+沒有安裝程式碼簽名證書時，Windows SmartScreen 會在安裝時提示未知釋出者；這不影響自動更新。

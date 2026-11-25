@@ -20,7 +20,7 @@ func shortcutSettingsFixture(t *testing.T) (*nativeSettings, *shortcutController
 	s.desktop.shortcuts = controller
 	s.shortcutDraft = controller.snapshot()
 	tt := ui.NewTester(s.view, 560, 800)
-	if err := tt.Click("快捷键"); err != nil {
+	if err := tt.Click("快捷鍵"); err != nil {
 		t.Fatal(err)
 	}
 	return s, controller, registry, tt
@@ -29,7 +29,7 @@ func shortcutSettingsFixture(t *testing.T) (*nativeSettings, *shortcutController
 func TestNativeShortcutRecordingSavesAfterRelease(t *testing.T) {
 	s, controller, registry, tt := shortcutSettingsFixture(t)
 	global := controller.snapshot().Bindings[shortcutGlobal]
-	if err := tt.Click("修改开始／暂停／继续"); err != nil {
+	if err := tt.Click("修改開始／暫停／繼續"); err != nil {
 		t.Fatal(err)
 	}
 	if registry.active[global] != nil {
@@ -42,7 +42,7 @@ func TestNativeShortcutRecordingSavesAfterRelease(t *testing.T) {
 	if controller.snapshot().Bindings[shortcutPrimary] != "CmdOrCtrl+Enter" {
 		t.Fatal("unsaved recording changed live shortcuts")
 	}
-	if err := tt.Click("保存快捷键"); err != nil {
+	if err := tt.Click("儲存快捷鍵"); err != nil {
 		t.Fatal(err)
 	}
 	if controller.snapshot().Bindings[shortcutPrimary] != "CmdOrCtrl+Shift+P" || s.error != "" {
@@ -93,7 +93,7 @@ func TestShortcutRecordingFinishesOnModifierReleaseWithoutKeyUp(t *testing.T) {
 	}
 	s, controller, registry, tt := shortcutSettingsFixture(t)
 	global := controller.snapshot().Bindings[shortcutGlobal]
-	if err := tt.Click("修改开始／暂停／继续"); err != nil {
+	if err := tt.Click("修改開始／暫停／繼續"); err != nil {
 		t.Fatal(err)
 	}
 	tt.HoldModifiers(ui.Cmd | ui.Shift)
@@ -111,7 +111,7 @@ func TestShortcutRecordingFinishesOnModifierReleaseWithoutKeyUp(t *testing.T) {
 func TestShortcutRecordingWithoutCommandWaitsForKeyUp(t *testing.T) {
 	s, controller, registry, tt := shortcutSettingsFixture(t)
 	global := controller.snapshot().Bindings[shortcutGlobal]
-	if err := tt.Click("修改开始／暂停／继续"); err != nil {
+	if err := tt.Click("修改開始／暫停／繼續"); err != nil {
 		t.Fatal(err)
 	}
 	tt.HoldModifiers(ui.Alt)
@@ -129,7 +129,7 @@ func TestShortcutRecordingWithoutCommandWaitsForKeyUp(t *testing.T) {
 
 func TestNativeShortcutRecordingRejectsDuplicatesAndEscapeCancels(t *testing.T) {
 	s, controller, registry, tt := shortcutSettingsFixture(t)
-	if err := tt.Click("修改开始／暂停／继续"); err != nil {
+	if err := tt.Click("修改開始／暫停／繼續"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Key(ui.Cmd, ui.Key1)
@@ -144,13 +144,13 @@ func TestNativeShortcutRecordingRejectsDuplicatesAndEscapeCancels(t *testing.T) 
 
 func TestNativeShortcutDisableAndRestoreDefaultsAreDrafted(t *testing.T) {
 	s, controller, _, tt := shortcutSettingsFixture(t)
-	if err := tt.Click("停用开始／暂停／继续"); err != nil {
+	if err := tt.Click("停用開始／暫停／繼續"); err != nil {
 		t.Fatal(err)
 	}
 	if s.shortcutDraft.Bindings[shortcutPrimary] != "" || controller.snapshot().Bindings[shortcutPrimary] == "" {
 		t.Fatal("disable did not stay in draft")
 	}
-	if err := tt.Click("恢复默认快捷键"); err != nil {
+	if err := tt.Click("恢復預設快捷鍵"); err != nil {
 		t.Fatal(err)
 	}
 	if s.shortcutDraft.Bindings[shortcutPrimary] != "CmdOrCtrl+Enter" || !s.shortcutDraft.SpaceEnabled {

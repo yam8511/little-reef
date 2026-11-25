@@ -1,122 +1,122 @@
-# 官网中英双语对照完整文案（v0.4 定稿）
+# 官網中英雙語對照完整文案（v0.4 定稿）
 
-> 来源：飞书物料定稿 docx/OQ8Qd9SaHokTnUxW7zCcSSIbncf（revision 5，2026-10-24）。
-> **用途**：reef.echovic.com 单页改造（Q6：中英对照，沿用现有四屏结构 + 新增 005 屏）。
-> **排版建议**：每屏英文在上、中文在下（或左右随屏宽自适应）；未标注「微调」的英文行保持现状不动。
-> **护栏**：全部文案通过 7.6 审查四问（无施压、无打卡、无催促）。
-> **边界**：官网仓库位置待用户告知；本文件仅落文案，部署动作不执行。
+> 來源：飛書物料定稿 docx/OQ8Qd9SaHokTnUxW7zCcSSIbncf（revision 5，2026-10-24）。
+> **用途**：reef.echovic.com 單頁改造（Q6：中英對照，沿用現有四屏結構 + 新增 005 屏）。
+> **排版建議**：每屏英文在上、中文在下（或左右隨屏寬自適應）；未標註「微調」的英文行保持現狀不動。
+> **護欄**：全部文案透過 7.6 審查四問（無施壓、無打卡、無催促）。
+> **邊界**：官網倉庫位置待使用者告知；本檔案僅落文案，部署動作不執行。
 
-## 头部
+## 頭部
 
-- 产品名：小海底（不动）
+- 產品名：小海底（不動）
 - Tagline
 
-  - EN（不动）：Grow a little reef with your focus time — each session grows the seagrass, and sometimes a fish drops by.
-  - ZH（补全）：用专注时间，养出一片小海底——每完成一轮专注，水草就长高一点，偶尔还有朋友来做客。
-- 下载按钮
+  - EN（不動）：Grow a little reef with your focus time — each session grows the seagrass, and sometimes a fish drops by.
+  - ZH（補全）：用專注時間，養出一片小海底——每完成一輪專注，水草就長高一點，偶爾還有朋友來做客。
+- 下載按鈕
 
-  - EN（微调，版本号随发布更新）：Download for Mac（v0.4.0 · 约 35 MB）
-  - ZH（补全）：下载 Mac 版（v0.4.0 · 约 35 MB）【体积以实际构建为准，落盘前更新】
-- 平台提示
+  - EN（微調，版本號隨釋出更新）：Download for Mac（v0.4.0 · 約 35 MB）
+  - ZH（補全）：下載 Mac 版（v0.4.0 · 約 35 MB）【體積以實際構建為準，落盤前更新】
+- 平臺提示
 
-  - EN（不动）：Recommended for Apple silicon. If your Mac has an Intel chip, it isn't supported yet.
-  - ZH（补全）：推荐 Apple 芯片的 Mac；Intel 芯片暂不支持。
-- 徽标行
+  - EN（不動）：Recommended for Apple silicon. If your Mac has an Intel chip, it isn't supported yet.
+  - ZH（補全）：推薦 Apple 晶片的 Mac；Intel 晶片暫不支援。
+- 徽標行
 
-  - EN（不动）：Free & open source · macOS 12 or later · For Apple silicon Macs · 20 ambient sounds
-  - ZH（补全）：免费开源 · macOS 12 或更高 · Apple 芯片 · 20 种背景音
+  - EN（不動）：Free & open source · macOS 12 or later · For Apple silicon Macs · 20 ambient sounds
+  - ZH（補全）：免費開源 · macOS 12 或更高 · Apple 晶片 · 20 種背景音
 
-## 001 / 005 · You focus, the reef grows · 你专注，海底慢慢生长
-
-- 正文
-
-  - EN（不动）：25 minutes of focus and a 5-minute break by default — change them if you like. Each session grows the seagrass a little, and every third adds a new plant. Once it's full it stops, so it never gets crowded.
-  - ZH（补全）：默认专注 25 分钟、休息 5 分钟，都可以在设置里改。每完成一轮专注，水草就长高一点；每三轮，多一株植物。长满之后不再增加，画面不会拥挤。
-- 说明行
-
-  - EN（不动）：Your reef on the left, the timer on the right. Space starts or pauses.
-  - ZH（补全）：左边是你的海底，右边是计时器。按一下空格，开始或暂停。
-
-## 002 / 005 · Chance visitors, remembered · 偶尔有朋友来做客，图鉴会记住
+## 001 / 005 · You focus, the reef grows · 你專注，海底慢慢生長
 
 - 正文
 
-  - EN（不动）：Your first session always brings a clownfish; after that each one has a one-in-three chance of a new visitor, kept in a log for good. You can feed the fish once per break.
-  - ZH（补全）：第一轮专注必定遇见小丑鱼；之后每完成一轮，都有三分之一的机会遇见一位新朋友，记进图鉴，永久保存。每次休息，可以喂一次鱼。
-- 图注
+  - EN（不動）：25 minutes of focus and a 5-minute break by default — change them if you like. Each session grows the seagrass a little, and every third adds a new plant. Once it's full it stops, so it never gets crowded.
+  - ZH（補全）：預設專注 25 分鐘、休息 5 分鐘，都可以在設定裡改。每完成一輪專注，水草就長高一點；每三輪，多一株植物。長滿之後不再增加，畫面不會擁擠。
+- 說明行
 
-  - EN（不动）：Today's tally and the friends who've dropped by.
-  - ZH（补全）：今天的积累，和来过的朋友。
+  - EN（不動）：Your reef on the left, the timer on the right. Space starts or pauses.
+  - ZH（補全）：左邊是你的海底，右邊是計時器。按一下空格，開始或暫停。
 
-## 003 / 005 · 20 ambient sounds · 20 种背景音
+## 002 / 005 · Chance visitors, remembered · 偶爾有朋友來做客，圖鑑會記住
 
 - 正文
 
-  - EN（微调，补「离线」一句）：Waves, rain, campfire, café, wooden fish, Canon… pick one and set the volume; it loops without a seam. All the sounds come with the app, so no internet is needed.
-  - ZH（补全）：海浪、雨声、篝火、咖啡馆、木鱼、卡农……选一种，调好音量，循环播放听不出接缝。所有声音都装在应用里，播放不需要联网。
-- 声音名列表：沿用现状中文列表（海浪 雨声 雷雨 溪流 篝火 森林 夏夜 咖啡馆 木鱼 卡农 粉红噪音）
-- 图注
+  - EN（不動）：Your first session always brings a clownfish; after that each one has a one-in-three chance of a new visitor, kept in a log for good. You can feed the fish once per break.
+  - ZH（補全）：第一輪專注必定遇見小丑魚；之後每完成一輪，都有三分之一的機會遇見一位新朋友，記進圖鑑，永久儲存。每次休息，可以喂一次魚。
+- 圖注
 
-  - EN（不动）：Plays when focus starts, stops on pause or finish; muted during breaks by default.
-  - ZH（补全）：专注时响起，暂停或结束时停下；休息时默认静音。
+  - EN（不動）：Today's tally and the friends who've dropped by.
+  - ZH（補全）：今天的積累，和來過的朋友。
+
+## 003 / 005 · 20 ambient sounds · 20 種背景音
+
+- 正文
+
+  - EN（微調，補「離線」一句）：Waves, rain, campfire, café, wooden fish, Canon… pick one and set the volume; it loops without a seam. All the sounds come with the app, so no internet is needed.
+  - ZH（補全）：海浪、雨聲、篝火、咖啡館、木魚、卡農……選一種，調好音量，迴圈播放聽不出接縫。所有聲音都裝在應用裡，播放不需要聯網。
+- 聲音名列表：沿用現狀中文列表（海浪 雨聲 雷雨 溪流 篝火 森林 夏夜 咖啡館 木魚 卡農 粉紅噪音）
+- 圖注
+
+  - EN（不動）：Plays when focus starts, stops on pause or finish; muted during breaks by default.
+  - ZH（補全）：專注時響起，暫停或結束時停下；休息時預設靜音。
 
 ## 004 / 005 · A corner of your desktop · 桌面的一角
 
 - 正文
 
-  - EN（不动）：Shrink it to a small widget in the corner of your desktop with just the reef and the countdown, or tuck it into the menu bar, where a little fish swims while you focus. Press ⌘⇧A any time to bring it back.
-  - ZH（补全）：收成桌面角落的小挂件，只留下海底和倒计时；或者收进菜单栏，专注时有一条小鱼轻轻游动。随时按 ⌘⇧A 唤回。
-- 图注
+  - EN（不動）：Shrink it to a small widget in the corner of your desktop with just the reef and the countdown, or tuck it into the menu bar, where a little fish swims while you focus. Press ⌘⇧A any time to bring it back.
+  - ZH（補全）：收成桌面角落的小掛件，只留下海底和倒計時；或者收進選單欄，專注時有一條小魚輕輕游動。隨時按 ⌘⇧A 喚回。
+- 圖注
 
-  - EN（不动）：Desktop widget mode.
-  - ZH（补全）：桌面挂件模式。
+  - EN（不動）：Desktop widget mode.
+  - ZH（補全）：桌面掛件模式。
 
-## 005 / 005 · Your time, quietly kept · 看得见的陪伴，不是 KPI（新增屏）
+## 005 / 005 · Your time, quietly kept · 看得見的陪伴，不是 KPI（新增屏）
 
 - 正文
 
-  - EN：Open the "这段时间" panel to see this week, this month, and all the time you've spent together — the days you focused, how the collection is coming along, and how far your reef has grown. No streaks to keep, no goals to hit, no reminders. The numbers are just company, not a score.
-  - ZH：展开「这段时间」，看看本周、本月，和一起度过的所有时间——有你的那些天、图鉴的进度、海底长到的样子。没有连续打卡要守，没有目标要完成，没有提醒要处理。数字只是陪着，不是成绩单。
-- 图注
+  - EN：Open the "這段時間" panel to see this week, this month, and all the time you've spent together — the days you focused, how the collection is coming along, and how far your reef has grown. No streaks to keep, no goals to hit, no reminders. The numbers are just company, not a score.
+  - ZH：展開「這段時間」，看看本週、本月，和一起度過的所有時間——有你的那些天、圖鑑的進度、海底長到的樣子。沒有連續打卡要守，沒有目標要完成，沒有提醒要處理。數字只是陪著，不是成績單。
+- 圖注
 
   - EN：The review panel — records only, never reminders.
-  - ZH：「这段时间」回顾面板——只做记录，从不提醒。
-- **衔接 No pressure**：本屏是「无压力」在数字层的自然延伸——先承诺「不催促」，再证明「数字也不催促」。
-- **素材依赖**：需要「这段时间」面板展开态截图（依赖 Task 2 完成的 UI，建议用有真实数据的存档：本周有记录、图鉴 5/15 左右、当前称号「萌芽」段）。
+  - ZH：「這段時間」回顧面板——只做記錄，從不提醒。
+- **銜接 No pressure**：本屏是「無壓力」在數字層的自然延伸——先承諾「不催促」，再證明「數字也不催促」。
+- **素材依賴**：需要「這段時間」面板展開態截圖（依賴 Task 2 完成的 UI，建議用有真實資料的存檔：本週有記錄、圖鑑 5/15 左右、當前稱號「萌芽」段）。
 
-## No pressure, ever · 永远没有压力
+## No pressure, ever · 永遠沒有壓力
 
-- 导语
+- 導語
 
-  - EN（不动）：It just keeps you company while you focus — no nagging, no penalties, and your records stay on your own Mac.
-  - ZH（补全）：它只是在你专注时陪着你——不催促，不惩罚，你的记录只保存在你自己的 Mac 上。
+  - EN（不動）：It just keeps you company while you focus — no nagging, no penalties, and your records stay on your own Mac.
+  - ZH（補全）：它只是在你專注時陪著你——不催促，不懲罰，你的記錄只儲存在你自己的 Mac 上。
 
-**Nothing dies · 什么都不会死**
+**Nothing dies · 什麼都不會死**
 
-- EN（不动）：Stop halfway or walk away — no fish dies and nothing you've grown is lost. Ending early still records how long you focused; it just doesn't count toward growth.
-- ZH（补全）：中途停下或者直接走开——没有鱼会死，已经长出来的也都在。提前结束也会记下你投入的时间，只是不算成长。
+- EN（不動）：Stop halfway or walk away — no fish dies and nothing you've grown is lost. Ending early still records how long you focused; it just doesn't count toward growth.
+- ZH（補全）：中途停下或者直接走開——沒有魚會死，已經長出來的也都在。提前結束也會記下你投入的時間，只是不算成長。
 
 **Sleep doesn't count · 休眠不算**
 
-- EN（不动）：When your Mac goes to sleep, the timer pauses — that time isn't counted as focus.
-- ZH（补全）：Mac 休眠时计时自动暂停，休眠的时间不算进专注。
+- EN（不動）：When your Mac goes to sleep, the timer pauses — that time isn't counted as focus.
+- ZH（補全）：Mac 休眠時計時自動暫停，休眠的時間不算進專注。
 
-**No sudden sounds · 不会突然出声**
+**No sudden sounds · 不會突然出聲**
 
-- EN（不动）：It never starts making sound on its own, not even on first launch. With sound off, you still get a message and a notification when a session ends.
-- ZH（补全）：它从不自己出声，第一次打开也不会。关掉声音时，一轮结束后仍有文字提示和系统通知。
+- EN（不動）：It never starts making sound on its own, not even on first launch. With sound off, you still get a message and a notification when a session ends.
+- ZH（補全）：它從不自己出聲，第一次開啟也不會。關掉聲音時，一輪結束後仍有文字提示和系統通知。
 
-**Your records stay on your Mac · 记录保存在你的电脑上（本节扩写）**
+**Your records stay on your Mac · 記錄儲存在你的電腦上（本節擴寫）**
 
-- EN（微调，补导出备份）：Your focus history and visitor log are saved on your own computer — no account, nothing uploaded. Switching Macs or want a backup? Export your archive any time from Settings; import it back with everything intact.
-- ZH（补全+扩写）：专注历史和访客图鉴都保存在你自己的电脑上——没有账号，不上传任何东西。要换机，或者想备一份？随时在设置里一键导出存档；导入回来，水草和鱼儿都在。
+- EN（微調，補匯出備份）：Your focus history and visitor log are saved on your own computer — no account, nothing uploaded. Switching Macs or want a backup? Export your archive any time from Settings; import it back with everything intact.
+- ZH（補全+擴寫）：專注歷史和訪客圖鑑都儲存在你自己的電腦上——沒有賬號，不上傳任何東西。要換機，或者想備一份？隨時在設定裡一鍵匯出存檔；匯入回來，水草和魚兒都在。
 
-**Keeps going when the window's closed · 窗口关了，它也在**
+**Keeps going when the window's closed · 視窗關了，它也在**
 
-- EN（不动）：Tuck the window into the menu bar or the widget — the timer and sound keep running.
-- ZH（补全）：收进菜单栏或挂件，计时和声音都会继续。
+- EN（不動）：Tuck the window into the menu bar or the widget — the timer and sound keep running.
+- ZH（補全）：收進選單欄或掛件，計時和聲音都會繼續。
 
-## 页脚
+## 頁尾
 
-- EN（不动）：View the source on GitHub. Free and open source. The ambient sounds are public-domain recordings, each one credited on GitHub.
-- ZH（补全）：在 GitHub 查看源码。免费开源。背景音都是公共领域的录音，每一条的出处都写在 GitHub 上。
+- EN（不動）：View the source on GitHub. Free and open source. The ambient sounds are public-domain recordings, each one credited on GitHub.
+- ZH（補全）：在 GitHub 檢視原始碼。免費開源。背景音都是公共領域的錄音，每一條的出處都寫在 GitHub 上。

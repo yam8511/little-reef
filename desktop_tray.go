@@ -16,30 +16,30 @@ import (
 func (d *Desktop) createTray() {
 	items := append(d.timerMenuItems(), mygo.Separator())
 	items = append(items, []*mygo.MenuItem{
-		{Label: "显示水族馆", Click: func(*mygo.MenuItem, *mygo.Window) { d.openAquarium() }},
-		{Label: "设置…", Click: func(*mygo.MenuItem, *mygo.Window) { d.OpenSettings() }},
+		{Label: "顯示水族館", Click: func(*mygo.MenuItem, *mygo.Window) { d.openAquarium() }},
+		{Label: "設定…", Click: func(*mygo.MenuItem, *mygo.Window) { d.OpenSettings() }},
 		d.compactMenuItem(""),
 		mygo.Separator(),
-		{Label: "检查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { d.CheckForUpdates() }},
-		{Label: "问题反馈…", Click: func(*mygo.MenuItem, *mygo.Window) {
+		{Label: "檢查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { d.CheckForUpdates() }},
+		{Label: "問題回饋…", Click: func(*mygo.MenuItem, *mygo.Window) {
 			go func() {
 				if err := mygo.Shell.OpenExternal(feedbackURL); err != nil {
-					log.Print("反馈页面未打开：", err)
+					log.Print("回饋頁面未開啟：", err)
 				}
 			}()
 		}},
 		mygo.Separator(),
-		{Label: "退出并保存", Role: mygo.RoleQuit},
+		{Label: "退出並儲存", Role: mygo.RoleQuit},
 	}...)
 	d.menu = mygo.NewMenu(items)
 	tray, err := mygo.NewTray(mygo.TrayOptions{
 		Icon: trayIcon(), IconIsTemplate: runtime.GOOS == "darwin",
-		ToolTip: "小海底 · 专注养出一片海",
+		ToolTip: "小海底 · 專注養出一片海",
 		// No Menu here: left-click goes to OnClick (mini popover).
 		// Right-click opens the menu via OnRightClick → PopUpMenu.
 	})
 	if err != nil {
-		log.Print("托盘不可用，将保留普通窗口：", err)
+		log.Print("托盤不可用，將保留普通視窗：", err)
 		return
 	}
 	d.tray = tray

@@ -30,7 +30,7 @@ func (s *nativeSettings) exportArchive() {
 		if err != nil || path == "" {
 			return "", err
 		}
-		return "已导出 " + filepath.Base(path), nil
+		return "已匯出 " + filepath.Base(path), nil
 	}, nil)
 }
 
@@ -43,6 +43,6 @@ func (s *nativeSettings) importArchive() {
 		if err != nil || snap.Revision == 0 {
 			return "", err
 		}
-		return "海底已恢复。", nil
+		return "海底已恢復。", nil
 	}, func() { s.resetDraft(s.desktop.a.Get().Preferences) })
 }

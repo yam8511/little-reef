@@ -1,13 +1,13 @@
 package main
 
 import (
-	"io/fs"
 	"math/rand/v2"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
+
+	"little-reef/internal/reef"
 )
 
 // completeRound runs one focus round to completion.
@@ -33,18 +33,11 @@ func TestSpeciesRosterIsComplete(t *testing.T) {
 	}
 }
 
-// The page must know how to draw every species the backend can send. The
-// authoritative species registry is the TypeScript source (not the built JS
-// bundle): every backend visitor id must exist in SPECIES so the canvas
-// engine can instantiate it.
-func TestFrontendKnowsEverySpecies(t *testing.T) {
-	data, err := fs.ReadFile(frontend, "web/src/reef/species.ts")
-	if err != nil {
-		t.Fatal(err)
-	}
+// The reef must know how to draw every species the backend can send.
+func TestReefKnowsEverySpecies(t *testing.T) {
 	for _, s := range species {
-		if !strings.Contains(string(data), `id: "`+s.Species+`"`) {
-			t.Errorf("species.ts SPECIES has no %q", s.Species)
+		if !reef.Known(s.Species) {
+			t.Errorf("internal/reef has no species %q", s.Species)
 		}
 	}
 }
@@ -82,9 +75,9 @@ func TestOldSaveMeetsNewSpecies(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "aquarium.json")
 	old := `{"preferences":{"focusMinutes":1,"breakMinutes":1,"sound":"waves","volume":0.35,"chimeEnabled":true},
 "session":{"id":1,"kind":"focus","status":"idle","durationMs":60000},"completed":11,
-"visitors":[{"species":"clown","name":"小丑鱼","date":"2026-10-10T10:00:00+08:00","visits":2},
-{"species":"tang","name":"蓝吊鱼","date":"2026-10-11T10:00:00+08:00","visits":1},
-{"species":"angel","name":"神仙鱼","date":"2026-10-12T10:00:00+08:00","visits":1},
+"visitors":[{"species":"clown","name":"小丑魚","date":"2026-10-10T10:00:00+08:00","visits":2},
+{"species":"tang","name":"藍吊魚","date":"2026-10-11T10:00:00+08:00","visits":1},
+{"species":"angel","name":"神仙魚","date":"2026-10-12T10:00:00+08:00","visits":1},
 {"species":"puffer","name":"小河豚","date":"2026-10-13T10:00:00+08:00","visits":1}]}`
 	if err := os.WriteFile(path, []byte(old), 0o600); err != nil {
 		t.Fatal(err)

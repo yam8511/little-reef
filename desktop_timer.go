@@ -28,21 +28,21 @@ func sessionActive(s Snapshot) bool {
 }
 
 func panelPrimary(s Snapshot) timerAction {
-	kind := "专注"
+	kind := "專注"
 	if s.Session.Kind == "break" {
 		kind = "休息"
 	}
 	switch s.Session.Status {
 	case "running":
-		return timerAction{"暂停" + kind, timerPause}
+		return timerAction{"暫停" + kind, timerPause}
 	case "paused":
-		return timerAction{"继续" + kind, timerResume}
+		return timerAction{"繼續" + kind, timerResume}
 	case "complete":
 		if s.Session.Kind == "focus" {
-			return timerAction{"开始休息", timerStartBreak}
+			return timerAction{"開始休息", timerStartBreak}
 		}
 	}
-	return timerAction{"开始专注", timerStartFocus}
+	return timerAction{"開始專注", timerStartFocus}
 }
 
 func panelSecondary(s Snapshot) timerAction {
@@ -50,9 +50,9 @@ func panelSecondary(s Snapshot) timerAction {
 		return timerAction{}
 	}
 	if panelPrimary(s).Command == timerStartBreak {
-		return timerAction{"开始专注", timerStartFocus}
+		return timerAction{"開始專注", timerStartFocus}
 	}
-	return timerAction{"开始休息", timerStartBreak}
+	return timerAction{"開始休息", timerStartBreak}
 }
 
 func panelTime(s Snapshot) string {
@@ -78,7 +78,7 @@ func (d *Desktop) performTimerAction(command timerCommand, sessionID int64) erro
 	case timerEnd:
 		_, err = d.a.endSession(sessionID)
 	default:
-		err = errors.New("未知的计时操作")
+		err = errors.New("未知的計時操作")
 	}
 	return err
 }
@@ -114,7 +114,7 @@ func (d *Desktop) endRequest(id string, err error) {
 				d.openFlyout()
 			} else {
 				go func() {
-					_, _ = mygo.Dialog.Message(mygo.MessageOptions{Parent: d.win, Type: mygo.MessageError, Title: "计时操作未完成", Message: message})
+					_, _ = mygo.Dialog.Message(mygo.MessageOptions{Parent: d.win, Type: mygo.MessageError, Title: "計時操作未完成", Message: message})
 				}()
 			}
 		})
@@ -141,7 +141,7 @@ func (d *Desktop) askEndRound() {
 		}
 		d.show()
 		go func(target int64) {
-			result, err := mygo.Dialog.Message(mygo.MessageOptions{Parent: d.win, Type: mygo.MessageQuestion, Title: "结束本轮？", Message: "结束本轮？", Detail: "已投入的专注会保留，不计为完成一轮。", Buttons: []string{"继续这一轮", "结束本轮"}, DefaultButton: 0, CancelButton: 0})
+			result, err := mygo.Dialog.Message(mygo.MessageOptions{Parent: d.win, Type: mygo.MessageQuestion, Title: "結束本輪？", Message: "結束本輪？", Detail: "已投入的專注會保留，不計為完成一輪。", Buttons: []string{"繼續這一輪", "結束本輪"}, DefaultButton: 0, CancelButton: 0})
 			d.win.Update(func() {
 				d.confirmEnd = false
 				if err == nil && result.Button == 1 && !d.quitting.Load() {

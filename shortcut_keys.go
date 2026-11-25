@@ -23,12 +23,12 @@ type shortcutDefinition struct {
 }
 
 var shortcutDefinitions = []shortcutDefinition{
-	{shortcutPrimary, "开始／暂停／继续", "CmdOrCtrl+Enter", false},
-	{shortcutEnd, "结束本轮", "CmdOrCtrl+Shift+Enter", false},
-	{shortcutShow, "显示水族馆", "CmdOrCtrl+1", false},
-	{shortcutCompact, "切换桌面挂件", "CmdOrCtrl+Shift+M", false},
-	{shortcutSettings, "打开设置", "CmdOrCtrl+,", false},
-	{shortcutGlobal, "全局唤起水族馆", "CmdOrCtrl+Shift+A", true},
+	{shortcutPrimary, "開始／暫停／繼續", "CmdOrCtrl+Enter", false},
+	{shortcutEnd, "結束本輪", "CmdOrCtrl+Shift+Enter", false},
+	{shortcutShow, "顯示水族館", "CmdOrCtrl+1", false},
+	{shortcutCompact, "切換桌面掛件", "CmdOrCtrl+Shift+M", false},
+	{shortcutSettings, "開啟設定", "CmdOrCtrl+,", false},
+	{shortcutGlobal, "全域喚起水族館", "CmdOrCtrl+Shift+A", true},
 }
 
 type shortcutKey struct {
@@ -99,15 +99,15 @@ func normalizeShortcut(raw string) (string, error) {
 		case "shift":
 			bit = ui.Shift
 		default:
-			return "", fmt.Errorf("无法识别修饰键 %q", part)
+			return "", fmt.Errorf("無法識別修飾鍵 %q", part)
 		}
 		if mods&bit != 0 {
-			return "", fmt.Errorf("修饰键重复")
+			return "", fmt.Errorf("修飾鍵重複")
 		}
 		mods |= bit
 	}
 	if mods&(ui.Cmd|ui.Ctrl|ui.Alt|ui.Super) == 0 {
-		return "", fmt.Errorf("请至少包含 Command、Ctrl 或 Alt 中的一个修饰键")
+		return "", fmt.Errorf("請至少包含 Command、Ctrl 或 Alt 中的一個修飾鍵")
 	}
 	name := strings.TrimSpace(parts[len(parts)-1])
 	if strings.EqualFold(name, "Return") {
@@ -118,7 +118,7 @@ func normalizeShortcut(raw string) (string, error) {
 			return shortcutString(mods, key.Name), nil
 		}
 	}
-	return "", fmt.Errorf("不支持的按键 %q", name)
+	return "", fmt.Errorf("不支援的按鍵 %q", name)
 }
 
 func shortcutFromInput(mods ui.Modifiers, key ui.Key) (string, error) {
@@ -127,12 +127,12 @@ func shortcutFromInput(mods ui.Modifiers, key ui.Key) (string, error) {
 			return normalizeShortcut(shortcutString(mods, k.Name))
 		}
 	}
-	return "", fmt.Errorf("这个按键暂不支持，请换一个组合")
+	return "", fmt.Errorf("這個按鍵暫不支援，請換一個組合")
 }
 
 func displayShortcut(raw string) string {
 	if raw == "" {
-		return "未设置"
+		return "未設定"
 	}
 	normalized, err := normalizeShortcut(raw)
 	if err != nil {

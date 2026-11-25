@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -14,13 +13,13 @@ func TestMenuPrimaryFollowsSessionTransitions(t *testing.T) {
 		status, kind, label string
 		command             timerCommand
 	}{
-		{"idle", "focus", "开始专注", timerStartFocus},
-		{"running", "focus", "暂停专注", timerPause},
-		{"running", "break", "暂停休息", timerPause},
-		{"paused", "focus", "继续专注", timerResume},
-		{"paused", "break", "继续休息", timerResume},
-		{"complete", "focus", "开始休息", timerStartBreak},
-		{"complete", "break", "开始专注", timerStartFocus},
+		{"idle", "focus", "開始專注", timerStartFocus},
+		{"running", "focus", "暫停專注", timerPause},
+		{"running", "break", "暫停休息", timerPause},
+		{"paused", "focus", "繼續專注", timerResume},
+		{"paused", "break", "繼續休息", timerResume},
+		{"complete", "focus", "開始休息", timerStartBreak},
+		{"complete", "break", "開始專注", timerStartFocus},
 	} {
 		a := panelPrimary(Snapshot{Session: Session{Kind: tc.kind, Status: tc.status}})
 		if a.Label != tc.label || a.Command != tc.command {
@@ -29,33 +28,12 @@ func TestMenuPrimaryFollowsSessionTransitions(t *testing.T) {
 	}
 }
 
-func TestQuickPanelTimerRemainsUsableWhileAudioIsPending(t *testing.T) {
-	a, _ := testAquarium(t)
-	d := &Desktop{a: a}
-	d.req.begin("audio-pending", time.Hour)
-	t.Cleanup(func() { d.req.done("audio-pending", true, "") })
-	tt := ui.NewTester(d.panelView, 320, 460)
-	if err := tt.Click("开始专注"); err != nil {
-		t.Fatal(err)
-	}
-	deadline := time.Now().Add(time.Second)
-	for a.Get().Session.Status != "running" && time.Now().Before(deadline) {
-		time.Sleep(time.Millisecond)
-	}
-	if a.Get().Session.Status != "running" {
-		t.Fatal("an audio request blocked the timer action")
-	}
-	if !d.req.isCurrent("audio-pending") {
-		t.Fatal("timer action cleared the audio request")
-	}
-}
-
 func TestQuickPanelCompletedFocusOffersBreak(t *testing.T) {
 	a, _ := testAquarium(t)
 	a.state.Session.Status = "complete"
-	d := &Desktop{a: a}
+	d := newDesktop(a)
 	tt := ui.NewTester(d.panelView, 320, 460)
-	if err := tt.Click("开始休息"); err != nil {
+	if err := tt.Click("開始休息"); err != nil {
 		t.Fatal(err)
 	}
 	deadline := time.Now().Add(time.Second)
@@ -67,55 +45,18 @@ func TestQuickPanelCompletedFocusOffersBreak(t *testing.T) {
 	}
 }
 
-func TestQuickPanelShowsSoundStateAndPendingVolume(t *testing.T) {
-	a, _ := testAquarium(t)
-	d := &Desktop{a: a}
-	tt := ui.NewTester(d.panelView, 320, 460)
-	if !tt.HasText("开启声音") || !tt.HasText("35%") {
-		t.Fatalf("initial audio state: %v", tt.Texts())
-	}
-	d.audio.set(AudioState{Requested: true, Running: true})
-	d.vol.mu.Lock()
-	d.vol.active, d.vol.val = true, .23
-	d.vol.mu.Unlock()
-	tt.Frame()
-	if !tt.HasText("关闭声音") || !tt.HasText("23%") {
-		t.Fatalf("live audio state: %v", tt.Texts())
-	}
-	d.audio.set(AudioState{NeedGesture: true})
-	tt.Frame()
-	if !tt.HasText("前往主窗口开启声音") {
-		t.Fatalf("gesture fallback is missing: %v", tt.Texts())
-	}
-}
-
 func TestQuickPanelNavigationFitsWithTaskAndError(t *testing.T) {
 	a, _ := testAquarium(t)
-	a.state.Session.Task = "正在读一本需要慢慢读完的技术书"
-	d := &Desktop{a: a}
+	a.state.Session.Task = "正在讀一本需要慢慢讀完的技術書"
+	d := newDesktop(a)
 	d.timerReq.begin("failed", time.Second)
-	d.timerReq.done("failed", false, "存档暂时无法写入，请检查目录权限。")
+	d.timerReq.done("failed", false, "存檔暫時無法寫入，請檢查目錄權限。")
 	tt := ui.NewTester(d.panelView, 320, 420)
-	for _, label := range []string{"打开水族馆", "挂件模式", "设置…"} {
+	for _, label := range []string{"開啟水族館", "掛件模式", "設定…"} {
 		r, ok := tt.Find(label)
 		if !ok || r.Y < 0 || r.Y+r.H > 420 {
 			t.Fatalf("navigation %s is clipped: %+v", label, r)
 		}
-	}
-}
-
-func TestCompactRequestsDoNotUseTheAudioRequestLock(t *testing.T) {
-	d := &Desktop{bc: &fakeBroadcaster{}}
-	d.req.begin("audio-pending", time.Hour)
-	t.Cleanup(func() { d.req.done("audio-pending", true, "") })
-	d.requestCompact(true)
-	fb := d.bc.(*fakeBroadcaster)
-	if len(fb.ui) != 1 || fb.ui[0].Compact == nil || !*fb.ui[0].Compact {
-		t.Fatalf("compact layout was not broadcast while audio was busy: %+v", fb.ui)
-	}
-	d.AckUIRequest(context.Background(), fb.ui[0].RequestID, true, "")
-	if d.uiReq.isPending() || !d.req.isCurrent("audio-pending") {
-		t.Fatal("layout ACK affected the wrong pending request")
 	}
 }
 
@@ -149,5 +90,52 @@ func TestRestoreFullBoundsPreservesPositionAndFitsCurrentDisplay(t *testing.T) {
 		if got := restoredFullBounds(tc.saved, work); got != tc.want {
 			t.Errorf("restoredFullBounds(%+v)=%+v, want %+v", tc.saved, got, tc.want)
 		}
+	}
+}
+
+func TestQuickPanelTimerStartsFromTheTray(t *testing.T) {
+	a, _ := testAquarium(t)
+	d := newDesktop(a)
+	tt := ui.NewTester(d.panelView, 320, 460)
+	if err := tt.Click("開始專注"); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Now().Add(time.Second)
+	for a.Get().Session.Status != "running" && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	if a.Get().Session.Status != "running" {
+		t.Fatal("the tray panel did not start the timer")
+	}
+}
+
+func TestQuickPanelShowsSoundStateAndPendingVolume(t *testing.T) {
+	a, _ := testAquarium(t)
+	a.state.Preferences.SoundEnabled = true
+	d := newDesktop(a)
+	d.ui.apply(a.Get())
+	tt := ui.NewTester(d.panelView, 320, 460)
+	if !tt.HasText("開啟聲音") || !tt.HasText("35%") {
+		t.Fatalf("initial audio state: %v", tt.Texts())
+	}
+	d.ui.soundPlaying = true
+	d.ui.volumeDrag, d.ui.volumeActive = .23, true
+	d.ui.busy = true // keeps the drag from committing while the test looks
+	tt.Frame()
+	if !tt.HasText("關閉聲音") || !tt.HasText("23%") {
+		t.Fatalf("live audio state: %v", tt.Texts())
+	}
+}
+
+func TestCompactRequestFlipsTheLayoutWithoutAWindow(t *testing.T) {
+	a, _ := testAquarium(t)
+	d := newDesktop(a)
+	d.requestCompact(true)
+	if !d.compact.Load() {
+		t.Fatal("compact mode did not turn on")
+	}
+	d.requestCompact(false)
+	if d.compact.Load() {
+		t.Fatal("compact mode did not turn off")
 	}
 }

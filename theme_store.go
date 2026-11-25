@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"errors"
 	"io/fs"
@@ -12,14 +11,10 @@ import (
 	"time"
 )
 
-// Themes live inside the frontend bundle so the desktop never needs network
-// access to offer a palette; each folder is one self-contained contract.
-// Vite copies public/themes/* verbatim into web/dist/themes at build time, but
-// the Go backend reads the source-of-truth theme metadata straight from the
-// embedded public/ tree, independent of which HTTP root the page uses.
-//
-//go:embed web/public/themes
-var themesFS embed.FS
+// Themes ship inside the binary (assets/themes, embedded in palette.go) so
+// the desktop never needs network access to offer a palette; each folder is
+// one self-contained contract.
+var themesFS = bundled
 
 const defaultTheme = "reef-realistic"
 
@@ -60,7 +55,7 @@ type themeRecord struct {
 
 // installedThemes lists every bundled theme in load order.
 func installedThemes() ([]themeRecord, error) {
-	entries, err := fs.ReadDir(themesFS, "web/public/themes")
+	entries, err := fs.ReadDir(themesFS, "assets/themes")
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +64,7 @@ func installedThemes() ([]themeRecord, error) {
 		if !e.IsDir() {
 			continue
 		}
-		data, err := fs.ReadFile(themesFS, path.Join("web/public/themes", e.Name(), "theme.json"))
+		data, err := fs.ReadFile(themesFS, path.Join("assets/themes", e.Name(), "theme.json"))
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +75,7 @@ func installedThemes() ([]themeRecord, error) {
 			return nil, err
 		}
 		if meta.Meta.ThemeID != e.Name() {
-			return nil, errors.New("theme " + e.Name() + " 与目录名不一致")
+			return nil, errors.New("theme " + e.Name() + " 與目錄名不一致")
 		}
 		out = append(out, themeRecord{ID: meta.Meta.ThemeID, Name: meta.Meta.DisplayName, Family: meta.Meta.StyleFamily})
 	}
@@ -109,7 +104,7 @@ func newThemeStore(dir string) (*themeStore, error) {
 		s.families[t.ID] = t.Family
 	}
 	if !s.valid(defaultTheme) {
-		return nil, errors.New("默认主题 reef-realistic 未随应用打包")
+		return nil, errors.New("預設主題 reef-realistic 未隨應用打包")
 	}
 	return s, nil
 }
@@ -177,7 +172,7 @@ func (s *themeStore) set(id string) error {
 
 func (s *themeStore) save(cfg themeConfig) error {
 	if !s.valid(cfg.Theme) {
-		return errors.New("未知的主题")
+		return errors.New("未知的主題")
 	}
 	if err := os.MkdirAll(s.dir, 0o700); err != nil {
 		return err

@@ -1,100 +1,100 @@
-# 加入虾蟹，让海底生物更真实 Implementation Plan
+# 加入蝦蟹，讓海底生物更真實 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 新增 6 种虾和 5 种蟹作为图鉴访客；所有生物照真实物种重画、按真实的发力方式运动；修好访客超过 4 位就报错的问题。
+**Goal:** 新增 6 種蝦和 5 種蟹作為圖鑑訪客；所有生物照真實物種重畫、按真實的發力方式運動；修好訪客超過 4 位就報錯的問題。
 
-**Architecture:** `web/reef.js` 仍是场景：测量沙地和石头，按存档里的访客创建生物，把水草、石头和生物按远近一起排序绘制，并管理虾蟹轮换和喂食。生物由 `web/creatures/` 里的五套模型来画、来动：鱼、小虾、皮皮虾、螃蟹、寄居蟹。它们共用 `motion.js` 里的步态和作息，以及 `paint.js` 里的配色和轮廓工具。`species.js` 是物种表，也负责给图鉴画小画像。Go 端只扩充访客名单，并改成先遇见没见过的物种。
+**Architecture:** `web/reef.js` 仍是場景：測量沙地和石頭，按存檔裡的訪客建立生物，把水草、石頭和生物按遠近一起排序繪製，並管理蝦蟹輪換和餵食。生物由 `web/creatures/` 裡的五套模型來畫、來動：魚、小蝦、皮皮蝦、螃蟹、寄居蟹。它們共用 `motion.js` 裡的步態和作息，以及 `paint.js` 裡的配色和輪廓工具。`species.js` 是物種表，也負責給圖鑑畫小畫像。Go 端只擴充訪客名單，並改成先遇見沒見過的物種。
 
-**Tech Stack:** Go 1.27（testing、embed）；Canvas 2D 与浏览器原生 ES 模块，不需要构建步骤，也不引入第三方库。验收时还会用到：本机 Google Chrome 加 chrome-devtools、Python 3（起静态服务器、造存档）、Node 22（只用 `node --check` 做语法检查）。这些都不提交。
+**Tech Stack:** Go 1.27（testing、embed）；Canvas 2D 與瀏覽器原生 ES 模組，不需要構建步驟，也不引入第三方庫。驗收時還會用到：本機 Google Chrome 加 chrome-devtools、Python 3（起靜態伺服器、造存檔）、Node 22（只用 `node --check` 做語法檢查）。這些都不提交。
 
 **Spec:** `docs/superpowers/specs/2026-10-15-reef-creatures-design.md`
 
-本计划里的全部代码都已经在临时克隆里按计划原样跑过：
-- 改动前的 `reef.js` 在出现第 5 位访客时抛出 `TypeError: Cannot read properties of undefined (reading 'y')`。改动后，15 位访客同时在场，控制台也没有报错。
-- 浏览器模式下，0 位、原有 4 位、全部 15 位访客三份存档都能正常显示，主窗口和挂件两种尺寸都看过。
-- 2 倍像素密度下，16 只生物同时在场，平均每帧绘制约 0.55–0.58 毫秒，95% 的帧在 1.1 毫秒以内，远低于设计要求的 4 毫秒。
-- 模拟喂食：鱼在水里吃掉约 7 粒，其余落到沙地，虾蟹再吃掉 3–5 粒，剩下的在 20 秒后淡出。
-- 打开“减少动态效果”后，两次重画的位置完全一致，喂食时也不出现鱼食。
-- Go 测试先失败（`a.roll undefined`），实现后通过，`go vet` 没有问题。
+本計劃裡的全部程式碼都已經在臨時克隆裡按計劃原樣跑過：
+- 改動前的 `reef.js` 在出現第 5 位訪客時丟擲 `TypeError: Cannot read properties of undefined (reading 'y')`。改動後，15 位訪客同時在場，控制檯也沒有報錯。
+- 瀏覽器模式下，0 位、原有 4 位、全部 15 位訪客三份存檔都能正常顯示，主視窗和掛件兩種尺寸都看過。
+- 2 倍畫素密度下，16 只生物同時在場，平均每幀繪製約 0.55–0.58 毫秒，95% 的幀在 1.1 毫秒以內，遠低於設計要求的 4 毫秒。
+- 模擬餵食：魚在水裡吃掉約 7 粒，其餘落到沙地，蝦蟹再吃掉 3–5 粒，剩下的在 20 秒後淡出。
+- 開啟“減少動態效果”後，兩次重畫的位置完全一致，餵食時也不出現魚食。
+- Go 測試先失敗（`a.roll undefined`），實現後透過，`go vet` 沒有問題。
 
-执行时后来改动了其中一部分，见“执行中的调整”。
+執行時後來改動了其中一部分，見“執行中的調整”。
 
-## 与设计文档的差异（规划时实测后的调整，请一并确认）
+## 與設計文件的差異（規劃時實測後的調整，請一併確認）
 
-1. **任务顺序。** 设计里 Go 端排在第一。这里挪到前端之后（Task 8）：名单一扩充，用户就可能遇见新物种，前端得先认得它们。旧版 `reef.js` 遇到第 5 位访客就会报错。这样排，每个任务提交后程序都能正常运行。
-2. **画风检查点挪到所有模型之后（Task 6）。** 五种鱼共用一套模型，一起调整更省事。规划时已经把 15 种都画了出来并截图核对过，检查点那一步请你一次看全。
-3. **虾蟹画大了大约一半。** 按真实体长，主窗口里的清洁虾只有约 25 像素长，寄居蟹不到 20 像素，几乎看不清。物种表里虾蟹的体长取真实值的 1.3–1.5 倍（表上有注释），鱼保持真实比例。
-4. **转身的画法。** 设计写的是整条鱼先缩短、再在另一侧展开。实测看起来像一张卡片在翻面，于是改成头先转过来、尾巴随后跟上，身体在中途对折，最短缩到原长的 16%。
-5. **鱼吃几粒就饱。** 每条鱼每次只吃 2–3 粒，否则 12 粒全在水里被吃光，虾蟹永远等不到。鱼食也下沉得快了一些，大约 10 秒落到沙地，给虾蟹留出时间。
-6. **住洞的虾受惊只是暂时躲回去。** 枪虾和皮皮虾被鱼吓到后，回洞里待 8–20 秒再出来，仍占着“在外活动”的名额，否则名额会越用越少。
-7. **轮换时优先放出住得远的。** 避免几只虾蟹挤在同一块石头上。
-8. **多一个文件 `web/creatures/paint.js`。** 里面是配色、轮廓、肢体、阴影和洞口这些画图工具，五套模型共用。
-9. **花纹写在模型文件里。** `species.js` 只记录模型、体长、活动范围、性格和配色；各物种的花纹是画图代码，放在对应的模型里。
-10. **箭蟹的“体长”按腿展算**（8 厘米）。它的身体只占腿展的三分之一左右。
+1. **任務順序。** 設計裡 Go 端排在第一。這裡挪到前端之後（Task 8）：名單一擴充，使用者就可能遇見新物種，前端得先認得它們。舊版 `reef.js` 遇到第 5 位訪客就會報錯。這樣排，每個任務提交後程式都能正常執行。
+2. **畫風檢查點挪到所有模型之後（Task 6）。** 五種魚共用一套模型，一起調整更省事。規劃時已經把 15 種都畫了出來並截圖核對過，檢查點那一步請你一次看全。
+3. **蝦蟹畫大了大約一半。** 按真實體長，主視窗裡的清潔蝦只有約 25 畫素長，寄居蟹不到 20 畫素，幾乎看不清。物種表裡蝦蟹的體長取真實值的 1.3–1.5 倍（表上有註釋），魚保持真實比例。
+4. **轉身的畫法。** 設計寫的是整條魚先縮短、再在另一側展開。實測看起來像一張卡片在翻面，於是改成頭先轉過來、尾巴隨後跟上，身體在中途對摺，最短縮到原長的 16%。
+5. **魚吃幾粒就飽。** 每條魚每次只吃 2–3 粒，否則 12 粒全在水裡被吃光，蝦蟹永遠等不到。魚食也下沉得快了一些，大約 10 秒落到沙地，給蝦蟹留出時間。
+6. **住洞的蝦受驚只是暫時躲回去。** 槍蝦和皮皮蝦被魚嚇到後，回洞裡待 8–20 秒再出來，仍佔著“在外活動”的名額，否則名額會越用越少。
+7. **輪換時優先放出住得遠的。** 避免幾隻蝦蟹擠在同一塊石頭上。
+8. **多一個檔案 `web/creatures/paint.js`。** 裡面是配色、輪廓、肢體、陰影和洞口這些畫圖工具，五套模型共用。
+9. **花紋寫在模型檔案裡。** `species.js` 只記錄模型、體長、活動範圍、性格和配色；各物種的花紋是畫圖程式碼，放在對應的模型裡。
+10. **箭蟹的“體長”按腿展算**（8 釐米）。它的身體只佔腿展的三分之一左右。
 
-## 执行中的调整
+## 執行中的調整
 
-- **共用的运动。** 步态两组轮流迈步；另一组有腿等着时，正在迈步的一组不能重新起步，避免一组一直等不到。受惊和缩放时释放食粒认领，让别的虾蟹还能捡食。忙着做动作时不触发转身；腿还没落位时先画休息姿势，避免脚伸向画布原点。
-- **鱼。** 小河豚用绝对方向决定转头，避免连续来回翻面；侧面只看得见一只眼睛，就让这一侧的瞳孔自己转动。按嘴的位置找最近的食粒，碰到嘴才吃，避免游到食粒旁却吃不到。小丑鱼的家选在离它自己最近的水草或珊瑚旁，没有时用石头；神仙鱼在石头边挑目的地，照设计的活动区域游。保留实测调好的鱼体长，并在 `species.js` 注明，避免神仙鱼占满水缸。
-- **虾。** 油彩蜡膜虾也和其他小虾一样甩尾后弹。受惊的当帧就设为忙碌并取消正在进行的转身，弹完把横向速度归零，保证尾巴朝后弹，不会中途转身或继续滑走。
-- **寄居蟹和螃蟹。** 寄居蟹缩壳时减速停住，瞬时安排露面时重设出壳姿势，避免缩着壳滑走或静止画面里一直缩壳。触须跟随身体稍慢半拍；箭蟹受惊时举螯，补上设计里的动作。翡翠蟹腿上的细毛省略，沿用设计允许简化刚毛和细小附肢的范围。
-- **皮皮虾。** 进洞时把行走姿势逐渐沉到沙下，再探头；出洞时先收头，再抬起身体，接近出洞后才走。两种姿势先藏好一种再露出另一种，避免一帧切换；瞬时安排时重设抬升和探头姿势。新来的皮皮虾按状态初始化探头，并注释抬升、探头和忙碌的先后，免得在缸边先沉下再爬起。身体和头改为橄榄绿，锤端改为橙红，尾扇边改为红色，贴近设计配色。
-- **图鉴。** 画像盒子没有尺寸时先不画；用一个 `ResizeObserver` 在盒子出现或尺寸变化后重画，每次重建卡片前断开旧观察，避免挂件展开后画像变形。
-- **Go 测试。** 旧存档用例的完成轮数改为 11，让旧的轮换算法会选到不同物种。增加随机判定始终未命中的用例，分别验证普通轮次不来访和第一轮仍必来小丑鱼，保证测试能挡住旧规则和概率判定被改坏。
-- **静止画面。** 初始化露面、半埋姿势，瞬时安排后把脚放到所在表面，补齐歇着的虾蟹。运行中打开“减少动态效果”时清掉食粒，以固定随机种子重建生物，让画面和新打开时一样自然稳定。鱼和虾蟹不再追逐或吃已经淡出的食粒，避免喂食结束后还在追空处；缩放时食粒和生物一起缩放，落地食粒重新贴住沙面，避免食粒留在缸外。
+- **共用的運動。** 步態兩組輪流邁步；另一組有腿等著時，正在邁步的一組不能重新起步，避免一組一直等不到。受驚和縮放時釋放食粒認領，讓別的蝦蟹還能撿食。忙著做動作時不觸發轉身；腿還沒落位時先畫休息姿勢，避免腳伸向畫布原點。
+- **魚。** 小河豚用絕對方向決定轉頭，避免連續來回翻面；側面只看得見一隻眼睛，就讓這一側的瞳孔自己轉動。按嘴的位置找最近的食粒，碰到嘴才吃，避免游到食粒旁卻吃不到。小丑魚的家選在離它自己最近的水草或珊瑚旁，沒有時用石頭；神仙魚在石頭邊挑目的地，照設計的活動區域遊。保留實測調好的魚體長，並在 `species.js` 註明，避免神仙魚佔滿水缸。
+- **蝦。** 油彩蠟膜蝦也和其他小蝦一樣甩尾後彈。受驚的當幀就設為忙碌並取消正在進行的轉身，彈完把橫向速度歸零，保證尾巴朝後彈，不會中途轉身或繼續滑走。
+- **寄居蟹和螃蟹。** 寄居蟹縮殼時減速停住，瞬時安排露面時重設出殼姿勢，避免縮著殼滑走或靜止畫面裡一直縮殼。觸鬚跟隨身體稍慢半拍；箭蟹受驚時舉螯，補上設計裡的動作。翡翠蟹腿上的細毛省略，沿用設計允許簡化剛毛和細小附肢的範圍。
+- **皮皮蝦。** 進洞時把行走姿勢逐漸沉到沙下，再探頭；出洞時先收頭，再抬起身體，接近出洞後才走。兩種姿勢先藏好一種再露出另一種，避免一幀切換；瞬時安排時重設抬升和探頭姿勢。新來的皮皮蝦按狀態初始化探頭，並註釋抬升、探頭和忙碌的先後，免得在缸邊先沉下再爬起。身體和頭改為橄欖綠，錘端改為橙紅，尾扇邊改為紅色，貼近設計配色。
+- **圖鑑。** 畫像盒子沒有尺寸時先不畫；用一個 `ResizeObserver` 在盒子出現或尺寸變化後重畫，每次重建卡片前斷開舊觀察，避免掛件展開後畫像變形。
+- **Go 測試。** 舊存檔用例的完成輪數改為 11，讓舊的輪換演算法會選到不同物種。增加隨機判定始終未命中的用例，分別驗證普通輪次不來訪和第一輪仍必來小丑魚，保證測試能擋住舊規則和機率判定被改壞。
+- **靜止畫面。** 初始化露面、半埋姿勢，瞬時安排後把腳放到所在表面，補齊歇著的蝦蟹。執行中開啟“減少動態效果”時清掉食粒，以固定隨機種子重建生物，讓畫面和新開啟時一樣自然穩定。魚和蝦蟹不再追逐或吃已經淡出的食粒，避免餵食結束後還在追空處；縮放時食粒和生物一起縮放，落地食粒重新貼住沙面，避免食粒留在缸外。
 
 ## Global Constraints
 
-- 前端不加构建步骤，不引入第三方库。新文件都是浏览器原生加载的 ES 模块，由现有的 `//go:embed web` 打进程序。
-- 访客的物种 ID（写进存档，不能改）：`clown` `tang` `angel` `puffer` `cleaner` `fire` `harlequin` `pistol` `mantis` `slipper` `hermit` `emerald` `porcelain` `arrow` `swimmer`。常驻鱼的 ID `resident` 只在前端使用。
-- 图鉴名依次是：小丑鱼、蓝吊鱼、神仙鱼、小河豚、清洁虾、火焰虾、油彩蜡膜虾、枪虾、皮皮虾、琵琶虾、寄居蟹、翡翠蟹、瓷蟹、箭蟹、梭子蟹。
-- 第一轮必定遇见小丑鱼；之后每轮有三分之一的机会来访客，先来的是没见过的。提示文案、存档格式、`Visitor` 结构和 `bindings.ts` 都不变。
-- 同一时间在外活动的虾蟹数为 floor(水缸宽度 / 120)，限制在 3 到 5 之间。轮换间隔 120–240 秒；最新来的访客始终在外面。
-- 不用 canvas 的 `filter` 和 `shadowBlur`。帧率上限仍是每秒 24 帧，窗口隐藏或开启“减少动态效果”时只画一帧。
-- `Reef` 对外接口不变：`new Reef(canvas)`、`resize()`、`update(state)`、`schedule()`、`draw()`。
-- 用户可见文字用中文，代码注释用英文，风格与现有代码一致：双引号、分号、紧凑写法。
-- Go 测试命令：`CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
+- 前端不加構建步驟，不引入第三方庫。新檔案都是瀏覽器原生載入的 ES 模組，由現有的 `//go:embed web` 打進程式。
+- 訪客的物種 ID（寫進存檔，不能改）：`clown` `tang` `angel` `puffer` `cleaner` `fire` `harlequin` `pistol` `mantis` `slipper` `hermit` `emerald` `porcelain` `arrow` `swimmer`。常駐魚的 ID `resident` 只在前端使用。
+- 圖鑑名依次是：小丑魚、藍吊魚、神仙魚、小河豚、清潔蝦、火焰蝦、油彩蠟膜蝦、槍蝦、皮皮蝦、琵琶蝦、寄居蟹、翡翠蟹、瓷蟹、箭蟹、梭子蟹。
+- 第一輪必定遇見小丑魚；之後每輪有三分之一的機會來訪客，先來的是沒見過的。提示文案、存檔格式、`Visitor` 結構和 `bindings.ts` 都不變。
+- 同一時間在外活動的蝦蟹數為 floor(水缸寬度 / 120)，限制在 3 到 5 之間。輪換間隔 120–240 秒；最新來的訪客始終在外面。
+- 不用 canvas 的 `filter` 和 `shadowBlur`。幀率上限仍是每秒 24 幀，視窗隱藏或開啟“減少動態效果”時只畫一幀。
+- `Reef` 對外介面不變：`new Reef(canvas)`、`resize()`、`update(state)`、`schedule()`、`draw()`。
+- 使用者可見文字用中文，程式碼註釋用英文，風格與現有程式碼一致：雙引號、分號、緊湊寫法。
+- Go 測試命令：`CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
 
 ## Review Focus
 
-1. 访客超过 4 位不再报错，未知的物种 ID 会被跳过（Task 2 第 2、6 步）。
-2. 鱼转身时头先转、尾巴后跟，不再瞬间翻面；同一深度的鱼彼此不穿过（Task 2 第 6 步）。
-3. 虾蟹的腿着地时不打滑，步子左右交替；离开石头或回洞都有过程，不会凭空消失（Task 3–5）。
-4. 在外的虾蟹数量始终不超过上限；被吓到的虾不会让名额变少（Task 5 第 4 步）。
-5. 喂食：鱼吃 2–3 粒就不再追，剩下的落到沙地被虾蟹吃掉（Task 5 第 4 步）。
-6. “减少动态效果”下画面稳定，没有喂食动画（Task 9 第 3 步）。
-7. 第一轮遇见小丑鱼，之后先遇见没见过的；旧存档也能遇见新物种（Task 8）。
+1. 訪客超過 4 位不再報錯，未知的物種 ID 會被跳過（Task 2 第 2、6 步）。
+2. 魚轉身時頭先轉、尾巴後跟，不再瞬間翻面；同一深度的魚彼此不穿過（Task 2 第 6 步）。
+3. 蝦蟹的腿著地時不打滑，步子左右交替；離開石頭或回洞都有過程，不會憑空消失（Task 3–5）。
+4. 在外的蝦蟹數量始終不超過上限；被嚇到的蝦不會讓名額變少（Task 5 第 4 步）。
+5. 餵食：魚吃 2–3 粒就不再追，剩下的落到沙地被蝦蟹吃掉（Task 5 第 4 步）。
+6. “減少動態效果”下畫面穩定，沒有餵食動畫（Task 9 第 3 步）。
+7. 第一輪遇見小丑魚，之後先遇見沒見過的；舊存檔也能遇見新物種（Task 8）。
 
-## 文件结构
+## 檔案結構
 
-- 新建 `web/creatures/paint.js`：配色（含远近雾化）、平滑轮廓、肢体、接触阴影、洞口。
-- 新建 `web/creatures/motion.js`：随机与噪声、关节求解、步态 `Gait`，以及虾蟹共用的作息 `Crawler`（出门、回家、捡食、受惊）。
-- 新建 `web/creatures/fish.js`：鱼的模型和五种鱼的样子（海金鱼、小丑鱼、蓝吊、神仙鱼、小河豚）。
-- 新建 `web/creatures/species.js`：物种表、`create()`、`drawPortrait()`；模型注册表随任务逐步补全。
-- 新建 `web/creatures/shrimp.js`：清洁虾、火焰虾、油彩蜡膜虾、枪虾（含洞口）、琵琶虾（从斜上方看）。
+- 新建 `web/creatures/paint.js`：配色（含遠近霧化）、平滑輪廓、肢體、接觸陰影、洞口。
+- 新建 `web/creatures/motion.js`：隨機與噪聲、關節求解、步態 `Gait`，以及蝦蟹共用的作息 `Crawler`（出門、回家、撿食、受驚）。
+- 新建 `web/creatures/fish.js`：魚的模型和五種魚的樣子（海金魚、小丑魚、藍吊、神仙魚、小河豚）。
+- 新建 `web/creatures/species.js`：物種表、`create()`、`drawPortrait()`；模型登錄檔隨任務逐步補全。
+- 新建 `web/creatures/shrimp.js`：清潔蝦、火焰蝦、油彩蠟膜蝦、槍蝦（含洞口）、琵琶蝦（從斜上方看）。
 - 新建 `web/creatures/hermit.js`：寄居蟹。
-- 新建 `web/creatures/crab.js`：翡翠蟹、瓷蟹、梭子蟹（斜上方正面），以及箭蟹（侧面）。
-- 新建 `web/creatures/mantis.js`：皮皮虾（雀尾螳螂虾，住洞，在洞口探头）。
-- 改写 `web/reef.js`：场景、远近排序、沙地纵深、石头（左边新增一组）、洞口、轮换、喂食。
-- 修改 `web/app.js`、`web/style.css`：图鉴用小画像代替 emoji。
-- 修改 `state.go`：15 种访客、可替换的随机函数、先遇见没见过的。
-- 新建 `species_test.go`：名单、前后端一致、遇见顺序、旧存档。
-- 修改 `README.md`：介绍、功能和测试覆盖范围。
+- 新建 `web/creatures/crab.js`：翡翠蟹、瓷蟹、梭子蟹（斜上方正面），以及箭蟹（側面）。
+- 新建 `web/creatures/mantis.js`：皮皮蝦（雀尾螳螂蝦，住洞，在洞口探頭）。
+- 改寫 `web/reef.js`：場景、遠近排序、沙地縱深、石頭（左邊新增一組）、洞口、輪換、餵食。
+- 修改 `web/app.js`、`web/style.css`：圖鑑用小畫像代替 emoji。
+- 修改 `state.go`：15 種訪客、可替換的隨機函式、先遇見沒見過的。
+- 新建 `species_test.go`：名單、前後端一致、遇見順序、舊存檔。
+- 修改 `README.md`：介紹、功能和測試覆蓋範圍。
 
-## 验收工具（放在临时目录，不提交）
+## 驗收工具（放在臨時目錄，不提交）
 
-前端没有测试框架，这里的“测试”是浏览器里的验收页。验收页通过符号链接读取仓库里的 `web/`，所以仓库目录保持干净：
+前端沒有測試框架，這裡的“測試”是瀏覽器裡的驗收頁。驗收頁透過符號連結讀取倉庫裡的 `web/`，所以倉庫目錄保持乾淨：
 
 ```bash
 mkdir -p /tmp/reef-check/harness && ln -sfn "$PWD/web" /tmp/reef-check/web
-# 把下面两个文件写进 /tmp/reef-check/harness/，然后：
+# 把下面兩個檔案寫進 /tmp/reef-check/harness/，然後：
 python3 -m http.server 4180 --bind 127.0.0.1 --directory /tmp/reef-check
 ```
 
-- `index.html?v=<物种,…>&g=<轮数>&sizes=<宽x高,…>`：按给定访客画出水缸，默认画主窗口（611×291）和挂件（400×266）两种尺寸。页面上有 `reefs`、`state`、`errors`，以及 `feed()`、`meet(id)`、`ff(秒)`（不画图快进）、`pause()`（停止自动播放）。加上 `&still` 就模拟“减少动态效果”。
-- `index.html?gallery=<物种,…>&w=420&h=250`：用 `drawPortrait` 把每个物种画成大图。
-- `turn.html?id=<鱼>`：第一行是一次转身的 8 个阶段，第二行是 8 个摆尾相位。
+- `index.html?v=<物種,…>&g=<輪數>&sizes=<寬x高,…>`：按給定訪客畫出水缸，預設畫主視窗（611×291）和掛件（400×266）兩種尺寸。頁面上有 `reefs`、`state`、`errors`，以及 `feed()`、`meet(id)`、`ff(秒)`（不畫圖快進）、`pause()`（停止自動播放）。加上 `&still` 就模擬“減少動態效果”。
+- `index.html?gallery=<物種,…>&w=420&h=250`：用 `drawPortrait` 把每個物種畫成大圖。
+- `turn.html?id=<魚>`：第一行是一次轉身的 8 個階段，第二行是 8 個擺尾相位。
 
 `/tmp/reef-check/harness/index.html`：
 
@@ -167,7 +167,7 @@ f.turn = 0; f.facing = 1;
 </script>
 ```
 
-浏览器模式要用的三份存档（0 位、原有 4 位、全部 15 位访客），写到 `/tmp/reef-saves/`：
+瀏覽器模式要用的三份存檔（0 位、原有 4 位、全部 15 位訪客），寫到 `/tmp/reef-saves/`：
 
 ```bash
 mkdir -p /tmp/reef-saves && cd /tmp/reef-saves && python3 - <<'PY'
@@ -175,35 +175,35 @@ import json, os
 base = {"revision": 1, "preferences": {"focusMinutes": 25, "breakMinutes": 5, "sound": "waves", "volume": 0.35, "soundEnabled": False, "chimeEnabled": True},
         "session": {"id": 1, "kind": "focus", "status": "idle", "task": "", "durationMs": 1500000, "elapsedMs": 0, "startedAt": ""},
         "completed": 0, "totalSecs": 0, "records": [], "visitors": []}
-names = [("clown","小丑鱼"),("tang","蓝吊鱼"),("angel","神仙鱼"),("puffer","小河豚"),("cleaner","清洁虾"),("fire","火焰虾"),("harlequin","油彩蜡膜虾"),("pistol","枪虾"),("mantis","皮皮虾"),("slipper","琵琶虾"),("hermit","寄居蟹"),("emerald","翡翠蟹"),("porcelain","瓷蟹"),("arrow","箭蟹"),("swimmer","梭子蟹")]
+names = [("clown","小丑魚"),("tang","藍吊魚"),("angel","神仙魚"),("puffer","小河豚"),("cleaner","清潔蝦"),("fire","火焰蝦"),("harlequin","油彩蠟膜蝦"),("pistol","槍蝦"),("mantis","皮皮蝦"),("slipper","琵琶蝦"),("hermit","寄居蟹"),("emerald","翡翠蟹"),("porcelain","瓷蟹"),("arrow","箭蟹"),("swimmer","梭子蟹")]
 for label, n, completed in [("none", 0, 0), ("four", 4, 9), ("all", 15, 30)]:
     d = dict(base, completed=completed, totalSecs=completed * 1500,
              visitors=[{"species": s, "name": nm, "date": f"2026-10-{1+i:02d}T10:00:00+08:00", "visits": 1} for i, (s, nm) in enumerate(names[:n])])
     os.makedirs(label, exist_ok=True)
     json.dump(d, open(f"{label}/aquarium.json", "w"), ensure_ascii=False)
 PY
-# 每份存档单独开一个浏览器模式，例如：
+# 每份存檔單獨開一個瀏覽器模式，例如：
 CGO_ENABLED=0 go run . -web 127.0.0.1:4193 -data-dir /tmp/reef-saves/all
 ```
 
 ---
 
-### Task 1: 共用的绘制与运动工具
+### Task 1: 共用的繪製與運動工具
 
 **Files:**
 - Create: `web/creatures/paint.js`
 - Create: `web/creatures/motion.js`
 
 **Interfaces:**
-- Consumes: 无。
+- Consumes: 無。
 - Produces:
-  - `paint.js`：`rgb(hex) → [r,g,b]`；`tone(hex, haze = 0, alpha = 1, light = 0) → "rgba(…)"`（`light` 取 −1…1，`haze` 取 0…1，向水色雾化）；`shade(haze) → (hex, alpha = 1, light = 0) => tone(…)`，每个画图函数用它取当前深度的颜色；`curve(path, points, closed = false, move = true)` 在 Path2D 或 context 上画平滑曲线；`limb(c, points, base, tip, color)`；`shadow(c, x, y, rx, ry, alpha)`；`dot(c, x, y, r)`；`oval(c, x, y, rx, ry, rotation = 0)`；`wind(points)` 统一成顺时针；`hole(c, x, y, r)` / `lip(c, x, y, r)` 画洞口和洞口前沿。
+  - `paint.js`：`rgb(hex) → [r,g,b]`；`tone(hex, haze = 0, alpha = 1, light = 0) → "rgba(…)"`（`light` 取 −1…1，`haze` 取 0…1，向水色霧化）；`shade(haze) → (hex, alpha = 1, light = 0) => tone(…)`，每個畫圖函式用它取當前深度的顏色；`curve(path, points, closed = false, move = true)` 在 Path2D 或 context 上畫平滑曲線；`limb(c, points, base, tip, color)`；`shadow(c, x, y, rx, ry, alpha)`；`dot(c, x, y, r)`；`oval(c, x, y, rx, ry, rotation = 0)`；`wind(points)` 統一成順時針；`hole(c, x, y, r)` / `lip(c, x, y, r)` 畫洞口和洞口前沿。
   - `motion.js`：`TAU`、`clamp`、`lerp`、`smooth`、`hash(text)`、`random(seed) → () => [0,1)`、`noise(seed, t) → −1…1`、`follow(value, target, rate, dt)`、`knee(hx, hy, fx, fy, upper, lower, up = true) → [x, y]`。
-  - `class Gait(legs, { stride, lift, duration })`：`legs` 每项为 `{ dx, group, dz? }`，`dx` 以体长为单位。方法有 `place(x, sx, ground)`、`update(dt, x, sx, ground, vx)` 和 getter `airborne`；`legs[i].x/.y` 是脚在画布上的位置。
-  - `class Crawler(spec, world, { enter })`：字段有 `crawler`、`active`、`state`（`"in" | "out" | "leaving"`）、`home`、`den`、`depths`、`hides`、`x`、`y`、`z`、`facing`、`vx`、`goal`、`eating`、`meal`、`shown`、`clock`、`turn`、`retreat`、`busy`；方法有 `size(world)`、`settle(world)`、getter `hidden`、getter `flipX`（画图用的横向缩放：朝向乘以转身时的压缩）、`localFeet(L, lift = 0)`（把脚的位置换算成体长单位）、`setActive(on, world, instant)`、`resize(sx, sy, world)`、`legScale(world)`、`footing(world)`、`wander(world)`、`routine(dt, world)`、`forage(world)`、`reach(L)`、`watch(world, L)`、`startle(world)`、`hideAway(seconds)`、`drop()`。
-  - 场景提供给模型的 `world`：`width`、`height`、`px`（每厘米多少像素）、`time`、`still`、`fish`（鱼的数组）、`pellets`、`meal`（第几次喂食）、`rocks`、`burrows`，以及方法 `ground(x, z)`、`surface(x, z)`、`home()`、`eat(pellet)`。
+  - `class Gait(legs, { stride, lift, duration })`：`legs` 每項為 `{ dx, group, dz? }`，`dx` 以體長為單位。方法有 `place(x, sx, ground)`、`update(dt, x, sx, ground, vx)` 和 getter `airborne`；`legs[i].x/.y` 是腳在畫布上的位置。
+  - `class Crawler(spec, world, { enter })`：欄位有 `crawler`、`active`、`state`（`"in" | "out" | "leaving"`）、`home`、`den`、`depths`、`hides`、`x`、`y`、`z`、`facing`、`vx`、`goal`、`eating`、`meal`、`shown`、`clock`、`turn`、`retreat`、`busy`；方法有 `size(world)`、`settle(world)`、getter `hidden`、getter `flipX`（畫圖用的橫向縮放：朝向乘以轉身時的壓縮）、`localFeet(L, lift = 0)`（把腳的位置換算成體長單位）、`setActive(on, world, instant)`、`resize(sx, sy, world)`、`legScale(world)`、`footing(world)`、`wander(world)`、`routine(dt, world)`、`forage(world)`、`reach(L)`、`watch(world, L)`、`startle(world)`、`hideAway(seconds)`、`drop()`。
+  - 場景提供給模型的 `world`：`width`、`height`、`px`（每釐米多少畫素）、`time`、`still`、`fish`（魚的陣列）、`pellets`、`meal`（第幾次餵食）、`rocks`、`burrows`，以及方法 `ground(x, z)`、`surface(x, z)`、`home()`、`eat(pellet)`。
 
-- [ ] **Step 1: 写 `web/creatures/paint.js`**
+- [ ] **Step 1: 寫 `web/creatures/paint.js`**
 
 ```js
 // Colors and outline helpers shared by the creature models.
@@ -290,7 +290,7 @@ export function lip(c, x, y, r) {
 }
 ```
 
-- [ ] **Step 2: 写 `web/creatures/motion.js`**
+- [ ] **Step 2: 寫 `web/creatures/motion.js`**
 
 ```js
 // Motion shared by the creature models: seeded randomness, smooth noise,
@@ -568,13 +568,13 @@ export class Crawler {
 }
 ```
 
-- [ ] **Step 3: 检查语法和关节求解**
+- [ ] **Step 3: 檢查語法和關節求解**
 
 ```bash
 node --check web/creatures/paint.js && node --check web/creatures/motion.js && cd web/creatures && node -e 'import("./motion.js").then(m => console.log(m.knee(0, 0, 10, 10, 9, 9), m.knee(0, 0, -10, 10, 9, 9)))'
 ```
 
-Expected：两个膝盖的 y 都约为 1.06，也就是在髋和脚的连线上方：`[ 8.937…, 1.062… ] [ -8.937…, 1.062… ]`。
+Expected：兩個膝蓋的 y 都約為 1.06，也就是在髖和腳的連線上方：`[ 8.937…, 1.062… ] [ -8.937…, 1.062… ]`。
 
 - [ ] **Step 4: Commit**
 
@@ -583,35 +583,35 @@ git add web/creatures/paint.js web/creatures/motion.js
 git commit -m "feat(aquarium): add shared drawing and motion helpers for sea creatures"
 ```
 
-### Task 2: 场景改造与写实的鱼
+### Task 2: 場景改造與寫實的魚
 
 **Files:**
 - Create: `web/creatures/fish.js`
-- Create: `web/creatures/species.js`（这一步只注册鱼的模型）
+- Create: `web/creatures/species.js`（這一步只註冊魚的模型）
 - Rewrite: `web/reef.js`
 
 **Interfaces:**
 - Consumes: Task 1 的 `paint.js` 和 `motion.js`。
 - Produces:
-  - `fish.js`：`class Fish(spec, world, { enter })`，有 `size(world)`、`resize(sx, sy)`、`step(dt, world)`、`draw(c, world)` 和 `static portrait(c, spec, w, h)`；字段 `z`、`facing`、`mode`（`"swim" | "hover"`）、`turn`、`turnFrom`、`appetite`。
-  - `species.js`：`SPECIES`（16 个条目，`id` 与存档一致，外加 `resident`）、`create(id, world, options)`（物种不认识或模型还没注册时返回 `null`）、`drawPortrait(canvas, id)`（不认识的物种画通用剪影）。
-  - 每个模型都要提供：`step(dt, world)`、`draw(c, world)`、`resize(sx, sy, world)`、`z`、`static portrait(c, spec, w, h)`；虾蟹另有 `crawler`、`active`、`home`、`setActive(on, world, instant)`，可选的 `under(c, world)` 在其他东西之前画（比如洞口）。
+  - `fish.js`：`class Fish(spec, world, { enter })`，有 `size(world)`、`resize(sx, sy)`、`step(dt, world)`、`draw(c, world)` 和 `static portrait(c, spec, w, h)`；欄位 `z`、`facing`、`mode`（`"swim" | "hover"`）、`turn`、`turnFrom`、`appetite`。
+  - `species.js`：`SPECIES`（16 個條目，`id` 與存檔一致，外加 `resident`）、`create(id, world, options)`（物種不認識或模型還沒註冊時返回 `null`）、`drawPortrait(canvas, id)`（不認識的物種畫通用剪影）。
+  - 每個模型都要提供：`step(dt, world)`、`draw(c, world)`、`resize(sx, sy, world)`、`z`、`static portrait(c, spec, w, h)`；蝦蟹另有 `crawler`、`active`、`home`、`setActive(on, world, instant)`，可選的 `under(c, world)` 在其他東西之前畫（比如洞口）。
 
-- [ ] **Step 1: 搭好验收工具**
+- [ ] **Step 1: 搭好驗收工具**
 
-按上面“验收工具”一节，把 `index.html` 和 `turn.html` 放进 `/tmp/reef-check/harness/`，再起静态服务器。
+按上面“驗收工具”一節，把 `index.html` 和 `turn.html` 放進 `/tmp/reef-check/harness/`，再起靜態伺服器。
 
-- [ ] **Step 2: 用现在的代码跑 5 位访客，确认会失败**
+- [ ] **Step 2: 用現在的程式碼跑 5 位訪客，確認會失敗**
 
-打开 `http://127.0.0.1:4180/harness/index.html?v=clown,tang,angel,puffer,cleaner&g=6`，在控制台执行：
+開啟 `http://127.0.0.1:4180/harness/index.html?v=clown,tang,angel,puffer,cleaner&g=6`，在控制檯執行：
 
 ```js
 [...new Set(errors)]
 ```
 
-Expected：`["TypeError: Cannot read properties of undefined (reading 'y')", …]`。这正是旧 `reef.js` 只有 5 个鱼位的问题。
+Expected：`["TypeError: Cannot read properties of undefined (reading 'y')", …]`。這正是舊 `reef.js` 只有 5 個魚位的問題。
 
-- [ ] **Step 3: 写 `web/creatures/fish.js`**
+- [ ] **Step 3: 寫 `web/creatures/fish.js`**
 
 ```js
 import { curve, dot, oval, shade } from "./paint.js";
@@ -1018,7 +1018,7 @@ export class Fish {
 }
 ```
 
-- [ ] **Step 4: 写 `web/creatures/species.js`（先只注册鱼）**
+- [ ] **Step 4: 寫 `web/creatures/species.js`（先只註冊魚）**
 
 ```js
 import { Fish } from "./fish.js";
@@ -1079,9 +1079,9 @@ export function drawPortrait(canvas, id) {
 }
 ```
 
-- [ ] **Step 5: 改写 `web/reef.js`**
+- [ ] **Step 5: 改寫 `web/reef.js`**
 
-用下面的内容整个替换 `web/reef.js`：
+用下面的內容整個替換 `web/reef.js`：
 
 ```js
 import { create } from "./creatures/species.js";
@@ -1366,12 +1366,12 @@ export class Reef {
 }
 ```
 
-- [ ] **Step 6: 验收**
+- [ ] **Step 6: 驗收**
 
-1. 重新打开第 2 步的页面（`?v=clown,tang,angel,puffer,cleaner,hermit&g=6`），在控制台执行 `errors`。Expected：`[]`，也就是虾蟹的模型还没注册时不报错，直接跳过。
-2. `?gallery=resident,clown,tang,angel,puffer&w=420&h=250`：五种鱼各自的体型和花纹与设计文档“外观要点”一致；鳍半透明、有鳍条；眼睛有虹膜和高光；身上有淡淡的鳞纹。
-3. `turn.html?id=clown`：第一行头先转过来、尾巴后跟，中途身体对折；第二行尾鳍宽窄变化，没有上下甩动。
-4. `?v=clown,tang,angel,puffer&g=14`，执行下面的脚本记录 12 秒的运动：
+1. 重新開啟第 2 步的頁面（`?v=clown,tang,angel,puffer,cleaner,hermit&g=6`），在控制檯執行 `errors`。Expected：`[]`，也就是蝦蟹的模型還沒註冊時不報錯，直接跳過。
+2. `?gallery=resident,clown,tang,angel,puffer&w=420&h=250`：五種魚各自的體型和花紋與設計文件“外觀要點”一致；鰭半透明、有鰭條；眼睛有虹膜和高光；身上有淡淡的鱗紋。
+3. `turn.html?id=clown`：第一行頭先轉過來、尾巴後跟，中途身體對摺；第二行尾鰭寬窄變化，沒有上下甩動。
+4. `?v=clown,tang,angel,puffer&g=14`，執行下面的指令碼記錄 12 秒的運動：
 
 ```js
 (() => {
@@ -1391,9 +1391,9 @@ export class Reef {
 })()
 ```
 
-   这段脚本快进 5 分钟。Expected：`modes` 里既有 `swim` 也有 `hover`；深度相近（`|Δz| ≤ .25`）的两条鱼，中心距离不小于平均体长的约 0.75 倍。实测 `worst` 为 0.76，低于 0.8 的只有 12 帧（共 7200 帧）。离得太近时，鱼会一前一后错开深度经过。
-5. 执行 `feed()`，等 15 秒。Expected：鱼游向鱼食、一粒一粒吃掉，吃的时候嘴张开一下。
-6. 浏览器模式打开 `four` 存档：图鉴仍是 4 位访客，水缸里 5 条鱼，控制台没有报错。
+   這段指令碼快進 5 分鐘。Expected：`modes` 裡既有 `swim` 也有 `hover`；深度相近（`|Δz| ≤ .25`）的兩條魚，中心距離不小於平均體長的約 0.75 倍。實測 `worst` 為 0.76，低於 0.8 的只有 12 幀（共 7200 幀）。離得太近時，魚會一前一後錯開深度經過。
+5. 執行 `feed()`，等 15 秒。Expected：魚遊向魚食、一粒一粒吃掉，吃的時候嘴張開一下。
+6. 瀏覽器模式開啟 `four` 存檔：圖鑑仍是 4 位訪客，水缸裡 5 條魚，控制檯沒有報錯。
 
 - [ ] **Step 7: Commit**
 
@@ -1402,17 +1402,17 @@ git add web/creatures/fish.js web/creatures/species.js web/reef.js
 git commit -m "feat(aquarium): draw lifelike fish in a depth-sorted reef"
 ```
 
-### Task 3: 小虾与琵琶虾
+### Task 3: 小蝦與琵琶蝦
 
 **Files:**
 - Create: `web/creatures/shrimp.js`
 - Modify: `web/creatures/species.js`
 
 **Interfaces:**
-- Consumes: `Crawler`、`Gait`、`knee`、`noise`、`follow`、`clamp`、`lerp`、`TAU`；`paint.js` 的 `curve`、`dot`、`limb`、`oval`、`shadow`、`tone`、`wind`、`hole`、`lip`；场景的 `world.burrows.pistol`。
-- Produces: `class Shrimp extends Crawler`，有 `startle(world)`、`step(dt, world)`、`under(c, world)`（枪虾的洞口）、`draw(c, world)`、`static portrait(c, spec, w, h)`。
+- Consumes: `Crawler`、`Gait`、`knee`、`noise`、`follow`、`clamp`、`lerp`、`TAU`；`paint.js` 的 `curve`、`dot`、`limb`、`oval`、`shadow`、`tone`、`wind`、`hole`、`lip`；場景的 `world.burrows.pistol`。
+- Produces: `class Shrimp extends Crawler`，有 `startle(world)`、`step(dt, world)`、`under(c, world)`（槍蝦的洞口）、`draw(c, world)`、`static portrait(c, spec, w, h)`。
 
-- [ ] **Step 1: 写 `web/creatures/shrimp.js`**
+- [ ] **Step 1: 寫 `web/creatures/shrimp.js`**
 
 ```js
 import { curve, dot, hole, limb, lip, oval, shade, shadow, tone, wind } from "./paint.js";
@@ -1734,15 +1734,15 @@ export class Shrimp extends Crawler {
 }
 ```
 
-- [ ] **Step 2: 在 `web/creatures/species.js` 注册模型**
+- [ ] **Step 2: 在 `web/creatures/species.js` 註冊模型**
 
-在 `import { Fish } from "./fish.js";` 之后的导入里追加：
+在 `import { Fish } from "./fish.js";` 之後的匯入裡追加：
 
 ```js
 import { Shrimp } from "./shrimp.js";
 ```
 
-并把
+並把
 
 ```js
 const MODELS = { fish: Fish };
@@ -1754,18 +1754,18 @@ const MODELS = { fish: Fish };
 const MODELS = { fish: Fish, shrimp: Shrimp };
 ```
 
-- [ ] **Step 3: 验收**
+- [ ] **Step 3: 驗收**
 
-1. `?gallery=cleaner,fire,harlequin,pistol,slipper&w=420&h=250`：清洁虾背上是红带夹白线、两侧黄色、白色长须；火焰虾深红带白点；油彩蜡膜虾是奶白底上带深边的粉紫斑块，前面一对花瓣似的大螯；枪虾有一只橙色大螯，眼睛藏在头胸甲下；琵琶虾从斜上方看是扁平的琵琶形，头前两片宽板，眼睛在前缘两角。
-2. `?v=cleaner,fire,harlequin,pistol,slipper&g=9`，执行 `pause(); ff(60)` 后截图：虾停在石头上或沙地上，腿着地、不悬空；枪虾在洞口附近；琵琶虾不在外面时半埋在沙里。`errors` 为 `[]`。
-3. 执行下面的脚本，让鱼贴近清洁虾：
+1. `?gallery=cleaner,fire,harlequin,pistol,slipper&w=420&h=250`：清潔蝦背上是紅帶夾白線、兩側黃色、白色長鬚；火焰蝦深紅帶白點；油彩蠟膜蝦是奶白底上帶深邊的粉紫斑塊，前面一對花瓣似的大螯；槍蝦有一隻橙色大螯，眼睛藏在頭胸甲下；琵琶蝦從斜上方看是扁平的琵琶形，頭前兩片寬板，眼睛在前緣兩角。
+2. `?v=cleaner,fire,harlequin,pistol,slipper&g=9`，執行 `pause(); ff(60)` 後截圖：蝦停在石頭上或沙地上，腿著地、不懸空；槍蝦在洞口附近；琵琶蝦不在外面時半埋在沙裡。`errors` 為 `[]`。
+3. 執行下面的指令碼，讓魚貼近清潔蝦：
 
 ```js
 (() => { const r = reefs[0], s = r.creatures.get("cleaner"); s.setActive(true, r.world, true); const f = r.world.fish[0] || r.creatures.get("resident"); f.x = s.x + 5; f.y = s.y - 8; f.z = s.z; r.world.fish.splice(0, r.world.fish.length, f); s.calm = 0; s.watch(r.world, s.size(r.world)); return s.dart; })()
 ```
 
-   Expected：返回 `1`，之后 0.5 秒内清洁虾甩尾往后弹开，尾扇卷到身体下面。换成 `fire` 再执行一次：火焰虾胆小，不弹开，而是回到石头后面躲 8–18 秒（`state` 变成 `"leaving"`，`retreat` 大于 0）。
-4. 只看枪虾：`?v=pistol&g=9`，执行 `pause(); for (let i = 0; i < 90; i++) ff(1)`，然后截图。Expected：枪虾离开洞口时，大螯前面推着一小堆沙；停下后沙留在原地，成了一个小沙堆，十几秒后淡掉。偶尔“开枪”：大螯猛地合上，冒出一个闪光的小气泡。
+   Expected：返回 `1`，之後 0.5 秒內清潔蝦甩尾往後彈開，尾扇捲到身體下面。換成 `fire` 再執行一次：火焰蝦膽小，不彈開，而是回到石頭後面躲 8–18 秒（`state` 變成 `"leaving"`，`retreat` 大於 0）。
+4. 只看槍蝦：`?v=pistol&g=9`，執行 `pause(); for (let i = 0; i < 90; i++) ff(1)`，然後截圖。Expected：槍蝦離開洞口時，大螯前面推著一小堆沙；停下後沙留在原地，成了一個小沙堆，十幾秒後淡掉。偶爾“開槍”：大螯猛地合上，冒出一個閃光的小氣泡。
 
 - [ ] **Step 4: Commit**
 
@@ -1774,7 +1774,7 @@ git add web/creatures/shrimp.js web/creatures/species.js
 git commit -m "feat(aquarium): add cleaner, fire, harlequin, pistol and slipper shrimp"
 ```
 
-### Task 4: 寄居蟹与螃蟹
+### Task 4: 寄居蟹與螃蟹
 
 **Files:**
 - Create: `web/creatures/hermit.js`
@@ -1783,9 +1783,9 @@ git commit -m "feat(aquarium): add cleaner, fire, harlequin, pistol and slipper 
 
 **Interfaces:**
 - Consumes: 同 Task 3。
-- Produces: `class Hermit extends Crawler`（受惊时缩进壳里 3–6 秒）；`class Crab extends Crawler`（翡翠蟹、瓷蟹、梭子蟹从斜上方的正面画、横着走，箭蟹从侧面画、向前走；受惊时举起大螯；梭子蟹偶尔游一小段，休息时半埋）。两者都有 `static portrait`。
+- Produces: `class Hermit extends Crawler`（受驚時縮排殼裡 3–6 秒）；`class Crab extends Crawler`（翡翠蟹、瓷蟹、梭子蟹從斜上方的正面畫、橫著走，箭蟹從側面畫、向前走；受驚時舉起大螯；梭子蟹偶爾遊一小段，休息時半埋）。兩者都有 `static portrait`。
 
-- [ ] **Step 1: 写 `web/creatures/hermit.js`**
+- [ ] **Step 1: 寫 `web/creatures/hermit.js`**
 
 ```js
 import { dot, limb, oval, shade, shadow } from "./paint.js";
@@ -1895,7 +1895,7 @@ export class Hermit extends Crawler {
 }
 ```
 
-- [ ] **Step 2: 写 `web/creatures/crab.js`**
+- [ ] **Step 2: 寫 `web/creatures/crab.js`**
 
 ```js
 import { curve, dot, limb, oval, shade, shadow, tone, wind } from "./paint.js";
@@ -2136,16 +2136,16 @@ export class Crab extends Crawler {
 }
 ```
 
-- [ ] **Step 3: 在 `web/creatures/species.js` 注册模型**
+- [ ] **Step 3: 在 `web/creatures/species.js` 註冊模型**
 
-在 `import { Fish } from "./fish.js";` 之后的导入里追加：
+在 `import { Fish } from "./fish.js";` 之後的匯入裡追加：
 
 ```js
 import { Hermit } from "./hermit.js";
 import { Crab } from "./crab.js";
 ```
 
-并把
+並把
 
 ```js
 const MODELS = { fish: Fish, shrimp: Shrimp };
@@ -2157,10 +2157,10 @@ const MODELS = { fish: Fish, shrimp: Shrimp };
 const MODELS = { fish: Fish, shrimp: Shrimp, hermit: Hermit, crab: Crab };
 ```
 
-- [ ] **Step 4: 验收**
+- [ ] **Step 4: 驗收**
 
-1. `?gallery=hermit,emerald,porcelain,swimmer,arrow&w=420&h=250`：寄居蟹背着带螺纹的米褐色螺壳，红腿、红螯、黄色眼柄；翡翠蟹绿色、腿粗、螯尖呈勺状；瓷蟹白底红点、两只大而扁的螯；梭子蟹甲壳宽梭形、两侧有长刺、蓝紫色长螯带刺、最后一对足是桨；箭蟹是带条纹的三角形身体加长额角，腿细长。
-2. `?v=hermit,emerald,porcelain,swimmer,arrow&g=9`，执行 `pause(); for (let i = 0; i < 4; i++) ff(30)`，每次快进后截一张图：腿左右交替迈步、脚不打滑；螃蟹横着走；走上石头时整只抬高；躲到石头后面时逐渐淡出。`errors` 为 `[]`。
+1. `?gallery=hermit,emerald,porcelain,swimmer,arrow&w=420&h=250`：寄居蟹揹著帶螺紋的米褐色螺殼，紅腿、紅螯、黃色眼柄；翡翠蟹綠色、腿粗、螯尖呈勺狀；瓷蟹白底紅點、兩隻大而扁的螯；梭子蟹甲殼寬梭形、兩側有長刺、藍紫色長螯帶刺、最後一對足是槳；箭蟹是帶條紋的三角形身體加長額角，腿細長。
+2. `?v=hermit,emerald,porcelain,swimmer,arrow&g=9`，執行 `pause(); for (let i = 0; i < 4; i++) ff(30)`，每次快進後截一張圖：腿左右交替邁步、腳不打滑；螃蟹橫著走；走上石頭時整隻抬高；躲到石頭後面時逐漸淡出。`errors` 為 `[]`。
 
 - [ ] **Step 5: Commit**
 
@@ -2169,17 +2169,17 @@ git add web/creatures/hermit.js web/creatures/crab.js web/creatures/species.js
 git commit -m "feat(aquarium): add hermit, emerald, porcelain, arrow and swimming crabs"
 ```
 
-### Task 5: 皮皮虾，以及全员验收
+### Task 5: 皮皮蝦，以及全員驗收
 
 **Files:**
 - Create: `web/creatures/mantis.js`
 - Modify: `web/creatures/species.js`
 
 **Interfaces:**
-- Consumes: 同 Task 3；场景的 `world.burrows.mantis`。
-- Produces: `class Mantis extends Crawler`。在洞里时只在洞口探出头和眼睛，两只眼睛各转各的；出来时在洞附近巡游，吃东西时锤状捕肢往前弹；受惊时回洞 10–20 秒。有 `static portrait`。
+- Consumes: 同 Task 3；場景的 `world.burrows.mantis`。
+- Produces: `class Mantis extends Crawler`。在洞裡時只在洞口探出頭和眼睛，兩隻眼睛各轉各的；出來時在洞附近巡遊，吃東西時錘狀捕肢往前彈；受驚時回洞 10–20 秒。有 `static portrait`。
 
-- [ ] **Step 1: 写 `web/creatures/mantis.js`**
+- [ ] **Step 1: 寫 `web/creatures/mantis.js`**
 
 ```js
 import { curve, dot, hole, limb, lip, oval, shade, shadow } from "./paint.js";
@@ -2309,15 +2309,15 @@ export class Mantis extends Crawler {
 }
 ```
 
-- [ ] **Step 2: 在 `web/creatures/species.js` 注册模型**
+- [ ] **Step 2: 在 `web/creatures/species.js` 註冊模型**
 
-在 `import { Fish } from "./fish.js";` 之后的导入里追加：
+在 `import { Fish } from "./fish.js";` 之後的匯入裡追加：
 
 ```js
 import { Mantis } from "./mantis.js";
 ```
 
-并把
+並把
 
 ```js
 const MODELS = { fish: Fish, shrimp: Shrimp, hermit: Hermit, crab: Crab };
@@ -2329,24 +2329,24 @@ const MODELS = { fish: Fish, shrimp: Shrimp, hermit: Hermit, crab: Crab };
 const MODELS = { fish: Fish, shrimp: Shrimp, mantis: Mantis, hermit: Hermit, crab: Crab };
 ```
 
-- [ ] **Step 3: 验收**
+- [ ] **Step 3: 驗收**
 
-1. `?gallery`（不带参数，16 种全画）：皮皮虾是绿色扁长的身体，头部带斑点，有一对条带大眼、红色锤状捕肢和蓝橙色尾扇；其余 15 种和前面的任务一致。
-2. 用全部访客打开：`?v=clown,tang,angel,puffer,cleaner,fire,harlequin,pistol,mantis,slipper,hermit,emerald,porcelain,arrow,swimmer&g=24`。`errors` 为 `[]`；主窗口在外的虾蟹 5 只，挂件 3 只；皮皮虾在洞口探头。
-3. 性能，在主窗口尺寸（`&sizes=611x291`）下执行：
+1. `?gallery`（不帶引數，16 種全畫）：皮皮蝦是綠色扁長的身體，頭部帶斑點，有一對條帶大眼、紅色錘狀捕肢和藍橙色尾扇；其餘 15 種和前面的任務一致。
+2. 用全部訪客開啟：`?v=clown,tang,angel,puffer,cleaner,fire,harlequin,pistol,mantis,slipper,hermit,emerald,porcelain,arrow,swimmer&g=24`。`errors` 為 `[]`；主視窗在外的蝦蟹 5 只，掛件 3 只；皮皮蝦在洞口探頭。
+3. 效能，在主視窗尺寸（`&sizes=611x291`）下執行：
 
 ```js
 (() => { pause(); const r = reefs[0], draw = []; for (let i = 0; i < 480; i++) { r.time += 1 / 24; r.step(1 / 24); const a = performance.now(); r.draw(); draw.push(performance.now() - a); } draw.sort((x, y) => x - y); return { avg: draw.reduce((x, y) => x + y) / draw.length, p95: draw[456] }; })()
 ```
 
-   Expected：`avg` 不超过 4（实测约 0.58），`p95` 实测约 1.1。
-4. 轮换与喂食：
+   Expected：`avg` 不超過 4（實測約 0.58），`p95` 實測約 1.1。
+4. 輪換與餵食：
 
 ```js
 (() => { const r = reefs[0], log = []; for (let k = 1; k <= 6; k++) { ff(30); log.push(k * 30 + "s " + [...r.creatures.values()].filter(c => c.crawler && c.active).map(c => c.spec.id + "/" + c.state).join(" ")); } feed(); let sand = 0; const eat = r.world.eat; r.world.eat = p => { if (p.landed) sand++; eat(p); }; for (let i = 0; i < 30; i++) ff(1); return { log, sand }; })()
 ```
 
-   Expected：每个时间点都正好 5 只 `active`，名单在几分钟内有变化；`sand` 至少为 1，也就是有虾蟹吃到了落到沙地的鱼食。
+   Expected：每個時間點都正好 5 只 `active`，名單在幾分鐘內有變化；`sand` 至少為 1，也就是有蝦蟹吃到了落到沙地的魚食。
 
 - [ ] **Step 4: Commit**
 
@@ -2355,43 +2355,43 @@ git add web/creatures/mantis.js web/creatures/species.js
 git commit -m "feat(aquarium): add the peacock mantis shrimp in its burrow"
 ```
 
-### Task 6: 画风检查点（请用户确认）
+### Task 6: 畫風檢查點（請使用者確認）
 
-**Files:** 无改动。
+**Files:** 無改動。
 
-- [ ] **Step 1: 准备给用户看的画面**
+- [ ] **Step 1: 準備給使用者看的畫面**
 
-起浏览器模式打开 `all` 存档，拿到主窗口（1100×800）的整页截图、挂件模式的截图，以及验收页 `?gallery&w=420&h=250` 的物种总览截图。
+起瀏覽器模式開啟 `all` 存檔，拿到主視窗（1100×800）的整頁截圖、掛件模式的截圖，以及驗收頁 `?gallery&w=420&h=250` 的物種總覽截圖。
 
-- [ ] **Step 2: 请用户确认**
+- [ ] **Step 2: 請使用者確認**
 
-把截图和浏览器模式的地址发给用户，请用户重点看三件事：鱼还“假”不假、每种虾蟹是否认得出、画面是否拥挤。用户确认之前，不往下做。
+把截圖和瀏覽器模式的地址發給使用者，請使用者重點看三件事：魚還“假”不假、每種蝦蟹是否認得出、畫面是否擁擠。使用者確認之前，不往下做。
 
-- [ ] **Step 3: 按反馈调整**
+- [ ] **Step 3: 按回饋調整**
 
-用户要求改的地方，在对应模型文件里改，重做 Task 2–5 里相关的验收步骤，每类改动单独提交一次，提交信息写清楚改了什么。
+使用者要求改的地方，在對應模型檔案裡改，重做 Task 2–5 裡相關的驗收步驟，每類改動單獨提交一次，提交資訊寫清楚改了什麼。
 
-### Task 7: 图鉴小画像
+### Task 7: 圖鑑小畫像
 
 **Files:**
-- Modify: `web/app.js:1-2`（导入）、`web/app.js:143-153`（`renderVisitors`）
-- Modify: `web/style.css`（`.visitor>span` 一条规则）
+- Modify: `web/app.js:1-2`（匯入）、`web/app.js:143-153`（`renderVisitors`）
+- Modify: `web/style.css`（`.visitor>span` 一條規則）
 
 **Interfaces:**
 - Consumes: `drawPortrait(canvas, id)`（Task 2）。
-- Produces: 图鉴卡片的第一个子元素变成 `<canvas class="portrait">`。
+- Produces: 圖鑑卡片的第一個子元素變成 `<canvas class="portrait">`。
 
-- [ ] **Step 1: 导入画像函数**
+- [ ] **Step 1: 匯入畫像函式**
 
-在 `web/app.js` 第 2 行 `import { Reef } from "./reef.js";` 之后加一行：
+在 `web/app.js` 第 2 行 `import { Reef } from "./reef.js";` 之後加一行：
 
 ```js
 import { drawPortrait } from "./creatures/species.js";
 ```
 
-- [ ] **Step 2: 改写 `renderVisitors`**
+- [ ] **Step 2: 改寫 `renderVisitors`**
 
-把 `web/app.js` 里整个 `renderVisitors` 函数替换为：
+把 `web/app.js` 裡整個 `renderVisitors` 函式替換為：
 
 ```js
 function renderVisitors() {
@@ -2401,7 +2401,7 @@ function renderVisitors() {
     const el = document.createElement("div"); el.className = "visitor";
     const portrait = document.createElement("canvas"); portrait.className = "portrait"; portrait.setAttribute("aria-hidden", "true");
     const info = document.createElement("div"), title = document.createElement("p"), date = document.createElement("small");
-    title.textContent = v.name; date.textContent = `${new Date(v.date).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })} · 来过 ${v.visits} 次`;
+    title.textContent = v.name; date.textContent = `${new Date(v.date).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })} · 來過 ${v.visits} 次`;
     info.append(title, date); el.append(portrait, info); portraits.push([portrait, v.species]); return el;
   }));
   // Portraits size themselves from their box, so paint them once they are on the page.
@@ -2409,17 +2409,17 @@ function renderVisitors() {
 }
 ```
 
-- [ ] **Step 3: 画像的尺寸**
+- [ ] **Step 3: 畫像的尺寸**
 
-在 `web/style.css` 里把 `.visitor>span{font-size:25px}` 替换为：
+在 `web/style.css` 裡把 `.visitor>span{font-size:25px}` 替換為：
 
 ```css
 .visitor>.portrait{width:46px;height:32px;flex:none}
 ```
 
-- [ ] **Step 4: 验收**
+- [ ] **Step 4: 驗收**
 
-浏览器模式打开 `all` 存档：图鉴有 15 张小画像，鱼和虾是侧面、螃蟹是正面，和水缸里的样子一致，控制台没有报错。再用开发者工具把 `all/aquarium.json` 里某个访客的 `species` 改成 `"volcano"`，重启后打开：那张卡片显示通用剪影，水缸里不画它，也不报错。改完记得恢复那份存档。
+瀏覽器模式開啟 `all` 存檔：圖鑑有 15 張小畫像，魚和蝦是側面、螃蟹是正面，和水缸裡的樣子一致，控制檯沒有報錯。再用開發者工具把 `all/aquarium.json` 裡某個訪客的 `species` 改成 `"volcano"`，重啟後開啟：那張卡片顯示通用剪影，水缸裡不畫它，也不報錯。改完記得恢復那份存檔。
 
 - [ ] **Step 5: Commit**
 
@@ -2428,17 +2428,17 @@ git add web/app.js web/style.css
 git commit -m "feat(aquarium): paint visitor portraits with the creature models"
 ```
 
-### Task 8: Go 端：访客名单与遇见规则
+### Task 8: Go 端：訪客名單與遇見規則
 
 **Files:**
 - Create: `species_test.go`
 - Modify: `state.go:72-84`（`Aquarium` 增加 `roll`）、`state.go:85-86`（`newAquarium`）、`state.go:349-354`（`species`）、`state.go:367-369`（`completeLocked`）
 
 **Interfaces:**
-- Consumes: `web/creatures/species.js` 里每个物种都写成 `id: "<id>"`（Task 2）。
-- Produces: `species []Visitor`（15 项，小丑鱼排第一）；`Aquarium.roll func(n int) int`（默认 `rand.IntN`）；`(*Aquarium).nextVisitorLocked() Visitor`。
+- Consumes: `web/creatures/species.js` 裡每個物種都寫成 `id: "<id>"`（Task 2）。
+- Produces: `species []Visitor`（15 項，小丑魚排第一）；`Aquarium.roll func(n int) int`（預設 `rand.IntN`）；`(*Aquarium).nextVisitorLocked() Visitor`。
 
-- [ ] **Step 1: 写失败的测试**
+- [ ] **Step 1: 寫失敗的測試**
 
 新建 `species_test.go`：
 
@@ -2524,9 +2524,9 @@ func TestOldSaveMeetsNewSpecies(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "aquarium.json")
 	old := `{"preferences":{"focusMinutes":1,"breakMinutes":1,"sound":"waves","volume":0.35,"chimeEnabled":true},
 "session":{"id":1,"kind":"focus","status":"idle","durationMs":60000},"completed":4,
-"visitors":[{"species":"clown","name":"小丑鱼","date":"2026-10-10T10:00:00+08:00","visits":2},
-{"species":"tang","name":"蓝吊鱼","date":"2026-10-11T10:00:00+08:00","visits":1},
-{"species":"angel","name":"神仙鱼","date":"2026-10-12T10:00:00+08:00","visits":1},
+"visitors":[{"species":"clown","name":"小丑魚","date":"2026-10-10T10:00:00+08:00","visits":2},
+{"species":"tang","name":"藍吊魚","date":"2026-10-11T10:00:00+08:00","visits":1},
+{"species":"angel","name":"神仙魚","date":"2026-10-12T10:00:00+08:00","visits":1},
 {"species":"puffer","name":"小河豚","date":"2026-10-13T10:00:00+08:00","visits":1}]}`
 	if err := os.WriteFile(path, []byte(old), 0o600); err != nil {
 		t.Fatal(err)
@@ -2545,43 +2545,43 @@ func TestOldSaveMeetsNewSpecies(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: 运行测试，确认失败**
+- [ ] **Step 2: 執行測試，確認失敗**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./...`
-Expected：编译失败，`a.roll undefined (type *Aquarium has no field or method roll)`。
+Expected：編譯失敗，`a.roll undefined (type *Aquarium has no field or method roll)`。
 
-- [ ] **Step 3: 给 `Aquarium` 加上可替换的随机函数**
+- [ ] **Step 3: 給 `Aquarium` 加上可替換的隨機函式**
 
-在 `state.go` 的 `Aquarium` 结构体里，`now      func() time.Time` 之后加一行：
+在 `state.go` 的 `Aquarium` 結構體裡，`now      func() time.Time` 之後加一行：
 
 ```go
 	roll     func(n int) int // random number in [0, n); tests replace it
 ```
 
-把 `newAquarium` 的第一行改为：
+把 `newAquarium` 的第一行改為：
 
 ```go
 	a := &Aquarium{path: path, now: time.Now, roll: rand.IntN, stop: make(chan struct{}), done: make(chan struct{})}
 ```
 
-- [ ] **Step 4: 扩充名单，先遇见没见过的**
+- [ ] **Step 4: 擴充名單，先遇見沒見過的**
 
-把 `state.go` 里的 `var species = …` 整段替换为：
+把 `state.go` 裡的 `var species = …` 整段替換為：
 
 ```go
 // species lists every visitor, fish first, then shrimp and crabs. The ids
 // are saved in the visitor book and drawn by web/creatures/species.js.
 var species = []Visitor{
-	{Species: "clown", Name: "小丑鱼"},
-	{Species: "tang", Name: "蓝吊鱼"},
-	{Species: "angel", Name: "神仙鱼"},
+	{Species: "clown", Name: "小丑魚"},
+	{Species: "tang", Name: "藍吊魚"},
+	{Species: "angel", Name: "神仙魚"},
 	{Species: "puffer", Name: "小河豚"},
-	{Species: "cleaner", Name: "清洁虾"},
-	{Species: "fire", Name: "火焰虾"},
-	{Species: "harlequin", Name: "油彩蜡膜虾"},
-	{Species: "pistol", Name: "枪虾"},
-	{Species: "mantis", Name: "皮皮虾"},
-	{Species: "slipper", Name: "琵琶虾"},
+	{Species: "cleaner", Name: "清潔蝦"},
+	{Species: "fire", Name: "火焰蝦"},
+	{Species: "harlequin", Name: "油彩蠟膜蝦"},
+	{Species: "pistol", Name: "槍蝦"},
+	{Species: "mantis", Name: "皮皮蝦"},
+	{Species: "slipper", Name: "琵琶蝦"},
 	{Species: "hermit", Name: "寄居蟹"},
 	{Species: "emerald", Name: "翡翠蟹"},
 	{Species: "porcelain", Name: "瓷蟹"},
@@ -2608,24 +2608,24 @@ func (a *Aquarium) nextVisitorLocked() Visitor {
 }
 ```
 
-再把 `completeLocked` 里的
+再把 `completeLocked` 裡的
 
 ```go
 	if a.state.Completed == 1 || rand.IntN(3) == 0 {
 		v := species[(a.state.Completed-1)%len(species)]
 ```
 
-改为
+改為
 
 ```go
 	if a.state.Completed == 1 || a.roll(3) == 0 {
 		v := a.nextVisitorLocked()
 ```
 
-- [ ] **Step 5: 运行测试，确认通过**
+- [ ] **Step 5: 執行測試，確認透過**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./... && go vet ./... && gofmt -l state.go species_test.go`
-Expected：`ok  	little-reef`；`go vet` 没有输出；`gofmt -l` 也没有输出。（`main.go` 原本就有一处没按 gofmt 排版，不在这次范围内。）
+Expected：`ok  	little-reef`；`go vet` 沒有輸出；`gofmt -l` 也沒有輸出。（`main.go` 原本就有一處沒按 gofmt 排版，不在這次範圍內。）
 
 - [ ] **Step 6: Commit**
 
@@ -2634,58 +2634,58 @@ git add state.go species_test.go
 git commit -m "feat(aquarium): meet shrimp and crabs, newcomers first"
 ```
 
-### Task 9: README 与整体验证
+### Task 9: README 與整體驗證
 
 **Files:**
-- Modify: `README.md`（开头一段、“功能”、“测试覆盖”）
+- Modify: `README.md`（開頭一段、“功能”、“測試覆蓋”）
 
 - [ ] **Step 1: 更新 README**
 
-把开头一段里的
+把開頭一段裡的
 
 ```text
-偶尔还会有鱼来做客。
+偶爾還會有魚來做客。
 ```
 
-改为
+改為
 
 ```text
-偶尔还会有鱼、虾或螃蟹来做客。
+偶爾還會有魚、蝦或螃蟹來做客。
 ```
 
-把“功能”里的两条
+把“功能”裡的兩條
 
 ```markdown
-- 第一轮必定遇见小丑鱼，之后每完成一轮，有三分之一的机会遇见新访客。图鉴会一直保存。
-- 每次休息可以喂一次鱼。不用一直照料，中断或离开也不会死鱼，也不会扣掉装饰。
+- 第一輪必定遇見小丑魚，之後每完成一輪，有三分之一的機會遇見新訪客。圖鑑會一直儲存。
+- 每次休息可以喂一次魚。不用一直照料，中斷或離開也不會死魚，也不會扣掉裝飾。
 ```
 
-替换为
+替換為
 
 ```markdown
-- 第一轮必定遇见小丑鱼，之后每完成一轮，有三分之一的机会遇见访客：4 种鱼、6 种虾和 5 种蟹。没见过的朋友先来，15 位都见过之后，老朋友会再来做客。图鉴会一直保存。
-- 每种生物都照真实物种来画。鱼会摆尾、悬停、转身，彼此保持距离；虾蟹在沙地和石头上爬，会躲进石缝、洞里或螺壳里，同一时间只有几只在外面活动。
-- 每次休息可以喂一次鱼。鱼食慢慢下沉，鱼吃剩的落到沙地上，由虾蟹捡走。不用一直照料，中断或离开也不会死鱼，也不会扣掉装饰。
+- 第一輪必定遇見小丑魚，之後每完成一輪，有三分之一的機會遇見訪客：4 種魚、6 種蝦和 5 種蟹。沒見過的朋友先來，15 位都見過之後，老朋友會再來做客。圖鑑會一直儲存。
+- 每種生物都照真實物種來畫。魚會擺尾、懸停、轉身，彼此保持距離；蝦蟹在沙地和石頭上爬，會躲進石縫、洞裡或螺殼裡，同一時間只有幾隻在外面活動。
+- 每次休息可以喂一次魚。魚食慢慢下沉，魚吃剩的落到沙地上，由蝦蟹撿走。不用一直照料，中斷或離開也不會死魚，也不會扣掉裝飾。
 ```
 
-在“测试覆盖”的“存档”一条之后加一条：
+在“測試覆蓋”的“存檔”一條之後加一條：
 
 ```markdown
-- **访客：** 第一轮遇见小丑鱼，先遇见没见过的物种，旧存档也能遇见新物种，页面认得每一个物种。
+- **訪客：** 第一輪遇見小丑魚，先遇見沒見過的物種，舊存檔也能遇見新物種，頁面認得每一個物種。
 ```
 
-- [ ] **Step 2: 全量测试**
+- [ ] **Step 2: 全量測試**
 
 Run: `CGO_ENABLED=0 GOMAXPROCS=2 GOMEMLIMIT=4GiB GOFLAGS=-p=2 go test -p 2 -parallel 2 ./... && go vet ./... && for f in web/*.js web/creatures/*.js; do node --check "$f"; done`
-Expected：全部通过，没有输出错误。
+Expected：全部透過，沒有輸出錯誤。
 
-- [ ] **Step 3: 浏览器模式整体验证**
+- [ ] **Step 3: 瀏覽器模式整體驗證**
 
-分别打开 `none`、`four`、`all` 三份存档：
-1. 主窗口和挂件两种尺寸都正常；`none` 只有海金鱼和两组石头；`all` 有 15 张图鉴画像。
-2. 开始一轮休息并撒鱼食：鱼食下沉，鱼吃几粒，剩下的落到沙地被虾蟹捡走，约 20 秒后结束。
-3. 在开发者工具里模拟 `prefers-reduced-motion: reduce`（Rendering 面板）：画面静止，重画位置不变，撒鱼食时没有动画。
-4. 控制台没有报错。
+分別開啟 `none`、`four`、`all` 三份存檔：
+1. 主視窗和掛件兩種尺寸都正常；`none` 只有海金魚和兩組石頭；`all` 有 15 張圖鑑畫像。
+2. 開始一輪休息並撒魚食：魚食下沉，魚吃幾粒，剩下的落到沙地被蝦蟹撿走，約 20 秒後結束。
+3. 在開發者工具裡模擬 `prefers-reduced-motion: reduce`（Rendering 面板）：畫面靜止，重畫位置不變，撒魚食時沒有動畫。
+4. 控制檯沒有報錯。
 
 - [ ] **Step 4: Commit**
 
@@ -2694,6 +2694,6 @@ git add README.md
 git commit -m "docs(aquarium): describe the shrimp, crabs and lifelike reef"
 ```
 
-- [ ] **Step 5: 交给用户在桌面版确认**
+- [ ] **Step 5: 交給使用者在桌面版確認**
 
-请用户用 `CGO_ENABLED=0 go run .` 打开桌面版，用自己的存档看一段时间：每种生物都认得出、动作自然、画面不拥挤。版本号和 CHANGELOG 等发布时再处理。
+請使用者用 `CGO_ENABLED=0 go run .` 開啟桌面版，用自己的存檔看一段時間：每種生物都認得出、動作自然、畫面不擁擠。版本號和 CHANGELOG 等釋出時再處理。

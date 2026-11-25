@@ -19,7 +19,7 @@ func settingsFixture(t *testing.T) (*Aquarium, *nativeSettings) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := newNativeSettings(&Desktop{a: a})
+	s := newNativeSettings(newDesktop(a))
 	t.Cleanup(s.cancel)
 	return a, s
 }
@@ -37,7 +37,7 @@ func TestNativeSettingsSavePreservesLiveAudioAndCurrentTimer(t *testing.T) {
 		t.Fatal(err)
 	}
 	tt := ui.NewTester(s.view, 560, 800)
-	if err := tt.Click("保存设置"); err != nil {
+	if err := tt.Click("儲存設定"); err != nil {
 		t.Fatal(err)
 	}
 	got := a.Get()
@@ -50,7 +50,7 @@ func TestNativeSettingsSavePreservesLiveAudioAndCurrentTimer(t *testing.T) {
 	if got.Session.DurationMS != before.DurationMS || got.Session.ID != before.ID {
 		t.Fatalf("settings changed current timer: %+v", got.Session)
 	}
-	if s.error != "" || !tt.HasText("设置已保存，时长从下一轮生效。") {
+	if s.error != "" || !tt.HasText("設定已儲存，時長從下一輪生效。") {
 		t.Fatalf("save feedback: %s / %v", s.error, tt.Texts())
 	}
 }
@@ -64,7 +64,7 @@ func TestNativeSettingsDraftSurvivesUpdatesAndRejectsInvalidDuration(t *testing.
 	if s.focusMinutes != "0" {
 		t.Fatal("snapshot refresh reset unsaved input")
 	}
-	if err := tt.Click("保存设置"); err != nil {
+	if err := tt.Click("儲存設定"); err != nil {
 		t.Fatal(err)
 	}
 	if a.Get().Preferences != before || s.error == "" {
@@ -78,7 +78,7 @@ func TestNativeSettingsDraftSurvivesUpdatesAndRejectsInvalidDuration(t *testing.
 func TestNativeSettingsCanEditFieldsAndReportsFailedSave(t *testing.T) {
 	a, s := settingsFixture(t)
 	tt := ui.NewTester(s.view, 560, 800)
-	if err := tt.Click("专注时长"); err != nil {
+	if err := tt.Click("專注時長"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Key(ui.Cmd, ui.KeyA)
@@ -92,7 +92,7 @@ func TestNativeSettingsCanEditFieldsAndReportsFailedSave(t *testing.T) {
 		t.Fatal(err)
 	}
 	a.path = filepath.Join(blocked, "aquarium.json")
-	if err := tt.Click("保存设置"); err != nil {
+	if err := tt.Click("儲存設定"); err != nil {
 		t.Fatal(err)
 	}
 	if s.error == "" || a.Get().Preferences != before || s.message != "" {
@@ -125,16 +125,16 @@ func TestNativeSettingsThemeMenuAndAutomaticModes(t *testing.T) {
 	a, s := settingsFixture(t)
 	s.focusMinutes = "42"
 	tt := ui.NewTester(s.view, 560, 800)
-	if err := tt.Click("外观"); err != nil {
+	if err := tt.Click("外觀"); err != nil {
 		t.Fatal(err)
 	}
-	if err := tt.Click("随时间自动切换主题"); err != nil {
+	if err := tt.Click("隨時間自動切換主題"); err != nil {
 		t.Fatal(err)
 	}
 	if !a.Get().ThemeAuto {
 		t.Fatalf("native schedule switch did not enable: feedback=%s / %s; texts=%v", s.error, s.message, tt.Texts())
 	}
-	if err := tt.Click("全部主题随机轮换"); err != nil {
+	if err := tt.Click("全部主題隨機輪換"); err != nil {
 		t.Fatal(err)
 	}
 	if snap := a.Get(); !snap.ThemeShuffle || snap.ThemeAuto {
@@ -146,7 +146,7 @@ func TestNativeSettingsThemeMenuAndAutomaticModes(t *testing.T) {
 	if len(tt.Menu()) != len(a.themes.ids) {
 		t.Fatalf("theme menu missing skins: %v", tt.Menu())
 	}
-	if err := tt.ChooseMenuItem("马卡龙"); err != nil {
+	if err := tt.ChooseMenuItem("馬卡龍"); err != nil {
 		t.Fatal(err)
 	}
 	if snap := a.Get(); snap.Theme != "ct-cream" || snap.ThemeAuto || snap.ThemeShuffle {
@@ -159,7 +159,7 @@ func TestNativeSettingsThemeMenuAndAutomaticModes(t *testing.T) {
 
 func TestApplicationMenuExposesNativeSettingsAndStandardRoles(t *testing.T) {
 	a, _ := testAquarium(t)
-	d := &Desktop{a: a}
+	d := newDesktop(a)
 	m := d.applicationMenu()
 	var settings, update *mygo.MenuItem
 	for _, item := range m[0].Submenu {
@@ -170,10 +170,10 @@ func TestApplicationMenuExposesNativeSettingsAndStandardRoles(t *testing.T) {
 			update = item
 		}
 	}
-	if settings == nil || settings.Label != "设置…" || settings.Accelerator != "CmdOrCtrl+," || settings.Click == nil {
+	if settings == nil || settings.Label != "設定…" || settings.Accelerator != "CmdOrCtrl+," || settings.Click == nil {
 		t.Fatalf("missing settings menu shortcut: %+v", settings)
 	}
-	if update == nil {
+	if update == nil || update.Click == nil {
 		t.Fatal("check updates missing from app menu")
 	}
 	app := m[0]

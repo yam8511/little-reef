@@ -7,8 +7,8 @@ func (d *Desktop) applicationMenu() []*mygo.MenuItem {
 		{Role: mygo.RoleAppMenu, Submenu: []*mygo.MenuItem{
 			{Role: mygo.RoleAbout},
 			mygo.Separator(),
-			{ID: "settings", Label: "设置…", Accelerator: d.shortcut(shortcutSettings), Click: func(*mygo.MenuItem, *mygo.Window) { d.OpenSettings() }},
-			{ID: "check-update", Label: "检查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { d.CheckForUpdates() }},
+			{ID: "settings", Label: "設定…", Accelerator: d.shortcut(shortcutSettings), Click: func(*mygo.MenuItem, *mygo.Window) { d.OpenSettings() }},
+			{ID: "check-update", Label: "檢查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { d.CheckForUpdates() }},
 			mygo.Separator(),
 			{Role: mygo.RoleServices},
 			mygo.Separator(),
@@ -20,10 +20,10 @@ func (d *Desktop) applicationMenu() []*mygo.MenuItem {
 		}},
 		{Role: mygo.RoleFileMenu},
 		{Role: mygo.RoleEditMenu},
-		{Label: "计时", Submenu: d.timerMenuItems()},
+		{Label: "計時", Submenu: d.timerMenuItems()},
 		{Role: mygo.RoleViewMenu},
 		{Role: mygo.RoleWindowMenu, Submenu: []*mygo.MenuItem{
-			{ID: shortcutShow, Label: "显示水族馆", Accelerator: d.shortcut(shortcutShow), Click: func(*mygo.MenuItem, *mygo.Window) { d.openAquarium() }},
+			{ID: shortcutShow, Label: "顯示水族館", Accelerator: d.shortcut(shortcutShow), Click: func(*mygo.MenuItem, *mygo.Window) { d.openAquarium() }},
 			d.compactMenuItem(d.shortcut(shortcutCompact)),
 			mygo.Separator(),
 			{Role: mygo.RoleMinimize}, {Role: mygo.RoleZoom}, {Role: mygo.RoleClose},
@@ -42,12 +42,12 @@ func (d *Desktop) timerMenuItems() []*mygo.MenuItem {
 				d.startTimerAction(next.Command, 0)
 			}
 		}},
-		{ID: "timer-end", Label: "结束本轮…", Accelerator: d.shortcut(shortcutEnd), Disabled: !sessionActive(s), Click: func(*mygo.MenuItem, *mygo.Window) { d.askEndRound() }},
+		{ID: "timer-end", Label: "結束本輪…", Accelerator: d.shortcut(shortcutEnd), Disabled: !sessionActive(s), Click: func(*mygo.MenuItem, *mygo.Window) { d.askEndRound() }},
 	}
 }
 
 func (d *Desktop) compactMenuItem(accelerator string) *mygo.MenuItem {
-	return &mygo.MenuItem{ID: "compact-mode", Label: "桌面挂件", Type: mygo.MenuItemCheckbox, Checked: d.compact.Load(), Accelerator: accelerator, Click: func(*mygo.MenuItem, *mygo.Window) { d.toggleCompactFromTray() }}
+	return &mygo.MenuItem{ID: "compact-mode", Label: "桌面掛件", Type: mygo.MenuItemCheckbox, Checked: d.compact.Load(), Accelerator: accelerator, Click: func(*mygo.MenuItem, *mygo.Window) { d.toggleCompactFromTray() }}
 }
 
 func (d *Desktop) refreshNativeMenus() {
@@ -67,7 +67,7 @@ func (d *Desktop) refreshNativeMenus() {
 		}{
 			{"timer-primary", primary.Label, !busy, true},
 			{"timer-secondary", secondary.Label, !busy, secondary.Command != ""},
-			{"timer-end", "结束本轮…", !busy && sessionActive(s) && !d.confirmEnd, true},
+			{"timer-end", "結束本輪…", !busy && sessionActive(s) && !d.confirmEnd, true},
 		} {
 			if item := menu.ItemByID(state.id); item != nil {
 				if item.Label != state.label {

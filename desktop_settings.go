@@ -64,7 +64,7 @@ func (d *Desktop) OpenSettings() {
 		s := newNativeSettings(d)
 		d.settings = s
 		s.win = mygo.NewWindow(mygo.WindowOptions{
-			Title: "小海底设置", Width: 560, Height: 680, MinWidth: 480, MinHeight: 520,
+			Title: "小海底設定", Width: 560, Height: 680, MinWidth: 480, MinHeight: 520,
 			DisableMinimize: true, DisableMaximize: true, Content: ui.View(s.view),
 		})
 		s.win.OnClosed(func() {
@@ -92,17 +92,17 @@ func (s *nativeSettings) savePreferences() {
 	focus, focusErr := strconv.Atoi(strings.TrimSpace(s.focusMinutes))
 	rest, restErr := strconv.Atoi(strings.TrimSpace(s.breakMinutes))
 	if focusErr != nil || restErr != nil {
-		s.feedback(errors.New("请填写整数分钟：专注 1–120，休息 1–30。"), "")
+		s.feedback(errors.New("請填寫整數分鐘：專注 1–120，休息 1–30。"), "")
 		return
 	}
 	_, err := s.desktop.a.setTimerPreferences(focus, rest, s.chime)
-	s.feedback(err, "设置已保存，时长从下一轮生效。")
+	s.feedback(err, "設定已儲存，時長從下一輪生效。")
 }
 
 func (s *nativeSettings) view(c *ui.Context) {
 	ui.Column(c).Fill().Children(func() {
 		previousTab := s.tab
-		ui.Tabs(c, &s.tab, "通用", "外观", "快捷键", "备份与恢复").Margin(16, 24, 0, 24)
+		ui.Tabs(c, &s.tab, "通用", "外觀", "快捷鍵", "備份與恢復").Margin(16, 24, 0, 24)
 		if previousTab != s.tab {
 			s.stopShortcutRecording()
 			s.feedback(nil, "")
@@ -133,9 +133,9 @@ func (s *nativeSettings) view(c *ui.Context) {
 			if s.tab != settingsGeneral && s.tab != settingsShortcuts {
 				return
 			}
-			label := "保存设置"
+			label := "儲存設定"
 			if s.tab == settingsShortcuts {
-				label = "保存快捷键"
+				label = "儲存快捷鍵"
 			}
 			if ui.PrimaryButton(c, label).Disabled(s.busy || s.recording != "").Clicked() {
 				if s.tab == settingsShortcuts {
@@ -146,7 +146,7 @@ func (s *nativeSettings) view(c *ui.Context) {
 			}
 		})
 	})
-	if ui.AlertDialog(c, &s.confirmImport, "导入存档？", "导入会替换当前海底，建议先导出一份备份。", "取消", "导入") == 1 {
+	if ui.AlertDialog(c, &s.confirmImport, "匯入存檔？", "匯入會替換當前海底，建議先匯出一份備份。", "取消", "匯入") == 1 {
 		s.importArchive()
 	}
 }

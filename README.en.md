@@ -1,14 +1,14 @@
 # Little Reef · 小海底
 
-[简体中文](README.md) | English
+[簡體中文](README.md) | English
 
 Grow a small reef with your focus time. Every completed focus round makes the plants a little taller, and now and then a fish, shrimp or crab comes to visit. A quiet desktop focus timer with an aquarium, a visitor collection and 20 background sounds.
 
 ## Download
 
-It needs macOS 12 or later and an Apple silicon Mac. Download the latest `little-reef-<version>-macos-arm64.dmg` from [Releases](https://github.com/echoVic/little-reef/releases) and drag Little Reef into Applications.
+It runs on Windows 10 and 11. Download the latest `app-setup-<version>-amd64.exe` (`arm64` on ARM PCs) from [Releases](https://github.com/yam8511/little-reef/releases) and run it. The installed app checks for new versions on its own, and "檢查更新…" in its menus checks at once.
 
-Windows and Linux have no installers yet; [build from source](#build-from-source).
+macOS and Linux have no installers yet; [build from source](#build-from-source).
 
 ## Features
 
@@ -31,26 +31,23 @@ Windows and Linux have no installers yet; [build from source](#build-from-source
 
 ## Build from source
 
-You need Go 1.27.3 or later and Node.js 22+.
+You need Go 1.27.3 or later. Every window is MyGo native UI (`ui.View`): there is no web frontend and no Node.js step.
 
 ```sh
-cd web
-npm ci --registry=https://registry.npmjs.org/
-npm run typecheck && npm test && npm run build   # writes web/dist
-cd ..
-
 CGO_ENABLED=0 go test ./...
 CGO_ENABLED=0 go run .                            # desktop app
-CGO_ENABLED=0 go run . -web 127.0.0.1:4173        # browser mode, loopback only
+go run -tags harness .                            # MCP test harness, see below
 CGO_ENABLED=0 go tool mygo build -sign=- -skip-notarize .   # macOS app and dmg in build/darwin-arm64
 ```
 
-The Go binary embeds `web/dist`, themes, sounds and the species table with `//go:embed`; without a built `web/dist` the app exits with a clear error. To change the recordings run `build-sounds.sh`; to change the icon run `go run . -export-icons`.
+The Go binary embeds the themes in `assets/themes` and the sounds in `assets/sounds` with `//go:embed`; the reef animation lives in `internal/reef`, drawn with MyGo's Painter, and the ambience plays through MyGo's `audio` package. To change the recordings run `build-sounds.sh`; to change the icon run `go run . -export-icons`.
 
 ## Tests
 
-The frontend runs `npm run typecheck`, `npm test` and `npm run build` inside `web/`; the Go side runs `CGO_ENABLED=0 go test ./...`. They cover timing, save rollback, visitor order, total sound size, Reduce Motion and shortcut validation.
+`CGO_ENABLED=0 go test ./...` covers timing, save rollback, visitor order, total sound size, Reduce Motion, shortcut validation, and the main window, widget and tray panel driven through `ui.Tester`.
+
+An MCP client can test the windows: `go run -tags harness .` serves a [mygo-mcp](https://github.com/auron-labs/mygo-mcp) harness at `http://127.0.0.1:8765/mcp` with headless fixtures of the main window, a narrow window, a first run, the widget and the tray panel, each on a throwaway archive. The repository's `.mcp.json` connects Claude Code to it to inspect, click, type and take screenshots.
 
 ## Credits and license
 
-Built on [MyGo](https://github.com/egoist/mygo); third-party notices are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). The source is [MIT](LICENSE); the recordings in `web/public/sounds` are public domain, with sources listed in the same notices file.
+Built on [MyGo](https://github.com/egoist/mygo); third-party notices are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). The source is [MIT](LICENSE); the recordings in `assets/sounds` are public domain, with sources listed in the same notices file.

@@ -1,50 +1,50 @@
-name: 反馈
-description: 提交问题或建议
+name: 回饋
+description: 提交問題或建議
 labels: []
 body:
   - type: markdown
     attributes:
       value: |
-        感谢反馈。小海底是个人维护的开源项目，描述越具体越容易定位问题。
-        除非你明确同意，任何存档内容都不要贴进 issue——只需要描述现象。
+        感謝回饋。小海底是個人維護的開源專案，描述越具體越容易定位問題。
+        除非你明確同意，任何存檔內容都不要貼進 issue——只需要描述現象。
   - type: dropdown
     id: category
     attributes:
-      label: 分类
+      label: 分類
       options:
-        - bug（功能异常）
+        - bug（功能異常）
         - sound（背景音）
-        - growth（成长与图鉴）
-        - stats（回顾面板）
-        - backup（存档与备份）
+        - growth（成長與圖鑑）
+        - stats（回顧面板）
+        - backup（存檔與備份）
         - other（其他）
     validations:
       required: true
   - type: input
     id: system
     attributes:
-      label: 系统信息
-      placeholder: "macOS 版本 / 芯片 / 小海底版本，如 macOS 15 / Apple M2 / v0.4.0"
+      label: 系統資訊
+      placeholder: "macOS 版本 / 晶片 / 小海底版本，如 macOS 15 / Apple M2 / v0.4.0"
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: 复现步骤
-      placeholder: 一步步描述你做了什么、发生了什么
+      label: 復現步驟
+      placeholder: 一步步描述你做了什麼、發生了什麼
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: 期望的行为
-      placeholder: 你原本期待发生什么
+      label: 期望的行為
+      placeholder: 你原本期待發生什麼
     validations:
       required: false
   - type: textarea
     id: extra
     attributes:
-      label: 补充信息（可选）
-      placeholder: 截图、控制台输出等
+      label: 補充資訊（可選）
+      placeholder: 截圖、控制檯輸出等
     validations:
       required: false

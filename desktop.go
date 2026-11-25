@@ -1,22 +1,23 @@
-// Desktop owns the native host. The timer and archive remain in Aquarium;
-// the web page reaches only the exported methods bound by main.
+// Desktop owns the native host: the main window, tray panel, settings and
+// menus all draw with MyGo's native UI. The timer and archive stay in Aquarium.
 package main
 
 import (
 	"context"
 	"errors"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/plugins/updater"
+	"github.com/egoist/mygo/ui"
 )
 
-const feedbackURL = "https://github.com/echoVic/little-reef/issues/new"
+const feedbackURL = "https://github.com/yam8511/little-reef/issues/new"
 
 var errArchiveCanceled = errors.New("已取消")
 
@@ -34,68 +35,83 @@ type Desktop struct {
 	shortcuts           *shortcutController
 	pausedMenuShortcuts []pausedMenuShortcut
 
+	// The main window's presentation state and the ambience it plays.
+	ui    *mainUI
+	sound *soundscape
+
 	// Mini native panel anchored to the tray icon.
 	flyout *mygo.Window
-	// Ephemeral audio state reported by the frontend's WebAudio bridge.
-	audio atomicAudioState
-	// In-flight command tracking + volume drag draft + theme cache.
-	req               requestState
+	// In-flight command tracking for the tray panel and menus.
 	timerReq          requestState
 	uiReq             requestState
-	vol               volumeDraft
-	theme             themeCache
 	confirmEnd        bool
 	confirmEndSession int64
-	bc                broadcaster
+
+	// Without a window (headless tests, the MCP harness) updates wait here
+	// for the next frame of a view to run them on its thread.
+	pendingMu sync.Mutex
+	pending   []func()
 }
 
-// AudioState is what the frontend reports after handling a desktop:audio-request.
-type AudioState struct {
-	Running     bool    `json:"running"`
-	Requested   bool    `json:"requested"`
-	Sound       string  `json:"sound"`
-	Volume      float64 `json:"volume"`
-	NeedGesture bool    `json:"needGesture"`
-	Error       string  `json:"error"`
-}
-
-type atomicAudioState struct{ v atomic.Value }
-
-func (s *atomicAudioState) get() AudioState {
-	v := s.v.Load()
-	if v == nil {
-		return AudioState{}
+func newDesktop(a *Aquarium) *Desktop {
+	d := &Desktop{a: a, sound: newSoundscape(soundFiles())}
+	d.ui = newMainUI(d)
+	d.sound.onStatus = func(message string, isError bool) {
+		d.update(func() {
+			d.ui.soundStatus = message
+			if isError {
+				d.ui.showToast(message)
+			}
+		})
 	}
-	return v.(AudioState)
-}
-func (s *atomicAudioState) set(st AudioState) { s.v.Store(st) }
-
-// AudioRequestEvent is broadcast to the page when the native panel asks it to
-// toggle actual WebAudio playback (Go cannot call JS directly).
-type AudioRequestEvent struct {
-	RequestID string   `json:"requestId"`
-	Command   string   `json:"command"` // "toggle" | "enable" | "disable" | "set-volume"
-	Volume    *float64 `json:"volume,omitempty"`
+	d.sound.onChanged = d.invalidateFlyout
+	return d
 }
 
-var AudioRequested = mygo.NewEvent[AudioRequestEvent]("desktop:audio-request")
-
-// UIRequestEvent is broadcast to the page when the native panel asks it to
-// perform a UI action it owns (open settings, apply compact CSS).
-type UIRequestEvent struct {
-	RequestID string `json:"requestId"`
-	Command   string `json:"command"` // "set-compact"
-	Compact   *bool  `json:"compact,omitempty"`
+// update runs fn on the main thread before the next frame of every window.
+// Without a window it runs before the next frame a view builds (drain).
+func (d *Desktop) update(fn func()) {
+	if d.win == nil {
+		d.pendingMu.Lock()
+		d.pending = append(d.pending, fn)
+		d.pendingMu.Unlock()
+		return
+	}
+	d.win.Update(func() {
+		if d.quitting.Load() || d.win.IsDestroyed() {
+			return
+		}
+		fn()
+		d.invalidateOthers()
+	})
 }
 
-var UIRequested = mygo.NewEvent[UIRequestEvent]("desktop:ui-request")
-
-// ExportArchive asks the calling window where to save the backup, then writes it.
-// An empty path means the user canceled; callers must stay silent then.
-func (d *Desktop) ExportArchive(ctx context.Context) (string, error) {
-	return d.exportArchive(ctx, mygo.CallerWindow(ctx))
+// drain runs the updates posted while there was no window, on the view's
+// thread; views call it first.
+func (d *Desktop) drain() {
+	d.pendingMu.Lock()
+	queued := d.pending
+	d.pending = nil
+	d.pendingMu.Unlock()
+	for _, fn := range queued {
+		fn()
+	}
 }
 
+// invalidateOthers redraws the windows that show the same state as the main one.
+func (d *Desktop) invalidateOthers() {
+	if d.flyout != nil && !d.flyout.IsDestroyed() {
+		d.flyout.Invalidate()
+	}
+	if s := d.settings; s != nil && !s.win.IsDestroyed() {
+		s.win.Invalidate()
+	}
+}
+
+func (d *Desktop) spaceShortcutEnabled() bool { return d.shortcutSettings().SpaceEnabled }
+
+// exportArchive asks where to save the backup, then writes it. An empty
+// path means the user canceled; callers must stay silent then.
 func (d *Desktop) exportArchive(ctx context.Context, parent *mygo.Window) (string, error) {
 	text, err := d.a.ExportArchive()
 	if err != nil {
@@ -104,10 +120,10 @@ func (d *Desktop) exportArchive(ctx context.Context, parent *mygo.Window) (strin
 	home, _ := os.UserHomeDir()
 	path, err := mygo.Dialog.Save(mygo.SaveDialogOptions{
 		Parent:      parent,
-		Title:       "导出存档",
-		ButtonLabel: "导出",
+		Title:       "匯出存檔",
+		ButtonLabel: "匯出",
 		DefaultPath: filepath.Join(home, "little-reef-archive.json"),
-		Filters:     []mygo.FileFilter{{Name: "小海底存档", Extensions: []string{"json"}}},
+		Filters:     []mygo.FileFilter{{Name: "小海底存檔", Extensions: []string{"json"}}},
 	})
 	if err != nil || path == "" {
 		return "", err
@@ -121,18 +137,14 @@ func (d *Desktop) exportArchive(ctx context.Context, parent *mygo.Window) (strin
 	return path, nil
 }
 
-// ImportArchive asks the calling window which backup to restore, then validates it.
-// A canceled pick means "已取消" and stays quiet; failed validation preserves the archive.
-func (d *Desktop) ImportArchive(ctx context.Context) (Snapshot, error) {
-	return d.importArchive(ctx, mygo.CallerWindow(ctx))
-}
-
+// importArchive asks which backup to restore, then validates it. A canceled
+// pick means "已取消" and stays quiet; failed validation preserves the archive.
 func (d *Desktop) importArchive(ctx context.Context, parent *mygo.Window) (Snapshot, error) {
 	paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{
 		Parent:      parent,
-		Title:       "导入存档",
-		ButtonLabel: "导入",
-		Filters:     []mygo.FileFilter{{Name: "小海底存档", Extensions: []string{"json"}}},
+		Title:       "匯入存檔",
+		ButtonLabel: "匯入",
+		Filters:     []mygo.FileFilter{{Name: "小海底存檔", Extensions: []string{"json"}}},
 	})
 	if err != nil {
 		return Snapshot{}, err
@@ -153,17 +165,6 @@ func (d *Desktop) importArchive(ctx context.Context, parent *mygo.Window) (Snaps
 	return d.a.importArchive(ctx, string(data))
 }
 
-// Hide keeps the page and sound alive. Restored via tray click, Dock icon
-// click (OnActivate), or Cmd+Shift+A. No Minimize fallback: Hide is always
-// reversible because the app keeps a Dock icon (regular activation policy).
-func (d *Desktop) Hide(ctx context.Context) {
-	mygo.RunOnMain(func() {
-		if win := mygo.CallerWindow(ctx); win != nil && !d.quitting.Load() {
-			win.Hide()
-		}
-	})
-}
-
 // Full window minimums; a restored bounds below either dimension means the
 // previous run quit in compact mode (compact writes a 400x350 rect via
 // StateKey, which mygo restores verbatim without clamping to MinWidth).
@@ -181,20 +182,7 @@ func needsStartupFullReset(w, h int) bool {
 	return w < fullMinWidth || h < fullMinHeight
 }
 
-// GetCompact restores the page's layout after loading or reloading its web view.
-func (d *Desktop) GetCompact() bool { return d.compact.Load() }
-
-// SetCompact turns the window into a small always-on-top desktop aquarium.
-func (d *Desktop) SetCompact(ctx context.Context, compact bool) {
-	mygo.RunOnMain(func() {
-		if win := mygo.CallerWindow(ctx); win != nil && !d.quitting.Load() {
-			d.applyCompactOn(win, compact)
-		}
-	})
-}
-
-// applyCompactOn applies the compact/full geometry to win. Extracted so the
-// startup clamp can reuse the exact same placement sequence.
+// applyCompactOn applies the compact/full geometry to win.
 func (d *Desktop) applyCompactOn(win *mygo.Window, compact bool) {
 	area := mygo.Screen.DisplayMatching(win.Bounds()).WorkArea
 	wasCompact := d.compact.Swap(compact)
@@ -212,6 +200,7 @@ func (d *Desktop) applyCompactOn(win *mygo.Window, compact bool) {
 			bounds := restoredFullBounds(d.fullBounds, area)
 			win.SetBounds(bounds)
 			d.refreshNativeMenus()
+			win.Invalidate()
 			return
 		}
 		win.SetSize(fullWidth, fullHeight)
@@ -219,6 +208,7 @@ func (d *Desktop) applyCompactOn(win *mygo.Window, compact bool) {
 		win.SetPosition(area.X+max(0, (area.Width-width)/2), area.Y+max(0, (area.Height-height)/2))
 	}
 	d.refreshNativeMenus()
+	win.Invalidate()
 }
 
 func restoredFullBounds(saved, area mygo.Rectangle) mygo.Rectangle {
@@ -238,11 +228,8 @@ func (d *Desktop) openAquarium() {
 }
 
 // CheckForUpdates opens the update window, which says when the app is up to
-// date or offers the new version.
+// date or offers the new version from the repository's latest release.
 func (*Desktop) CheckForUpdates() { updater.CheckForUpdates() }
-
-// Quit closes the desktop app and saves the current session.
-func (*Desktop) Quit() { mygo.App.Quit() }
 
 func (d *Desktop) show() {
 	if d.win != nil && !d.win.IsDestroyed() && !d.quitting.Load() {
@@ -251,25 +238,16 @@ func (d *Desktop) show() {
 	}
 }
 
-// changed may run on a bound-call or timer goroutine. Use the SDK's async
-// window dispatcher: quit waits for the clock, never for synchronous UI work.
+// changed may run on a bound-call or timer goroutine; the main window takes
+// the snapshot on the main thread.
 func (d *Desktop) changed(s Snapshot) {
 	if d.quitting.Load() {
 		return
 	}
-	if err := Changed.Broadcast(s); err != nil {
-		log.Print("界面状态发送失败：", err)
-	}
-	d.win.Update(func() {
-		if d.quitting.Load() || d.win.IsDestroyed() {
-			return
-		}
+	d.update(func() {
+		d.ui.apply(s)
 		d.refreshNativeMenus()
-		if s := d.settings; s != nil && !s.win.IsDestroyed() {
-			s.win.Invalidate()
-		}
 	})
-	d.invalidateFlyout()
 }
 
 func (d *Desktop) completed(s Snapshot) {
@@ -278,13 +256,13 @@ func (d *Desktop) completed(s Snapshot) {
 	}
 	go func() {
 		n := mygo.NewNotification(mygo.NotificationOptions{
-			Title:  "小海底 · " + map[bool]string{true: "专注完成", false: "休息结束"}[s.Session.Kind == "focus"],
+			Title:  "小海底 · " + map[bool]string{true: "專注完成", false: "休息結束"}[s.Session.Kind == "focus"],
 			Body:   s.Notice,
 			Sender: &mygo.NotificationSender{ID: "reef", Name: "小海底", Avatar: markPNG(128, markInk)},
 		})
 		n.OnClick(d.show)
 		if err := n.Show(); err != nil && !errors.Is(err, mygo.ErrNotificationsDenied) {
-			log.Print("系统通知未显示：", err)
+			log.Print("系統通知未顯示：", err)
 		}
 	}()
 }
@@ -300,25 +278,21 @@ func handleWindowClose(quitting bool) (allow bool, interceptHide bool) {
 	return false, true
 }
 
-func (d *Desktop) run(web fs.FS) error {
-	if !mygo.WebViewAvailable() {
-		return errors.New("系统 WebView 不可用，无法打开小海底；请安装对应平台的 WebView 运行时")
-	}
+func (d *Desktop) run() error {
 	mygo.Use(updater.New(updater.Options{Interval: 4 * time.Hour}))
-	mygo.SetFrontend(web)
 	mygo.App.WhenReady(func() {
 		d.appMenu = mygo.NewMenu(d.applicationMenu())
 		mygo.App.SetMenu(d.appMenu)
+		d.ui.apply(d.a.Get())
 		d.win = mygo.NewWindow(mygo.WindowOptions{
-			Title: "小海底 · 桌面水族馆", URL: "/", Width: 1100, Height: 800, MinWidth: 760, MinHeight: 680,
+			Title: "小海底 · 桌面水族館", Width: fullWidth, Height: fullHeight, MinWidth: fullMinWidth, MinHeight: fullMinHeight,
 			TitleBarStyle: mygo.TitleBarHiddenInset, TitleBarHeight: 58,
 			BackgroundColor: "#0c1820", StateKey: "aquarium-main",
+			Content: ui.View(d.ui.view),
 		})
 		// mygo restores the StateKey rect verbatim without clamping to
 		// MinWidth/MinHeight; if the previous run quit in compact (400x350),
-		// snap back to the full geometry so the (full-default) frontend
-		// doesn't render inside a too-small window. Genuine full-size rects
-		// (>=760x680) are left untouched, preserving the user's placement.
+		// snap back to the full geometry. Genuine full-size rects are kept.
 		if w, h := d.win.Size(); needsStartupFullReset(w, h) {
 			d.applyCompactOn(d.win, false)
 		}
@@ -337,7 +311,7 @@ func (d *Desktop) run(web fs.FS) error {
 		d.a.onChange = d.changed
 		d.a.onDone = d.completed
 		if err := d.shortcuts.start(); err != nil {
-			log.Print("全局快捷键不可用：", err)
+			log.Print("全域快捷鍵不可用：", err)
 		}
 		go func() { _ = mygo.App.Dock.SetIcon(markBadgePNG(512)) }()
 		mygo.Power.OnSuspend(func() { go func() { _, _ = d.a.Pause() }() })
@@ -351,12 +325,38 @@ func (d *Desktop) run(web fs.FS) error {
 		if d.stopSwim != nil {
 			d.stopSwim()
 		}
+		d.sound.dispose()
 		if err := d.a.shutdown(); err != nil {
-			log.Print("存档失败：", err)
+			log.Print("存檔失敗：", err)
 		}
 		if d.tray != nil {
 			d.tray.Destroy()
 		}
 	})
 	return mygo.App.Run()
+}
+
+// invalidateMain redraws the main window, as after the tray panel changed
+// state it shows too.
+func (d *Desktop) invalidateMain() {
+	if d.win != nil && !d.win.IsDestroyed() {
+		d.win.Invalidate()
+	}
+}
+
+// openAquarium loads the archive and the theme choice from dir.
+func openAquarium(dir string) (*Aquarium, error) {
+	a, err := newAquarium(filepath.Join(dir, "aquarium.json"))
+	if err != nil {
+		return nil, err
+	}
+	themeStore, err := newThemeStore(dir)
+	if err != nil {
+		return nil, err
+	}
+	a.themes = themeStore
+	cfg := themeStore.loadConfig()
+	a.theme, a.themeAuto = cfg.Theme, cfg.Auto
+	a.themeShuffle, a.nextThemeShuffleMS = cfg.Shuffle, cfg.NextShuffleMS
+	return a, nil
 }

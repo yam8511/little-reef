@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -11,7 +12,7 @@ import (
 
 func TestShutdownConcurrentCallsPreserveFinalSession(t *testing.T) {
 	a, now := testAquarium(t)
-	if _, err := a.Start("focus", "保存最后一段时间"); err != nil {
+	if _, err := a.Start("focus", "儲存最後一段時間"); err != nil {
 		t.Fatal(err)
 	}
 	*now = now.Add(7 * time.Second)
@@ -62,7 +63,7 @@ func advance(a *Aquarium, now *time.Time, seconds int) {
 
 func TestPauseResumeAndEarlyEndPreserveOnlyActiveTime(t *testing.T) {
 	a, now := testAquarium(t)
-	if _, err := a.Start("focus", "读书"); err != nil {
+	if _, err := a.Start("focus", "讀書"); err != nil {
 		t.Fatal(err)
 	}
 	advance(a, now, 10)
@@ -85,7 +86,7 @@ func TestPauseResumeAndEarlyEndPreserveOnlyActiveTime(t *testing.T) {
 
 func TestCompletionAwardsOnceAndVisitorSurvivesRestart(t *testing.T) {
 	a, now := testAquarium(t)
-	if _, err := a.Start("focus", "第一轮"); err != nil {
+	if _, err := a.Start("focus", "第一輪"); err != nil {
 		t.Fatal(err)
 	}
 	advance(a, now, 65)
@@ -282,7 +283,7 @@ func TestExportImportRoundTrip(t *testing.T) {
 	a.state.Completed = 3
 	a.state.TotalSecs = 1800
 	a.state.Records = []Record{{ID: 1, Task: "read", Seconds: 600, Completed: true, Date: "2026-10-09T09:00:00+08:00"}}
-	a.state.Visitors = []Visitor{{Species: "clown", Name: "小丑鱼", Visits: 1, Date: "2026-10-09T09:00:00+08:00"}}
+	a.state.Visitors = []Visitor{{Species: "clown", Name: "小丑魚", Visits: 1, Date: "2026-10-09T09:00:00+08:00"}}
 	a.state.Session = Session{Kind: "focus", Status: "paused", DurationMS: 1500000, ElapsedMS: 600000}
 	out, err := a.ExportArchive()
 	if err != nil {
@@ -336,7 +337,7 @@ func TestImportIgnoresTransientFields(t *testing.T) {
 func TestImportRejectsCorruptFile(t *testing.T) {
 	a, _ := testAquarium(t)
 	for _, broken := range []string{"", "not json", "{oops", "[]", "123"} {
-		if _, err := a.ImportArchive(broken); err == nil || err.Error() != "这个文件不是小海底的存档，什么都没有改动。" {
+		if _, err := a.ImportArchive(broken); err == nil || err.Error() != "這個檔案不是小海底的存檔，什麼都沒有改動。" {
 			t.Fatalf("broken %q: err=%v", broken, err)
 		}
 	}
@@ -350,7 +351,7 @@ func TestImportRejectsOutOfRangeContent(t *testing.T) {
 	a, _ := testAquarium(t)
 	out := `{"version":1,"app":"little-reef","exportedAt":"x","aquarium":{"revision":1,"preferences":` + goodPreferences + `,"session":` + idleSession + `,"completed":-3}}`
 	_, err := a.ImportArchive(out)
-	if err == nil || !strings.Contains(err.Error(), "存档内容有问题") {
+	if err == nil || !strings.Contains(err.Error(), "存檔內容有問題") {
 		t.Fatalf("err=%v", err)
 	}
 }
@@ -359,7 +360,7 @@ func TestImportRejectsNewerVersion(t *testing.T) {
 	a, _ := testAquarium(t)
 	out := `{"version":2,"app":"little-reef","exportedAt":"x","aquarium":{}}`
 	_, err := a.ImportArchive(out)
-	if err == nil || err.Error() != "这是更新版本的存档，先把小海底升级到最新版。" {
+	if err == nil || err.Error() != "這是更新版本的存檔，先把小海底升級到最新版。" {
 		t.Fatalf("err=%v", err)
 	}
 }
@@ -374,7 +375,7 @@ func TestImportAcceptsBareAquariumFile(t *testing.T) {
 	if snap.Completed != 1 {
 		t.Fatalf("completed=%d", snap.Completed)
 	}
-	if !strings.Contains(snap.Notice, "已安全导入") {
+	if !strings.Contains(snap.Notice, "已安全匯入") {
 		t.Fatalf("notice=%q", snap.Notice)
 	}
 }
@@ -397,5 +398,25 @@ func TestGetThemesListsEveryBundledTheme(t *testing.T) {
 		if item.ID == "" || item.Name == "" || item.Family == "" {
 			t.Fatalf("incomplete theme entry: %+v", item)
 		}
+	}
+}
+
+func TestOldArchivesShowVisitorsUnderTheirCurrentNames(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "aquarium.json")
+	old := `{"preferences":{"focusMinutes":25,"breakMinutes":5,"sound":"waves","volume":0.35},` +
+		`"session":{"kind":"focus","status":"idle","durationMs":1500000},` +
+		`"visitors":[{"species":"clown","name":"小丑鱼","date":"2026-10-01T09:00:00+08:00","visits":2},` +
+		`{"species":"retired","name":"旧朋友","date":"2026-10-02T09:00:00+08:00","visits":1}]}`
+	if err := os.WriteFile(path, []byte(old), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	a, err := newAquarium(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := a.Get().Visitors
+	if got[0].Name != "小丑魚" || got[0].Visits != 2 || got[1].Name != "旧朋友" {
+		t.Fatalf("visitor names after loading an old archive: %+v", got)
 	}
 }

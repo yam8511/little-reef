@@ -6,14 +6,14 @@ import (
 )
 
 // Every sound except pink noise plays an embedded recording, and together
-// they stay within the 30 MB budget. Pink is synthesized in the page.
+// they stay within the 30 MB budget. Pink is synthesized by the soundscape.
 func TestEveryRecordedSoundIsEmbedded(t *testing.T) {
 	total := 0
 	for _, kind := range advertisedSounds {
 		if kind == "pink" {
 			continue
 		}
-		data, err := fs.ReadFile(frontend, "web/public/sounds/"+kind+".mp3")
+		data, err := fs.ReadFile(bundled, "assets/sounds/"+kind+".mp3")
 		if err != nil {
 			t.Errorf("sound %q has no recording: %v", kind, err)
 			continue

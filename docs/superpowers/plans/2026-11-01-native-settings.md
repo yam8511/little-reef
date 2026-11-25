@@ -1,6 +1,6 @@
 # Native settings implementation plan
 
-**Goal:** Open a MyGo native settings window from 小海底 → 设置… (CmdOrCtrl+,), retaining existing settings and theme behavior.
+**Goal:** Open a MyGo native settings window from 小海底 → 設定… (CmdOrCtrl+,), retaining existing settings and theme behavior.
 
 **Architecture:** The application menu and tray open one reusable native settings window. Aquarium continues to own preferences, themes, persistence, and broadcasts. A window-local draft holds timer durations and chime; saving merges those fields into current preferences, preserving concurrent sound changes. Native settings use MyGo UI controls and native file dialogs, while browser mode retains SettingsDialog.
 

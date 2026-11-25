@@ -47,10 +47,10 @@ func normalizeShortcutSettings(cfg ShortcutSettings) (ShortcutSettings, error) {
 		}
 		if key != "" {
 			if reservedShortcut(key) {
-				return ShortcutSettings{}, fmt.Errorf("%s 是系统或编辑快捷键，请换一个组合", displayShortcut(key))
+				return ShortcutSettings{}, fmt.Errorf("%s 是系統或編輯快捷鍵，請換一個組合", displayShortcut(key))
 			}
 			if label := used[key]; label != "" {
-				return ShortcutSettings{}, fmt.Errorf("%s 已用于“%s”", displayShortcut(key), label)
+				return ShortcutSettings{}, fmt.Errorf("%s 已用於“%s”", displayShortcut(key), label)
 			}
 			used[key] = def.Label
 		}
@@ -58,7 +58,7 @@ func normalizeShortcutSettings(cfg ShortcutSettings) (ShortcutSettings, error) {
 	}
 	for id := range cfg.Bindings {
 		if !known[id] {
-			return ShortcutSettings{}, fmt.Errorf("未知快捷键操作 %q", id)
+			return ShortcutSettings{}, fmt.Errorf("未知快捷鍵操作 %q", id)
 		}
 	}
 	return out, nil
@@ -96,7 +96,7 @@ func newShortcutController(dir string, registry shortcutRegistry, wake func()) *
 		candidate, err = normalizeShortcutSettings(candidate)
 	}
 	if err != nil {
-		c.lastError = "快捷键配置无法读取，已使用默认设置。"
+		c.lastError = "快捷鍵配置無法讀取，已使用預設設定。"
 		return c
 	}
 	c.config = candidate
@@ -118,7 +118,7 @@ func (c *shortcutController) start() error {
 		return nil
 	}
 	if err := c.registry.Register(key, c.wake); err != nil {
-		c.lastError = "全局快捷键不可用，请换一个组合：" + err.Error()
+		c.lastError = "全域快捷鍵不可用，請換一個組合：" + err.Error()
 		return errors.New(c.lastError)
 	}
 	c.activeGlobal = key
@@ -133,13 +133,13 @@ func (c *shortcutController) apply(candidate ShortcutSettings) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.suspended {
-		return errors.New("请先完成或取消快捷键录制")
+		return errors.New("請先完成或取消快捷鍵錄製")
 	}
 	wanted, old := next.Bindings[shortcutGlobal], c.activeGlobal
 	registered := false
 	if wanted != "" && wanted != old {
 		if err = c.registry.Register(wanted, c.wake); err != nil {
-			return fmt.Errorf("无法使用全局快捷键 %s，仍保留原设置：%w", displayShortcut(wanted), err)
+			return fmt.Errorf("無法使用全域快捷鍵 %s，仍保留原設定：%w", displayShortcut(wanted), err)
 		}
 		registered = true
 	}
@@ -209,7 +209,7 @@ func (c *shortcutController) resume() error {
 		return nil
 	}
 	if err := c.registry.Register(key, c.wake); err != nil {
-		c.lastError = "全局快捷键未能恢复，请换一个组合：" + err.Error()
+		c.lastError = "全域快捷鍵未能恢復，請換一個組合：" + err.Error()
 		return errors.New(c.lastError)
 	}
 	c.activeGlobal = key

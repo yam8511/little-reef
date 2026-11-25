@@ -1,19 +1,19 @@
-# 六渠道帖子成稿（v0.4 定稿，可直接粘贴）
+# 六渠道帖子成稿（v0.4 定稿，可直接貼上）
 
-> 来源：飞书物料定稿 docx/OQ8Qd9SaHokTnUxW7zCcSSIbncf（revision 5，2026-10-24）。
-> **节奏（Q7）**：W4（11-16 周一 Release 先行 → 周二 HN/PH → 周三 V2EX/即刻 → 周四少数派 → 周六小红书）。**所有发帖动作待用户逐项确认。**
+> 來源：飛書物料定稿 docx/OQ8Qd9SaHokTnUxW7zCcSSIbncf（revision 5，2026-10-24）。
+> **節奏（Q7）**：W4（11-16 週一 Release 先行 → 週二 HN/PH → 週三 V2EX/即刻 → 週四少數派 → 週六小紅書）。**所有發帖動作待使用者逐項確認。**
 
 ## 2.1 Hacker News（Show HN）
 
-**用途**：英文主渠道，投放节奏见 Q7（北京时间周二晚 = 美东周二上午）。
+**用途**：英文主渠道，投放節奏見 Q7（北京時間週二晚 = 美東周二上午）。
 
-**标题**（67 字符，符合 HN 上限）：
+**標題**（67 字元，符合 HN 上限）：
 
 ```text
 Show HN: Little Reef – A no-pressure focus timer that grows a reef
 ```
 
-**正文**（粘贴后附 GitHub + 官网链接各一条，HN 正文不支持格式，纯文本）：
+**正文**（貼上後附 GitHub + 官網連結各一條，HN 正文不支援格式，純文字）：
 
 ```text
 Hi HN — I made Little Reef, a quiet focus timer for macOS. You start a 25-minute session and a little reef in the window grows as you focus. Fish, shrimp and crabs occasionally drop by and get recorded in a collection log.
@@ -34,30 +34,30 @@ Apple silicon only for now (macOS 12+). The framework can build for Windows/Linu
 Happy to answer anything. Source: https://github.com/echoVic/little-reef — site: https://reef.echovic.com
 ```
 
-**FAQ 备答**（评论区常见问题，逐条备好）：
+**FAQ 備答**（評論區常見問題，逐條備好）：
 
 1. **"Why arm64-only?"** — The auto-update chain and the notarized app are built and tested on Apple silicon. The framework supports other platforms and you can build from source, but I don't want to publish binaries I've never run.
 2. **"What does it send anywhere?"** — Nothing. No account, no telemetry, no network calls except the update check and links you click. Records are one local JSON file, exportable from Settings.
 3. **"How is this different from Forest?"** — Forest is a lovely product, but it punishes: leave the app and the tree dies. Little Reef never punishes — walk away and your partial time is still recorded, nothing dies, nothing is lost. It's also Mac-native (menu bar + widget) and open source.
-4. **（备用）"Roadmap?"** — Short and evidence-driven: fix what release feedback surfaces first. Sound mixing and other platforms are candidates, gated on what users actually ask for.
+4. **（備用）"Roadmap?"** — Short and evidence-driven: fix what release feedback surfaces first. Sound mixing and other platforms are candidates, gated on what users actually ask for.
 
 ## 2.2 Product Hunt
 
-**用途**：英文第二渠道，周二发起，与 HN 错开一天。
+**用途**：英文第二渠道，週二發起，與 HN 錯開一天。
 
-- **Tagline**（39 字符）：Grow a little reef with your focus time
-- **一句话描述**：A no-pressure focus timer for Mac. Sessions grow a reef, visitors drop by and stay in a log, 20 ambient sounds loop seamlessly — no streaks, no nagging, nothing uploaded.
-- **Gallery**：演示视频（PH 主视觉位）+ 5 张截图，顺序与说明如下（截图说明即 alt 文案）：
+- **Tagline**（39 字元）：Grow a little reef with your focus time
+- **一句話描述**：A no-pressure focus timer for Mac. Sessions grow a reef, visitors drop by and stay in a log, 20 ambient sounds loop seamlessly — no streaks, no nagging, nothing uploaded.
+- **Gallery**：演示影片（PH 主視覺位）+ 5 張截圖，順序與說明如下（截圖說明即 alt 文案）：
 
-| # | 截图内容 | 说明文案 |
+| # | 截圖內容 | 說明文案 |
 |-|-|-|
-| 1 | 主窗口专注中（左海底右计时，菜单栏小鱼游动） | Your reef on the left, the timer on the right — a menu-bar fish swims while you focus |
-| 2 | 访客图鉴（小丑鱼画像 + 「来过 N 次」） | First session brings a clownfish; 15 species in all, remembered forever |
-| 3 | 「这段时间」回顾面板展开态 | This week, this month, the days you focused — records only, never reminders |
-| 4 | 声音面板（20 种背景音） | 20 ambient sounds, all offline, loop without a seam |
-| 5 | 桌面挂件模式（角落小窗 + 倒计时） | Shrinks to a corner widget with just the reef and the countdown |
+| 1 | 主視窗專注中（左海底右計時，選單欄小魚游動） | Your reef on the left, the timer on the right — a menu-bar fish swims while you focus |
+| 2 | 訪客圖鑑（小丑魚畫像 + 「來過 N 次」） | First session brings a clownfish; 15 species in all, remembered forever |
+| 3 | 「這段時間」回顧面板展開態 | This week, this month, the days you focused — records only, never reminders |
+| 4 | 聲音面板（20 種背景音） | 20 ambient sounds, all offline, loop without a seam |
+| 5 | 桌面掛件模式（角落小窗 + 倒計時） | Shrinks to a corner widget with just the reef and the countdown |
 
-- **Maker comment**（发布后 30 分钟内跟评）：
+- **Maker comment**（釋出後 30 分鐘內跟評）：
 
 ```text
 Hi Product Hunt! I'm the maker of Little Reef — a one-person, open-source side project.
@@ -69,140 +69,140 @@ So in Little Reef, nothing ever dies, nothing nags you, and nothing leaves your 
 It's free and MIT-licensed, and every ambient sound is a public-domain recording credited in the repo. Happy to answer anything in the comments!
 ```
 
-## 2.3 V2EX（分享创造节点）
+## 2.3 V2EX（分享創造節點）
 
-**用途**：中文主渠道，周三上午发帖。
+**用途**：中文主渠道，週三上午發帖。
 
-**标题**：
-
-```text
-小海底：用专注时间养出一片海底的 macOS 计时器（MIT 开源，v0.4 新增回顾面板与存档备份）
-```
-
-**正文**（约 460 字）：
+**標題**：
 
 ```text
-大家好，分享一个自己做的 macOS 专注计时器：小海底（little-reef）。
-
-用法很简单：按空格开始一轮专注（默认 25 分钟），每完成一轮，左边的海底就成长一点；每三轮多一株植物，长满为止。偶尔会有新的鱼、虾或螃蟹来做客，记进图鉴，一共 15 位朋友，没见过的先来。
-
-它和常见番茄钟最大的不同是「无压力」：中途停下或者直接走开，没有鱼会死、也不会扣掉什么，投入过的时间照样记录；不显示连续打卡，没有目标和提醒，不会突然出声。记录只保存在本机，没有账号、不上传——换机时可以在设置里一键导出存档，导入回去一切如初。
-
-20 种背景音（海浪、雨声、篝火、咖啡馆、木鱼、卡农……）全部打包在应用里，循环听不出接缝，播放不联网。窗口可以收成桌面挂件，或者收进菜单栏，专注时菜单栏有一条小鱼轻轻游动。
-
-v0.4 刚加了「这段时间」回顾面板：本周、本月、一起度过的天数、图鉴进度，展开就能看，全部是正向记录——不渲染中断、不设目标、不打扰。存档导出/导入同版往返无损。
-
-技术栈：Go + MyGo 桌面框架，前端 go:embed 直接内嵌、没有 JS 构建步骤，WebView 用系统自带的 WKWebView，MIT 开源，背景音是公共领域录音，出处都在仓库里。
-
-需要 macOS 12+ 和 Apple 芯片，免费。欢迎试试：
-官网：https://reef.echovic.com
-源码：https://github.com/echoVic/little-reef
+小海底：用專注時間養出一片海底的 macOS 計時器（MIT 開源，v0.4 新增回顧面板與存檔備份）
 ```
 
-**配图说明**（3–5 张，帖内依序插入）：
+**正文**（約 460 字）：
 
-1. 主窗口专注中：左海底右计时（开场图，体现产品形态）
-2. 访客图鉴：小丑鱼来访记录（体现「来过 N 次」）
-3. 「这段时间」回顾面板展开态（v0.4 主特性）
-4. 桌面挂件 + 菜单栏小鱼（体现形态差异）
-5. 设置里的「备份与恢复」（体现存档安全网）
+```text
+大家好，分享一個自己做的 macOS 專注計時器：小海底（little-reef）。
 
-**回复预案**（按 V2EX 社区高频问题各备一条）：
+用法很簡單：按空格開始一輪專注（預設 25 分鐘），每完成一輪，左邊的海底就成長一點；每三輪多一株植物，長滿為止。偶爾會有新的魚、蝦或螃蟹來做客，記進圖鑑，一共 15 位朋友，沒見過的先來。
 
-1. **「为什么只有 macOS / 只有 arm64？」**——如实：自动更新链按 macOS 设计、我在 Apple 芯片上开发测试；Win/Linux 可源码构建但没实测过，不想发自己没跑过的包。等有真实诉求再排期。
-2. **「为什么不做 iOS / 云同步？」**——隐私是承诺不是短板：无账号、不上传是官网写明的承诺；换机走存档导出，成本近零。云同步会推翻这条产品线，宁可不做。
-3. **「和 Forest 有什么区别？」**——Forest 中途离开树会枯死（惩罚机制）；小海底不惩罚，提前结束也记录时间、什么都不死。另外小海底是 Mac 原生（菜单栏/挂件）且开源。
+它和常見番茄鍾最大的不同是「無壓力」：中途停下或者直接走開，沒有魚會死、也不會扣掉什麼，投入過的時間照樣記錄；不顯示連續打卡，沒有目標和提醒，不會突然出聲。記錄只儲存在本機，沒有賬號、不上傳——換機時可以在設定裡一鍵匯出存檔，匯入回去一切如初。
+
+20 種背景音（海浪、雨聲、篝火、咖啡館、木魚、卡農……）全部打包在應用裡，迴圈聽不出接縫，播放不聯網。視窗可以收成桌面掛件，或者收進選單欄，專注時選單欄有一條小魚輕輕游動。
+
+v0.4 剛加了「這段時間」回顧面板：本週、本月、一起度過的天數、圖鑑進度，展開就能看，全部是正向記錄——不渲染中斷、不設目標、不打擾。存檔匯出/匯入同版往返無損。
+
+技術棧：Go + MyGo 桌面框架，前端 go:embed 直接內嵌、沒有 JS 構建步驟，WebView 用系統自帶的 WKWebView，MIT 開源，背景音是公共領域錄音，出處都在倉庫裡。
+
+需要 macOS 12+ 和 Apple 晶片，免費。歡迎試試：
+官網：https://reef.echovic.com
+原始碼：https://github.com/echoVic/little-reef
+```
+
+**配圖說明**（3–5 張，帖內依序插入）：
+
+1. 主視窗專注中：左海底右計時（開場圖，體現產品形態）
+2. 訪客圖鑑：小丑魚來訪記錄（體現「來過 N 次」）
+3. 「這段時間」回顧面板展開態（v0.4 主特性）
+4. 桌面掛件 + 選單欄小魚（體現形態差異）
+5. 設定裡的「備份與恢復」（體現存檔安全網）
+
+**回覆預案**（按 V2EX 社羣高頻問題各備一條）：
+
+1. **「為什麼只有 macOS / 只有 arm64？」**——如實：自動更新鏈按 macOS 設計、我在 Apple 晶片上開發測試；Win/Linux 可原始碼構建但沒實測過，不想發自己沒跑過的包。等有真實訴求再排期。
+2. **「為什麼不做 iOS / 雲同步？」**——隱私是承諾不是短板：無賬號、不上傳是官網寫明的承諾；換機走存檔匯出，成本近零。雲同步會推翻這條產品線，寧可不做。
+3. **「和 Forest 有什麼區別？」**——Forest 中途離開樹會枯死（懲罰機制）；小海底不懲罰，提前結束也記錄時間、什麼都不死。另外小海底是 Mac 原生（選單欄/掛件）且開源。
 
 ## 2.4 即刻
 
-**用途**：短动态，周三晚，投「独立开发者」「效率工具」两个圈子。
+**用途**：短動態，週三晚，投「獨立開發者」「效率工具」兩個圈子。
 
-**动态正文**：
+**動態正文**：
 
 ```text
-一个人做的小产品：小海底。按空格开始专注，每完成一轮，桌面上的海底就长大一点；偶尔有鱼虾螃蟹来做客，记进图鉴。中途走开也不会死鱼，不打卡、不催促、不上传。收进菜单栏，专注时有一条小鱼陪你游。
+一個人做的小產品：小海底。按空格開始專注，每完成一輪，桌面上的海底就長大一點；偶爾有魚蝦螃蟹來做客，記進圖鑑。中途走開也不會死魚，不打卡、不催促、不上傳。收進選單欄，專注時有一條小魚陪你遊。
 
-v0.4 新增「这段时间」回顾：本周专注、一起度过的天数、图鉴进度——只做记录，从不提醒。
+v0.4 新增「這段時間」回顧：本週專注、一起度過的天數、圖鑑進度——只做記錄，從不提醒。
 
-免费开源（MIT），Apple 芯片 Mac 可用：reef.echovic.com
+免費開源（MIT），Apple 晶片 Mac 可用：reef.echovic.com
 ```
 
-**图组**（4 图，每图配一句话）：
+**圖組**（4 圖，每圖配一句話）：
 
-1. 专注中：左边海底生长，右边计时走动 —— 配文：专注时，它就慢慢长
-2. 小丑鱼来访，图鉴记下第一位朋友 —— 配文：第一位朋友总会来
-3. 「这段时间」面板：本周专注与天数 —— 配文：数字只是陪着，不是成绩单
-4. 收成挂件后的桌面一角 —— 配文：不用的时候，它就安静待在角落
+1. 專注中：左邊海底生長，右邊計時走動 —— 配文：專注時，它就慢慢長
+2. 小丑魚來訪，圖鑑記下第一位朋友 —— 配文：第一位朋友總會來
+3. 「這段時間」面板：本週專注與天數 —— 配文：數字只是陪著，不是成績單
+4. 收成掛件後的桌面一角 —— 配文：不用的時候，它就安靜待在角落
 
-**圈子 tag**：#独立开发者 #效率工具
+**圈子 tag**：#獨立開發者 #效率工具
 
-## 2.5 少数派（sspai 投稿）
+## 2.5 少數派（sspai 投稿）
 
-**用途**：周三投稿（审核有延迟，宜早投），800–1500 字，工作流场景切入。
+**用途**：週三投稿（稽覈有延遲，宜早投），800–1500 字，工作流場景切入。
 
-**标题**：小海底：一款从不催你的 Mac 专注计时器
+**標題**：小海底：一款從不催你的 Mac 專注計時器
 
-**正文**（约 980 字）：
+**正文**（約 980 字）：
 
 ```text
-番茄钟工具大概分两类：一类游戏化很重，任务、勋章、商店，专注本身反而成了支线剧情；另一类极简到只剩一个倒计时，走不走完全靠自己。小海底（little-reef）想试试第三种：让专注本身有一点温柔的回报，但不给你任何压力。
+番茄鍾工具大概分兩類：一類遊戲化很重，任務、勳章、商店，專注本身反而成了支線劇情；另一類極簡到只剩一個倒計時，走不走完全靠自己。小海底（little-reef）想試試第三種：讓專注本身有一點溫柔的回報，但不給你任何壓力。
 
-它是一个 macOS 应用，开源（MIT）、免费。一句话概括：你专注，桌面上的海底就慢慢长大。
+它是一個 macOS 應用，開源（MIT）、免費。一句話概括：你專注，桌面上的海底就慢慢長大。
 
-专注：按空格开始一轮，默认 25 分钟。窗口左半边是一片水下世界：水草会随完成的轮数长高，每三轮多一株植物，虾和螃蟹在沙地上爬、会躲进石缝。专注进行时，菜单栏图标会变成一条轻轻游动的小鱼——不看倒计时，也知道时间在走。
+專注：按空格開始一輪，預設 25 分鐘。視窗左半邊是一片水下世界：水草會隨完成的輪數長高，每三輪多一株植物，蝦和螃蟹在沙地上爬、會躲進石縫。專注進行時，選單欄圖示會變成一條輕輕游動的小魚——不看倒計時，也知道時間在走。
 
-休息：一轮结束，默认休息 5 分钟。休息时可以喂一次鱼：鱼食慢慢下沉，吃剩的落到沙地上，被虾蟹捡走。等一等，也可以不那么难熬。
+休息：一輪結束，預設休息 5 分鐘。休息時可以喂一次魚：魚食慢慢下沉，吃剩的落到沙地上，被蝦蟹撿走。等一等，也可以不那麼難熬。
 
-回看：v0.4 新增「这段时间」折叠面板——本周和本月的专注时长、一起度过的天数、图鉴进度、当前成长阶段，展开就能看。值得注意的是它刻意不显示「连续 N 天」：中断不渲染、不标红、不提醒，只有正向的记录。数字是陪伴，不是 KPI。
+回看：v0.4 新增「這段時間」摺疊面板——本週和本月的專注時長、一起度過的天數、圖鑑進度、當前成長階段，展開就能看。值得注意的是它刻意不顯示「連續 N 天」：中斷不渲染、不標紅、不提醒，只有正向的記錄。數字是陪伴，不是 KPI。
 
-访客：图鉴是另一条温柔的线。第一轮专注必定遇见小丑鱼，之后每轮有三分之一的机会来一位新朋友——4 种鱼、6 种虾、5 种蟹，全部按真实物种绘制，没见过的先来。都见过之后，老朋友会再来做客。
+訪客：圖鑑是另一條溫柔的線。第一輪專注必定遇見小丑魚，之後每輪有三分之一的機會來一位新朋友——4 種魚、6 種蝦、5 種蟹，全部按真實物種繪製，沒見過的先來。都見過之後，老朋友會再來做客。
 
-「无压力」不是口号，是几条硬规则：中途停下或直接走开，没有鱼会死，投入过的时间照样记录；不显示打卡和目标，不发提醒推送；从不突然出声，第一次打开也不会；Mac 休眠的时间不算进专注。
+「無壓力」不是口號，是幾條硬規則：中途停下或直接走開，沒有魚會死，投入過的時間照樣記錄；不顯示打卡和目標，不發提醒推送；從不突然出聲，第一次開啟也不會；Mac 休眠的時間不算進專注。
 
-隐私上同样干净：没有账号，不上传任何东西，你的记录就是本地的一个文件。想换机或备份，v0.4 可以在设置里一键导出存档；导入前会校验，失败不会影响当前数据，导出再导入，内容完全一样。
+隱私上同樣乾淨：沒有賬號，不上傳任何東西，你的記錄就是本地的一個檔案。想換機或備份，v0.4 可以在設定裡一鍵匯出存檔；匯入前會校驗，失敗不會影響當前資料，匯出再匯入，內容完全一樣。
 
-其它细节：20 种背景音（海浪、雨声、篝火、咖啡馆、木鱼、卡农……）全部打包在本机，循环听不出接缝；窗口可以收成桌面挂件，或者收进菜单栏；系统开启「减少动态效果」时会自动停下所有动画，只留计时。
+其它細節：20 種背景音（海浪、雨聲、篝火、咖啡館、木魚、卡農……）全部打包在本機，迴圈聽不出接縫；視窗可以收成桌面掛件，或者收進選單欄；系統開啟「減少動態效果」時會自動停下所有動畫，只留計時。
 
-它需要 macOS 12 或更高、Apple 芯片的 Mac。官网 reef.echovic.com 有完整介绍和下载，源码在 GitHub（echoVic/little-reef）。如果你也想要一个不催你的专注计时器，可以试试。
+它需要 macOS 12 或更高、Apple 晶片的 Mac。官網 reef.echovic.com 有完整介紹和下載，原始碼在 GitHub（echoVic/little-reef）。如果你也想要一個不催你的專注計時器，可以試試。
 ```
 
-**配图建议**（随投稿附）：主窗口专注图、「这段时间」面板、挂件模式、图鉴页 4 张（沿用官网新截图）。
+**配圖建議**（隨投稿附）：主視窗專注圖、「這段時間」面板、掛件模式、圖鑑頁 4 張（沿用官網新截圖）。
 
-## 2.6 小红书
+## 2.6 小紅書
 
-**用途**：周六发，生活化口吻，竖版图组（3:4）。
+**用途**：週六發，生活化口吻，豎版圖組（3:4）。
 
-**笔记标题**（20 字内）：桌面角落，养了一片小海底
+**筆記標題**（20 字內）：桌面角落，養了一片小海底
 
-**首图文案**（竖版封面，两行大字）：
+**首圖文案**（豎版封面，兩行大字）：
 
 ```text
-专注的时候
-它就悄悄长大
+專注的時候
+它就悄悄長大
 ```
 
 **正文**：
 
 ```text
-最近把 Mac 的角落让给了一片海。
+最近把 Mac 的角落讓給了一片海。
 
-开始专注它就慢慢长，暂停也不催你，走开了也不会死鱼。
-一轮结束偶尔有鱼虾来做客，图鉴会一直记着，现在集了 5 位。
+開始專注它就慢慢長，暫停也不催你，走開了也不會死魚。
+一輪結束偶爾有魚蝦來做客，圖鑑會一直記著，現在集了 5 位。
 
-20 种白噪音都在本机：海浪、咖啡馆、木鱼、卡农，换着听，循环听不出接缝。
-不用的时候收起来，只剩角落一个小挂件，或者躲进菜单栏变成一条小鱼。
+20 種白噪音都在本機：海浪、咖啡館、木魚、卡農，換著聽，迴圈聽不出接縫。
+不用的時候收起來，只剩角落一個小掛件，或者躲進選單欄變成一條小魚。
 
-没有打卡，没有提醒，记录只存在自己电脑里，想备份随时导出。
+沒有打卡，沒有提醒，記錄只存在自己電腦裡，想備份隨時匯出。
 
-免费开源，Apple 芯片的 Mac 可以试试。
+免費開源，Apple 晶片的 Mac 可以試試。
 ```
 
-**图组**（5 图竖版，依序）：
+**圖組**（5 圖豎版，依序）：
 
-1. 封面：挂件在干净桌面的角落（首图两行大字）
-2. 主窗口：海底生长中 + 计时器
-3. 图鉴：第一位朋友小丑鱼
-4. 「这段时间」面板：本周专注与一起度过的天数
-5. 声音面板 + 挂件对比图
+1. 封面：掛件在乾淨桌面的角落（首圖兩行大字）
+2. 主視窗：海底生長中 + 計時器
+3. 圖鑑：第一位朋友小丑魚
+4. 「這段時間」面板：本週專注與一起度過的天數
+5. 聲音面板 + 掛件對比圖
 
-**话题标签**：#macOS #桌面美化 #桌面小组件 #效率工具 #专注 #白噪音 #开源软件 #独立开发
+**話題標籤**：#macOS #桌面美化 #桌面小元件 #效率工具 #專注 #白噪音 #開源軟體 #獨立開發

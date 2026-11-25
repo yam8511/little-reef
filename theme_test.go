@@ -363,7 +363,7 @@ func TestThemeSwitchNeverTouchesArchiveBytes(t *testing.T) {
 	a.themes = store
 	a.theme = store.load()
 	// Give the archive real business data so the red line means something.
-	if _, err := a.Start("focus", "写主题测试"); err != nil {
+	if _, err := a.Start("focus", "寫主題測試"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := a.Pause(); err != nil {
@@ -385,7 +385,7 @@ func TestThemeSwitchNeverTouchesArchiveBytes(t *testing.T) {
 			id = valid
 		}
 		if _, err := a.SetTheme(id); err != nil && id == valid {
-			t.Fatalf("第 %d 次合法切换失败: %v", i, err)
+			t.Fatalf("第 %d 次合法切換失敗: %v", i, err)
 		}
 	}
 
@@ -394,7 +394,7 @@ func TestThemeSwitchNeverTouchesArchiveBytes(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := sha256.Sum256(after); got != hash {
-		t.Fatalf("aquarium.json 被主题切换改动了\n前: %s\n后: %s",
+		t.Fatalf("aquarium.json 被主題切換改動了\n前: %s\n後: %s",
 			hex.EncodeToString(hash[:]), hex.EncodeToString(got[:]))
 	}
 
@@ -405,14 +405,14 @@ func TestThemeSwitchNeverTouchesArchiveBytes(t *testing.T) {
 	}
 	for _, e := range entries {
 		if matched, _ := filepath.Match(".*.tmp", e.Name()); matched {
-			t.Fatalf("切换留下了临时文件 %s", e.Name())
+			t.Fatalf("切換留下了臨時檔案 %s", e.Name())
 		}
 	}
 
 	// The illegal ids must have been ignored; the persisted choice is the
 	// last legal one, and survives a reload.
 	if got := store.load(); got != valid {
-		t.Fatalf("theme.json 应为 %s，实际 %s", valid, got)
+		t.Fatalf("theme.json 應為 %s，實際 %s", valid, got)
 	}
 }
 
@@ -423,12 +423,12 @@ func TestThemeStoreRejectsUnknownAndKeepsDefault(t *testing.T) {
 		t.Fatal(err)
 	}
 	if store.load() != defaultTheme {
-		t.Fatal("无 theme.json 时应回退默认主题")
+		t.Fatal("無 theme.json 時應回退預設主題")
 	}
 	if err := store.set("bogus"); err == nil {
-		t.Fatal("非法 id 写入应被拒绝")
+		t.Fatal("非法 id 寫入應被拒絕")
 	}
 	if store.load() != defaultTheme {
-		t.Fatal("非法写入后仍应保持默认主题")
+		t.Fatal("非法寫入後仍應保持預設主題")
 	}
 }

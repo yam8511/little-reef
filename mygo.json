@@ -1,22 +1,13 @@
 {
-  "name": "小海底",
+  "name": "little-reef",
   "identifier": "dev.mygo.examples.aquarium",
   "version": "0.4.4",
   "license": "MIT",
   "icon": "assets/icon.png",
-  "frontendDist": "web/dist",
   "out": "build",
-  "bindings": "bindings.ts",
-  "macos": {
-    "signingIdentity": "Developer ID Application: Zijie Hu (8LH7PFQJ89)",
-    "notarize": {
-      "keychainProfile": "clipnest-notary"
-    }
-  },
-  "updates": {
-    "publicKey": "0ZE+ktIAa8WWCN9qm3Gyg+4q1He4iPKclVBRfi7lEQc=",
-    "github": "echoVic/little-reef"
-  },
   "slug": "app",
-  "buildCommand": "npm --prefix web run build"
+  "updates": {
+    "publicKey": "RL4HoX0C+fVT2rjfUohpA25zUCol150HH2nKyBLXCEU=",
+    "github": "yam8511/little-reef"
+  }
 }

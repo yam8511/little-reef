@@ -54,20 +54,20 @@ func TestRequestStateTimeout(t *testing.T) {
 	r.mu.Lock()
 	if r.current == "req-timeout" {
 		r.current = ""
-		r.err = "操作超时"
+		r.err = "操作超時"
 	}
 	r.mu.Unlock()
 	if r.isPending() {
 		t.Fatal("should be cleared after timeout")
 	}
-	if r.lastErr() != "操作超时" {
+	if r.lastErr() != "操作超時" {
 		t.Fatalf("expected timeout err, got %q", r.lastErr())
 	}
 }
 
 func TestTaskEllipsisByRune(t *testing.T) {
 	// Chinese string longer than 24 runes gets truncated by rune, not byte.
-	s := "这是一个非常长的任务标题需要被截断处理否则会出现乱码问题测试"
+	s := "這是一個非常長的任務標題需要被截斷處理否則會出現亂碼問題測試"
 	rs := []rune(s)
 	if len(rs) <= 24 {
 		t.Fatal("test string must be >24 runes")
@@ -94,14 +94,14 @@ func TestStatusLine(t *testing.T) {
 		snap   Snapshot
 		expect string
 	}{
-		{"idle fresh", Snapshot{Session: Session{Status: "idle"}}, "空闲"},
-		{"idle with notice", Snapshot{Session: Session{Status: "idle"}, Notice: "这段时间也算数"}, "这段时间也算数"},
-		{"running focus", Snapshot{Session: Session{Status: "running", Kind: "focus"}}, "专注进行中"},
-		{"running break", Snapshot{Session: Session{Status: "running", Kind: "break"}}, "休息进行中"},
-		{"paused", Snapshot{Session: Session{Status: "paused"}}, "已暂停"},
-		{"idle after rounds", Snapshot{Session: Session{Status: "idle"}, TodayRounds: 3}, "已完成今日 3 轮"},
-		{"complete focus", Snapshot{Session: Session{Status: "complete", Kind: "focus"}}, "专注完成，建议休息"},
-		{"complete break", Snapshot{Session: Session{Status: "complete", Kind: "break"}}, "休息结束，开始下一轮"},
+		{"idle fresh", Snapshot{Session: Session{Status: "idle"}}, "空閒"},
+		{"idle with notice", Snapshot{Session: Session{Status: "idle"}, Notice: "這段時間也算數"}, "這段時間也算數"},
+		{"running focus", Snapshot{Session: Session{Status: "running", Kind: "focus"}}, "專注進行中"},
+		{"running break", Snapshot{Session: Session{Status: "running", Kind: "break"}}, "休息進行中"},
+		{"paused", Snapshot{Session: Session{Status: "paused"}}, "已暫停"},
+		{"idle after rounds", Snapshot{Session: Session{Status: "idle"}, TodayRounds: 3}, "已完成今日 3 輪"},
+		{"complete focus", Snapshot{Session: Session{Status: "complete", Kind: "focus"}}, "專注完成，建議休息"},
+		{"complete break", Snapshot{Session: Session{Status: "complete", Kind: "break"}}, "休息結束，開始下一輪"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

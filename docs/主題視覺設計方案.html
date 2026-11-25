@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小海底 little-reef · 多主題視覺設計方案</title>
+<style>
+:root{
+  --paper:#F7F4EC; --card:#FFFEF9; --ink:#2E2A24; --ink2:#6B6457;
+  --line:#E4DECE; --teal:#3F7A5F; --soft:#EDE7D6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB",-apple-system,"Helvetica Neue",sans-serif;
+  line-height:1.75;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.hero{background:linear-gradient(180deg,#F0EAD8 0%, var(--paper) 100%);border-bottom:1px solid var(--line);padding:56px 0 40px}
+.hero .kicker{display:inline-block;font-size:12px;letter-spacing:.18em;color:var(--teal);font-weight:600;margin-bottom:14px}
+h1{font-size:34px;line-height:1.3;margin:0 0 10px;letter-spacing:.01em}
+.sub{color:var(--ink2);font-size:15px;max-width:760px}
+.meta{margin-top:18px;font-size:13px;color:var(--ink2)}
+.meta b{color:var(--ink);font-weight:600}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.toc a{text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:5px 14px;font-size:13px;transition:border-color .15s}
+.toc a:hover{border-color:var(--teal);color:var(--teal)}
+main{padding:44px 0 20px}
+section{margin-bottom:64px}
+h2{font-size:24px;margin:0 0 6px;letter-spacing:.02em}
+h2 .no{color:var(--teal);font-size:15px;vertical-align:3px;margin-right:8px;font-weight:700}
+.lead{color:var(--ink2);margin:0 0 22px;max-width:860px}
+h3{font-size:17px;margin:26px 0 10px;border-left:4px solid var(--teal);padding-left:10px}
+h4{font-size:15px;margin:18px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0;padding-left:22px}
+li{margin:4px 0}
+hr{border:none;border-top:1px solid var(--line);margin:30px 0}
+strong{color:#241F1A}
+a{color:var(--teal)}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px;background:var(--card);
+  border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th{background:var(--soft);text-align:left;padding:8px 12px;font-weight:600;border-bottom:1px solid var(--line)}
+td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:"SF Mono",Menlo,monospace;font-size:12.5px;background-color:#EFEAE0;padding:1px 5px;border-radius:4px}
+pre{background:#2E2A24;color:#EDE7D6;padding:16px;border-radius:10px;overflow-x:auto;font-size:12.5px}
+pre code{background:none;color:inherit;padding:0}
+img{max-width:100%;border-radius:12px;border:1px solid var(--line);margin:6px 0}
+figure{margin:10px 0}
+figcaption{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.chip{white-space:nowrap}
+.chip .sw{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+.chip code{background:none;padding:0;color:inherit}
+.fam-intro{display:flex;gap:26px;align-items:flex-start;margin-bottom:20px}
+.fam-intro .txt{flex:1}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card .tag{display:inline-block;font-size:11.5px;font-weight:600;color:var(--teal);
+  border:1px solid var(--teal);border-radius:999px;padding:1px 10px;margin-bottom:10px}
+.card h4{margin:0 0 4px;font-size:17px}
+.card .codename{font-family:"SF Mono",Menlo,monospace;font-size:12.5px;color:var(--ink2);margin-bottom:8px}
+.card .tagline{font-size:13.5px;color:var(--ink2);min-height:40px}
+.card .sws{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.sw-dot{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink2)}
+.sw-dot i{width:13px;height:13px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);display:inline-block}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:18px 22px;font-size:14px}
+.note h4{margin:0 0 8px;font-size:15px;color:var(--teal)}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--ink2);font-size:13px}
+@media (max-width:860px){.grid9{grid-template-columns:1fr 1fr}.fam-intro{flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="hero">
+<div class="wrap">
+<span class="kicker">LITTLE-REEF · THEME DESIGN SYSTEM</span>
+<h1>小海底 · 多主題視覺設計方案</h1>
+<p class="sub">為 macOS 桌面「專注計時器 + 會成長的珊瑚礁水族館」設計的 9 套主題：中國風、卡通漫畫風、可愛風各 3 套，附一套可落地的主題切換框架。延續產品「無壓力」氣質——只做正向記錄、不提醒、不打擾；每套主題均給出可直接實施的顏色、畫面、控制元件、字型與動效規格。</p>
+<div class="meta"><b>版本</b> v1.0 · <b>日期</b> 2026-10-24 · <b>內容</b> 9 套主題 × 10 章節 + 1 套落地框架 · <b>校驗</b> 對比度指令碼實測 / hex 全量斷言</div>
+<nav class="toc">
+<a href="#overview">總覽與對比</a><a href="#cn">中國風 · 3 套</a><a href="#cm">卡通漫畫風 · 3 套</a><a href="#ct">可愛風 · 3 套</a><a href="#framework">主題落地框架</a><a href="#notes">採用說明</a>
+</nav>
+</div>
+</header>
+<main class="wrap">
+
+<section id="overview">
+<h2><span class="no">00</span>主題一覽</h2>
+<p class="lead">三大家族九套主題，全部延續「安靜陪伴」：可愛來自圓潤造型與低飽和配色而非動效密度，漫畫用明快取代激烈，中國風以留白與墨階說話。</p>
+<div class="grid9"><div class="card"><span class="tag">中國風</span><h4>水墨蘭亭</h4><div class="codename">cn-shuimo</div><div class="tagline">把水族箱養在一張宣紙上——文人畫式的水下世界，墨分五色，留白即水。</div><div class="sws"><span class="sw-dot"><i style="background:#F1ECE1"></i>#F1ECE1</span><span class="sw-dot"><i style="background:#B4533C"></i>#B4533C</span><span class="sw-dot"><i style="background:#4E6E5D"></i>#4E6E5D</span></div></div><div class="card"><span class="tag">中國風</span><h4>青花瓷韻</h4><div class="codename">cn-qinghua</div><div class="tagline">把海底燒進一隻梅瓶裡——鈷藍在瓷白釉面上暈散，雅而不冷。</div><div class="sws"><span class="sw-dot"><i style="background:#EFF4F7"></i>#EFF4F7</span><span class="sw-dot"><i style="background:#235E8C"></i>#235E8C</span><span class="sw-dot"><i style="background:#3D7EA6"></i>#3D7EA6</span></div></div><div class="card"><span class="tag">中國風</span><h4>青綠江山</h4><div class="codename">cn-qinglu</div><div class="tagline">千里江山的袖珍水下版——石青石綠疊染，飽滿而不喧譁。</div><div class="sws"><span class="sw-dot"><i style="background:#EAE2C6"></i>#EAE2C6</span><span class="sw-dot"><i style="background:#3F755B"></i>#3F755B</span><span class="sw-dot"><i style="background:#A8563A"></i>#A8563A</span></div></div><div class="card"><span class="tag">卡通漫畫風</span><h4>波普</h4><div class="codename">cm-pop</div><div class="tagline">一張貼在桌面上的波普漫畫頁——網點、粗輪廓、降飽和撞色。</div><div class="sws"><span class="sw-dot"><i style="background:#8FDDE0"></i>#8FDDE0</span><span class="sw-dot"><i style="background:#F4703E"></i>#F4703E</span><span class="sw-dot"><i style="background:#1D3557"></i>#1D3557</span></div></div><div class="card"><span class="tag">卡通漫畫風</span><h4>賽璐璐</h4><div class="codename">cm-cel</div><div class="tagline">動畫裡那一格清澈的淺海——平塗、一階陰影、明亮乾淨。</div><div class="sws"><span class="sw-dot"><i style="background:#BDEDE9"></i>#BDEDE9</span><span class="sw-dot"><i style="background:#FF8C42"></i>#FF8C42</span><span class="sw-dot"><i style="background:#17414D"></i>#17414D</span></div></div><div class="card"><span class="tag">卡通漫畫風</span><h4>墨線</h4><div class="codename">cm-ink</div><div class="tagline">一本攤開的速寫本——炭墨勾線、淡彩註腳，把無壓力推到極致。</div><div class="sws"><span class="sw-dot"><i style="background:#FAF6EC"></i>#FAF6EC</span><span class="sw-dot"><i style="background:#E0794F"></i>#E0794F</span><span class="sw-dot"><i style="background:#33313B"></i>#33313B</span></div></div><div class="card"><span class="tag">可愛風</span><h4>馬卡龍</h4><div class="codename">ct-cream</div><div class="tagline">一盤低飽和的馬卡龍沉進奶油色海底——甜得剋制、軟得安靜。</div><div class="sws"><span class="sw-dot"><i style="background:#FBF4E9"></i>#FBF4E9</span><span class="sw-dot"><i style="background:#C4798D"></i>#C4798D</span><span class="sw-dot"><i style="background:#4F8E6F"></i>#4F8E6F</span></div></div><div class="card"><span class="tag">可愛風</span><h4>草莓奶昔</h4><div class="codename">ct-strawberry</div><div class="tagline">一杯倒進魚缸的草莓奶昔——粉而不甜膩，深可可色壓陣。</div><div class="sws"><span class="sw-dot"><i style="background:#FBEFF2"></i>#FBEFF2</span><span class="sw-dot"><i style="background:#D9566C"></i>#D9566C</span><span class="sw-dot"><i style="background:#5E82B8"></i>#5E82B8</span></div></div><div class="card"><span class="tag">可愛風</span><h4>水彩果凍</h4><div class="codename">ct-jelly</div><div class="tagline">一塊會呼吸的水彩果凍沉在蘇打水裡——清透、微微折射光。</div><div class="sws"><span class="sw-dot"><i style="background:#EAF4F6"></i>#EAF4F6</span><span class="sw-dot"><i style="background:#4E96B4"></i>#4E96B4</span><span class="sw-dot"><i style="background:#3F7A93"></i>#3F7A93</span></div></div></div>
+<h3>跨主題對比</h3>
+
+<table>
+<tr><th>家族</th><th>主題 · 代號</th><th>計時進行色（timerActive）</th><th>文字主色（textPrimary）</th><th>標題 / 計時數字字型</th><th>動效密度</th></tr>
+<tr><td rowspan="3">中國風</td><td>水墨蘭亭 · cn-shuimo</td><td>松煙綠 <span class="chip"><i class="sw" style="background:#4E6E5D"></i><code>#4E6E5D</code></span></td><td>濃墨 <span class="chip"><i class="sw" style="background:#33302B"></i><code>#33302B</code></span></td><td>楷體 Kaiti SC / 等寬 SF Mono</td><td>0.2×（最低）</td></tr>
+<tr><td>青花瓷韻 · cn-qinghua</td><td>青釉 <span class="chip"><i class="sw" style="background:#3D7EA6"></i><code>#3D7EA6</code></span></td><td>瓷青墨 <span class="chip"><i class="sw" style="background:#1F3A4D"></i><code>#1F3A4D</code></span></td><td>宋體 Songti SC / 等寬 SF Mono</td><td>0.5×</td></tr>
+<tr><td>青綠江山 · cn-qinglu</td><td>頭青 <span class="chip"><i class="sw" style="background:#2F6D74"></i><code>#2F6D74</code></span></td><td>墨褐 <span class="chip"><i class="sw" style="background:#3A342B"></i><code>#3A342B</code></span></td><td>宋體+楷體題跋 / 等寬 SF Mono</td><td>0.4×</td></tr>
+<tr><td rowspan="3">卡通漫畫風</td><td>波普 · cm-pop</td><td>波普橘 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span></td><td>深海軍 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span></td><td>站酷快樂體 / SF Pro Rounded</td><td>≤6 泡 · 30s 橫穿</td></tr>
+<tr><td>賽璐璐 · cm-cel</td><td>檸檬橘 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span></td><td>深青墨 <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span></td><td>霞鶩文楷 / SF Pro Display</td><td>≤8 泡 · 25s 橫穿</td></tr>
+<tr><td>墨線 · cm-ink</td><td>赤陶橘 <span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span></td><td>炭墨 <span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span></td><td>霞鶩文楷 / 霞鶩文楷數字</td><td>≤3 泡 · 40s（最慢）</td></tr>
+<tr><td rowspan="3">可愛風</td><td>馬卡龍 · ct-cream</td><td>抹茶綠 <span class="chip"><i class="sw" style="background:#4F8E6F"></i><code>#4F8E6F</code></span></td><td>焙茶棕 <span class="chip"><i class="sw" style="background:#4B3A32"></i><code>#4B3A32</code></span></td><td>霞鶩文楷 / SF Pro Rounded</td><td>5–8 泡 · 慢</td></tr>
+<tr><td>草莓奶昔 · ct-strawberry</td><td>奶藍莓 <span class="chip"><i class="sw" style="background:#5E82B8"></i><code>#5E82B8</code></span></td><td>可可梅棕 <span class="chip"><i class="sw" style="background:#53333B"></i><code>#53333B</code></span></td><td>霞鶩文楷 / SF Pro Rounded</td><td>6–9 泡 · 慢</td></tr>
+<tr><td>水彩果凍 · ct-jelly</td><td>海鹽墨藍 <span class="chip"><i class="sw" style="background:#3F7A93"></i><code>#3F7A93</code></span></td><td>深海藍黑 <span class="chip"><i class="sw" style="background:#2F3B4A"></i><code>#2F3B4A</code></span></td><td>霞鶩文楷 / SF Pro Rounded</td><td>8–12 泡 · 最慢</td></tr>
+</table>
+<p style="font-size:13px;color:var(--ink2)">注：動效密度為相對寫實預設主題（1.0×）的歸一值；卡通/可愛風給出的「同屏 N 泡」按 1080p 視窗折算。全部文字對比度經 WCAG 相對亮度公式指令碼實測：正文 ≥4.5:1（多數 ≥9:1），大號狀態色 ≥3:1。</p>
+
+</section>
+
+
+<section id="cn">
+<h2><span class="no">01</span>中國風</h2>
+<p class="lead">宣紙上的水族箱。墨分五色、留白即水，唯一的暖色（硃砂）只在點睛處出現；三套變體由「疏朗」到「疊染」遞進，生物數量與動效密度均低於預設寫實主題。</p>
+<div class='fam-intro'><div class='txt'><p>三套主題文字對比度均為 WCAG 指令碼實測：正文主色 9.49~11.15:1（AAA），次色 4.66~4.84:1（AA）。控制元件幾何家族級恆定：選單欄 16×16pt、按鈕高 28pt、進度環寬 4pt、卡片圓角 10pt、開關 36×22pt；完成回饋分別為硃砂印章落下 / 青花波紋一圈 / 金線一亮，均一次性、≤600ms。</p></div></div><p><strong>範圍說明</strong>：本文件包含 3 套中國風主題變體（水墨蘭亭 / 青花瓷韻 / 青綠江山）。卡通漫畫風、可愛風由其他設計師並行負責。</p>
+<p><strong>全域約定（三個主題共用，不重複）</strong>：控制元件幾何尺寸為家族級常量而非主題 token——選單欄圖示 16×16pt（@2x 提供 32×32）、按鈕高 28pt、進度環寬 4pt、卡片圓角 10pt、開關 36×22pt。所有主題文字對比度數值均為 WCAG 相對亮度公式<strong>指令碼實測值</strong>，非目測估計。</p>
+<h2>主題一：水墨蘭亭（cn-shuimo）</h2>
+<p><img alt="水墨蘭亭 mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/JgThcsdMgX" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>水墨蘭亭</strong> · 代號 <code>cn-shuimo</code></p>
+<h3>2. 氣質定位</h3>
+<p>「把水族箱養在一張宣紙上」——一套文人畫式的水下世界。墨分五色，留白即水：魚是紙上一點濃墨，珊瑚是枯筆枝幹，氣泡是虛圈。整套介面只有一個暖色（硃砂），用於極少數需要點睛的地方，其餘全靠墨階深淺說話。安靜、疏朗、不爭。</p>
+<h3>3. 適用場景</h3>
+<p>長時間深度專注（寫作、閱讀、連續編碼）的首選主題；夜間想收斂心神、不願被色彩打擾的時刻。適合偏愛極簡與大量留白的使用者——它是最接近「一張安靜的紙」的主題。</p>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：<strong>全畫面無彩色墨階（約 40°~50° 的暖灰基調）+ 唯一暖色硃砂做強調</strong>，即傳統設色的「萬墨叢中一點朱」。文字對比度（實測）：textPrimary 對 bgBase <strong>11.15:1</strong>（AAA），textSecondary 對 bgBase <strong>4.66:1</strong>（AA），accent 對 controlBg <strong>4.62:1</strong>（AA）。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bgBase</td>
+<td>宣紙米</td>
+<td><span class="chip"><i class="sw" style="background:#F1ECE1"></i><code>#F1ECE1</code></span></td>
+<td>水族箱整體底色，即「紙」</td>
+</tr>
+<tr>
+<td>bgGradient</td>
+<td>淡墨沉</td>
+<td><span class="chip"><i class="sw" style="background:#DCD5C4"></i><code>#DCD5C4</code></span></td>
+<td>箱底向上漸隱的沉積層</td>
+</tr>
+<tr>
+<td>waterLight</td>
+<td>月白天光</td>
+<td><span class="chip"><i class="sw" style="background:#FBF8F0"></i><code>#FBF8F0</code></span></td>
+<td>上層水體的天光亮帶</td>
+</tr>
+<tr>
+<td>sand</td>
+<td>沙洲淺赭</td>
+<td><span class="chip"><i class="sw" style="background:#D9CDB2"></i><code>#D9CDB2</code></span></td>
+<td>底部沙地，帶枯筆皴擦紋理</td>
+</tr>
+<tr>
+<td>coral</td>
+<td>濃墨珊瑚</td>
+<td><span class="chip"><i class="sw" style="background:#3A362F"></i><code>#3A362F</code></span></td>
+<td>枯筆鹿角珊瑚的枝幹墨色</td>
+</tr>
+<tr>
+<td>fish</td>
+<td>墨魚</td>
+<td><span class="chip"><i class="sw" style="background:#2B2722"></i><code>#2B2722</code></span></td>
+<td>墨鱗鯉主體色（全畫面最深墨）</td>
+</tr>
+<tr>
+<td>seaweed</td>
+<td>苔墨水草</td>
+<td><span class="chip"><i class="sw" style="background:#6E6A5C"></i><code>#6E6A5C</code></span></td>
+<td>蘭葉描水草的中墨</td>
+</tr>
+<tr>
+<td>bubble</td>
+<td>留白氣泡</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>氣泡為空心墨圈，內填留白</td>
+</tr>
+<tr>
+<td>accent</td>
+<td>印朱</td>
+<td><span class="chip"><i class="sw" style="background:#B4533C"></i><code>#B4533C</code></span></td>
+<td>UI 強調色 + 完成態小印章</td>
+</tr>
+<tr>
+<td>timerActive</td>
+<td>松煙綠</td>
+<td><span class="chip"><i class="sw" style="background:#4E6E5D"></i><code>#4E6E5D</code></span></td>
+<td>專注進行中的進度環與狀態點</td>
+</tr>
+<tr>
+<td>timerPause</td>
+<td>赭墨</td>
+<td><span class="chip"><i class="sw" style="background:#8F6F45"></i><code>#8F6F45</code></span></td>
+<td>暫停/休息狀態（對 controlBg 4.33:1）</td>
+</tr>
+<tr>
+<td>controlBg</td>
+<td>宣白</td>
+<td><span class="chip"><i class="sw" style="background:#FAF7EF"></i><code>#FAF7EF</code></span></td>
+<td>計時卡、按鈕底色（疊加 90% 不透明度使用）</td>
+</tr>
+<tr>
+<td>controlBorder</td>
+<td>淡墨線</td>
+<td><span class="chip"><i class="sw" style="background:#C6BFAE"></i><code>#C6BFAE</code></span></td>
+<td>控制元件 1px 描邊、進度環底環</td>
+</tr>
+<tr>
+<td>textPrimary</td>
+<td>濃墨</td>
+<td><span class="chip"><i class="sw" style="background:#33302B"></i><code>#33302B</code></span></td>
+<td>標題、計時數字、正文主文字</td>
+</tr>
+<tr>
+<td>textSecondary</td>
+<td>灰墨</td>
+<td><span class="chip"><i class="sw" style="background:#6E6959"></i><code>#6E6959</code></span></td>
+<td>說明文字、次要資訊</td>
+</tr>
+<tr>
+<td>menuIcon</td>
+<td>濃墨（template）</td>
+<td><span class="chip"><i class="sw" style="background:#33302B"></i><code>#33302B</code></span></td>
+<td>選單欄圖示基準色（實際渲染走系統 template）</td>
+</tr>
+</tbody>
+</table>
+<h3>5. 水族箱背景畫面</h3>
+<ul>
+<li><strong>構圖（遠中近三層）</strong>：上 1/3 為大面留白「水天」，僅在頂緣有一道月白天光亮帶；中景偏左放一株大型枯筆鹿角珊瑚，偏右 2~3 筆蘭葉水草（疏密呼應，忌對稱）；底部 1/5 為沙洲淺赭，用橫向枯筆皴擦出 3~4 道深淺筆觸。</li>
+<li><strong>光照</strong>：頂部柔和漫射天光，色溫 4500K 偏暖；不出現體積光柱與光斑——留白主題裡光斑即噪音。</li>
+<li><strong>水體通透度</strong>：極高。留白本身就是通透，唯一的深淺變化是從 bgGradient 到 bgBase 的自下而上漸隱。</li>
+<li><strong>靜態元素</strong>：宣紙底紋（512×512 可平鋪 tile，紋理對比度極低）、沙洲、珊瑚。</li>
+<li><strong>動態元素</strong>：2~3 尾墨魚、苔墨水草 ±3° 緩擺、每屏不超過 3 個空心墨圈氣泡。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>造型語言：輪廓由「筆觸」構成——起筆重、行筆輕、收筆飛白（透明度漸隱），全部生物帶 1px 淡墨輪廓，不用任何高光材質。</p>
+<ul>
+<li><strong>墨鱗鯉</strong>（代表魚 1）：紡錘形，體長約為畫面寬 1/10；背部濃墨 <span class="chip"><i class="sw" style="background:#2B2722"></i><code>#2B2722</code></span> 一筆鋪出，向腹部過渡為 60% 透明淡墨，尾鰭兩筆撇出、末端飛白（opacity 0.4）；單尾或兩尾同遊，巡遊速度為預設主題的 0.3×，路徑為長弧線、幾乎不轉向。</li>
+<li><strong>齊白石式墨蝦</strong>（代表魚 2）：軀幹 6 節、節節淡墨（<span class="chip"><i class="sw" style="background:#6E6A5C"></i><code>#6E6A5C</code></span> @70% 透明度），雙長鬚為 0.5px 細線向前伸出體長 1.5 倍；行為以「停」為主——掛在珊瑚枝上靜置，每 20~40 秒一次後退彈跳。</li>
+<li><strong>淡墨蟹</strong>（代表魚 3）：殼用濃墨點染、螯足用淡墨，趴在沙洲上以 0.1× 速度橫向緩爬，是畫面中「最慢的元素」。</li>
+<li><strong>珊瑚/水草</strong>：珊瑚為枯筆鹿角狀，主幹 2.5px、末梢 1px，枝頭留白斷筆；水草用蘭葉描「一筆一葉」，葉尖飛白。</li>
+<li><strong>群遊建議</strong>：<strong>不群遊</strong>。文人畫裡魚永遠只有兩三尾，本主題生物數量硬上限 3，遵循「疏可走馬」。</li>
+</ul>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：template 單色剪影，16×16pt，一條 S 形單筆魚輪廓（一筆畫出，不斷線）；專注中 3 幀橫擺動畫（位移 ±2px，1.2s/迴圈），暫停/休息時停幀——與現有預設主題行為一致。</li>
+<li><strong>計時器卡片</strong>：宣白 <span class="chip"><i class="sw" style="background:#FAF7EF"></i><code>#FAF7EF</code></span> @90% 不透明，圓角 10pt，描邊 1px <span class="chip"><i class="sw" style="background:#C6BFAE"></i><code>#C6BFAE</code></span>，陰影 <code>0 2px 8px rgba(51,48,43,0.12)</code>；卡片內部計時數字用濃墨，左上角狀態點 6pt（進行中松煙綠/休息赭墨）。</li>
+<li><strong>按鈕</strong>：高 28pt，圓角 8pt，描邊 1px <span class="chip"><i class="sw" style="background:#C6BFAE"></i><code>#C6BFAE</code></span>，預設底 controlBg，hover 底換 bgBase，按下不透明度降至 80%。</li>
+<li><strong>進度環</strong>：環寬 4pt，底環 <span class="chip"><i class="sw" style="background:#C6BFAE"></i><code>#C6BFAE</code></span>，走針 <span class="chip"><i class="sw" style="background:#4E6E5D"></i><code>#4E6E5D</code></span>；<strong>完成時不彈動畫綵帶，只做一件事</strong>——一枚 16×16pt 硃砂印章（印文可用「休」字）在環心 400ms 內淡入並輕輕落下（位移 2px），隨後常駐本次記錄條目。</li>
+<li><strong>開關</strong>：36×22pt 膠囊，圓角 11pt，關閉態描邊 <span class="chip"><i class="sw" style="background:#C6BFAE"></i><code>#C6BFAE</code></span> + 底 controlBg，開啟態填充 <span class="chip"><i class="sw" style="background:#4E6E5D"></i><code>#4E6E5D</code></span>。</li>
+<li><strong>卡片（統計/列表）</strong>：圓角 12pt，其餘同計時器卡片；卡片標題左側加一枚 8pt 淡墨方印作裝飾錨點。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題：<code>"Kaiti SC", "LXGW WenKai", "Songti SC", serif</code>（楷體的手寫感呼應筆墨；未裝 LXGW WenKai 時優雅回退，不依賴安裝）</li>
+<li>正文：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code></li>
+<li>計時數字：<code>"SF Mono", "Menlo", monospace</code>（等寬數字避免跳動；此主題刻意不用書法體做數字，保證專注中讀數零負擔）</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動：<code>cubic-bezier(0.33, 0, 0.2, 1)</code>——偏慢的緩入緩出，模擬墨跡在水中沉降。</li>
+<li>bubbleDensity：0.2×（每屏 ≤3 個，空心墨圈）；driftSpeed：0.3×；水草擺幅 ±3°、週期 6s。</li>
+<li>環境音（可選、預設關）：極低音量古琴泛音 + 一滴硯臺水聲，無旋律迴圈，音量上限內建為系統 20%。</li>
+<li><strong>減少動態效果相容</strong>：開啟後魚全部停靠為中景懸停姿勢、水草垂直、氣泡消失、印章淡入改為無位移直接顯隱；計時數字變化保留 150ms 純淡入（不屬動態效果，屬狀態提示）。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：<code>bgBase/bgGradient/waterLight/sand</code>（背景層 4 token 原值直填）；<code>coral/fish/seaweed/bubble</code>（生物層 4 token）；<code>accent/timerActive/timerPause/controlBg/controlBorder/textPrimary/textSecondary/menuIcon</code>（UI 層 8 token 全部使用）；<code>bubbleDensity=0.2、driftSpeed=0.3、easing=墨沉曲線、ambientAudio=guqin-drip</code>。</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（墨鱗鯉/墨蝦/墨蟹，各含游動幀 3 幀 + 懸停幀 1 幀）；珊瑚貼圖 2 套（枯筆鹿角大/小，各含成長 3 階段）；水草貼圖 1 套（蘭葉描，3 幀擺動）；選單欄圖示 1 枚（template PDF）；硃砂印章 PNG 1 枚；宣紙紋理 tile 1 張（512×512）。</li>
+<li><strong>特殊實現</strong>：留白區域就是背景層本身，<strong>禁止</strong>疊加任何漸變光斑/體積光粒子；所有透明度透過 CSS 變數掛 token，不硬編碼；飛白效果用 sprite 內建 alpha 通道實現，不做執行時濾鏡（省效能）。</li>
+</ul>
+<h2>主題二：青花瓷韻（cn-qinghua）</h2>
+<p><img alt="青花瓷韻 mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/BWBWUFXYhV" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>青花瓷韻</strong> · 代號 <code>cn-qinghua</code></p>
+<h3>2. 氣質定位</h3>
+<p>「把海底燒進一隻梅瓶裡」——鈷藍在瓷白釉面上暈散，魚是纏枝紋間游動的一筆青花。整套畫面只有兩種顏色：瓷的白與鈷的藍，最多再借一點瓷器底足的露胎赭。清涼、規整、雅而不冷。</p>
+<h3>3. 適用場景</h3>
+<p>白天與上午的工作專注段——它是最清爽明亮的一套，與 macOS 淺色外觀共處最和諧；適合喜歡藍白配色、想要「清爽但不性冷淡」氛圍的使用者。</p>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：<strong>單色相策略——全部層級色圍繞青藍 210°±10° 做明度分層</strong>，唯一的暖色是露胎赭（瓷器未施釉的底足色），僅用於沙地與暫停態，形成「冷主暖輔」。文字對比度（實測）：textPrimary 對 bgBase <strong>10.70:1</strong>（AAA），textSecondary 對 bgBase <strong>4.75:1</strong>（AA），accent 對 controlBg <strong>6.62:1</strong>（AAA）。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bgBase</td>
+<td>釉白</td>
+<td><span class="chip"><i class="sw" style="background:#EFF4F7"></i><code>#EFF4F7</code></span></td>
+<td>水族箱整體底色，即「瓷面」</td>
+</tr>
+<tr>
+<td>bgGradient</td>
+<td>天青沉</td>
+<td><span class="chip"><i class="sw" style="background:#C9DAE5"></i><code>#C9DAE5</code></span></td>
+<td>箱底向上漸隱的青釉層</td>
+</tr>
+<tr>
+<td>waterLight</td>
+<td>月白釉光</td>
+<td><span class="chip"><i class="sw" style="background:#FBFDFE"></i><code>#FBFDFE</code></span></td>
+<td>水面斜向高光帶</td>
+</tr>
+<tr>
+<td>sand</td>
+<td>露胎赭</td>
+<td><span class="chip"><i class="sw" style="background:#D8C2A4"></i><code>#D8C2A4</code></span></td>
+<td>底部沙地（瓷器露胎質感）</td>
+</tr>
+<tr>
+<td>coral</td>
+<td>蘇麻離青</td>
+<td><span class="chip"><i class="sw" style="background:#24567F"></i><code>#24567F</code></span></td>
+<td>纏枝蓮紋珊瑚的鈷藍枝幹</td>
+</tr>
+<tr>
+<td>fish</td>
+<td>青花藍</td>
+<td><span class="chip"><i class="sw" style="background:#2E6BA0"></i><code>#2E6BA0</code></span></td>
+<td>魚體紋樣的主藍</td>
+</tr>
+<tr>
+<td>seaweed</td>
+<td>青灰水草</td>
+<td><span class="chip"><i class="sw" style="background:#7FA3B8"></i><code>#7FA3B8</code></span></td>
+<td>蕉葉紋帶狀水草</td>
+</tr>
+<tr>
+<td>bubble</td>
+<td>釉泡</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>白實心氣泡 + 1px 青灰描邊</td>
+</tr>
+<tr>
+<td>accent</td>
+<td>鈷藍</td>
+<td><span class="chip"><i class="sw" style="background:#235E8C"></i><code>#235E8C</code></span></td>
+<td>UI 強調色、按鈕選中、連結</td>
+</tr>
+<tr>
+<td>timerActive</td>
+<td>青釉</td>
+<td><span class="chip"><i class="sw" style="background:#3D7EA6"></i><code>#3D7EA6</code></span></td>
+<td>專注進行中的進度環與狀態點</td>
+</tr>
+<tr>
+<td>timerPause</td>
+<td>露胎赭</td>
+<td><span class="chip"><i class="sw" style="background:#97744B"></i><code>#97744B</code></span></td>
+<td>暫停/休息狀態（對 controlBg 4.11:1）</td>
+</tr>
+<tr>
+<td>controlBg</td>
+<td>瓷白</td>
+<td><span class="chip"><i class="sw" style="background:#F8FBFD"></i><code>#F8FBFD</code></span></td>
+<td>計時卡、按鈕底色（@92% 不透明度）</td>
+</tr>
+<tr>
+<td>controlBorder</td>
+<td>青線</td>
+<td><span class="chip"><i class="sw" style="background:#9DB8CA"></i><code>#9DB8CA</code></span></td>
+<td>控制元件 1px 描邊、進度環底環</td>
+</tr>
+<tr>
+<td>textPrimary</td>
+<td>瓷青墨</td>
+<td><span class="chip"><i class="sw" style="background:#1F3A4D"></i><code>#1F3A4D</code></span></td>
+<td>標題、計時數字、正文主文字</td>
+</tr>
+<tr>
+<td>textSecondary</td>
+<td>淡青灰</td>
+<td><span class="chip"><i class="sw" style="background:#566F82"></i><code>#566F82</code></span></td>
+<td>說明文字、次要資訊</td>
+</tr>
+<tr>
+<td>menuIcon</td>
+<td>瓷青墨（template）</td>
+<td><span class="chip"><i class="sw" style="background:#1F3A4D"></i><code>#1F3A4D</code></span></td>
+<td>選單欄圖示基準色</td>
+</tr>
+</tbody>
+</table>
+<h3>5. 水族箱背景畫面</h3>
+<ul>
+<li><strong>構圖</strong>：上 2/5 為釉白向天青沉的極緩垂直漸變（模擬釉層厚度的感覺，漸變跨度大、對比弱）；水面下 1/6 處一條 45° 入射的月白高光帶（柔和橢圓羽化，非鏡面反光）；中景左右各一組纏枝珊瑚（左高右低，呼應不等邊構圖）；底部 1/6 露胎赭沙地，邊緣做一圈 2px 的「釉面垂流」過渡（青釉色滴垂入沙地的界線）。</li>
+<li><strong>光照</strong>：45° 斜向天光，色溫 5600K 中性偏冷，僅一條高光帶，無光柱。</li>
+<li><strong>水體通透度</strong>：高——白瓷底色本身即通透感來源。</li>
+<li><strong>靜態元素</strong>：全幅疊加極細開片紋路 tile（512×512，線寬 0.5px，透明度 4%，近看有瓷面細節、遠看不可見）、沙地、珊瑚。</li>
+<li><strong>動態元素</strong>：青花魚群、水草緩擺、中等密度的白釉泡。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>造型語言：魚體以瓷白為底、鈷藍紋樣繪身，輪廓圓潤無稜角（瓷器沒有尖銳轉折）；紋樣借鑑青花分水技法——同一筆內有濃淡暈散。</p>
+<ul>
+<li><strong>青花錦鯉</strong>（代表魚 1）：瓷白軀體，鈷藍 <span class="chip"><i class="sw" style="background:#2E6BA0"></i><code>#2E6BA0</code></span> 纏枝紋從鰓後沿體側延伸至尾柄，尾鰭為三筆水波紋；2~3 尾小隊巡遊，速度 0.5×，隊形鬆散（前後錯開 1.5 體長）。</li>
+<li><strong>青花燕魚</strong>（代表魚 2，神仙魚意象）：高身圓盤輪廓如一隻小瓷盤，體側居中一朵纏枝蓮紋，長鰭上下兩筆如盤沿弧線；慢速（0.3×），偏好停駐中景珊瑚旁，游動時姿態近乎平移。</li>
+<li><strong>青線小蝦</strong>（代表魚 3）：青灰 <span class="chip"><i class="sw" style="background:#7FA3B8"></i><code>#7FA3B8</code></span> @80% 透明的節肢軀幹，雙須為鈷藍 0.5px 細線，在沙地邊緣來回覓食，偶有後彈。</li>
+<li><strong>珊瑚/水草</strong>：珊瑚枝幹蘇麻離青 <span class="chip"><i class="sw" style="background:#24567F"></i><code>#24567F</code></span>，枝頭點瓷白高光（模擬青花瓷盤上的「甜白」留白）；水草為帶狀蕉葉紋，葉緣一道細青線。</li>
+<li><strong>群遊建議</strong>：允許小群遊（≤3 尾），錦鯉群遊 + 燕魚單遊形成「一動一靜」的層次。</li>
+</ul>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：template 單色剪影 16×16pt——小魚輪廓 + 尾後一道水波弧線；專注中 3 幀橫擺 ±2px，暫停停幀。</li>
+<li><strong>計時器卡片</strong>：瓷白 <span class="chip"><i class="sw" style="background:#F8FBFD"></i><code>#F8FBFD</code></span> @92%，圓角 10pt，描邊 1px <span class="chip"><i class="sw" style="background:#9DB8CA"></i><code>#9DB8CA</code></span>，陰影 <code>0 2px 8px rgba(31,58,77,0.10)</code>；數字瓷青墨。</li>
+<li><strong>按鈕</strong>：28pt 高，圓角 8pt，描邊 1px 青線，選中態填充 <span class="chip"><i class="sw" style="background:#235E8C"></i><code>#235E8C</code></span>、文字反白 <span class="chip"><i class="sw" style="background:#F8FBFD"></i><code>#F8FBFD</code></span>。</li>
+<li><strong>進度環</strong>：4pt 環寬，底環青線，走針青釉 <span class="chip"><i class="sw" style="background:#3D7EA6"></i><code>#3D7EA6</code></span>；完成時環外一次性淡出一圈青花波紋（半徑 +8pt、600ms、僅一次，非迴圈）。</li>
+<li><strong>開關</strong>：36×22pt 膠囊，開啟態填充鈷藍 <span class="chip"><i class="sw" style="background:#235E8C"></i><code>#235E8C</code></span>。</li>
+<li><strong>卡片</strong>：圓角 12pt；卡片角落可放 12pt 的纏枝角花裝飾（低透明度 20%，僅設定頁/統計頁使用）。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題：<code>"Songti SC", "Source Han Serif SC", serif</code>（宋體的雕版筆畫與青花紋樣的版畫底稿氣質同源）</li>
+<li>正文：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code></li>
+<li>計時數字：<code>"SF Mono", "Menlo", monospace</code></li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動：<code>cubic-bezier(0.4, 0, 0.25, 1)</code>——比墨沉曲線略利落，但不急促。</li>
+<li>bubbleDensity：0.5×（白釉泡，直徑 3~6pt）；driftSpeed：0.5×；水草擺幅 ±4°、週期 5s。</li>
+<li>環境音（可選、預設關）：極低音量「雨滴落瓷面」+ 遠處一記風鈴，無節拍迴圈。</li>
+<li><strong>減少動態效果相容</strong>：魚群停駐懸停、氣泡與波紋消失、水草靜止；高光帶保持靜態（它本來就是靜態層）；計時數字 150ms 純淡入保留。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：背景層 4 token、生物層 4 token、UI 層 8 token 全部按上表直填；<code>bubbleDensity=0.5、driftSpeed=0.5、easing=釉面曲線、ambientAudio=rain-on-porcelain</code>。</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（青花錦鯉含 3 幀游動/青花燕魚/青線小蝦）；珊瑚貼圖 2 套（纏枝蓮大/小，各含成長 3 階段）；水草 1 套（蕉葉紋 3 幀）；選單欄圖示 1 枚（template PDF）；開片紋 tile 1 張；纏枝角花裝飾元件 1 套（SVG，設定頁用）。</li>
+<li><strong>特殊實現</strong>：瓷白魚體在瓷白背景上必須保留 1px <span class="chip"><i class="sw" style="background:#C9DAE5"></i><code>#C9DAE5</code></span> 外描邊防「消失」；開片紋 tile 用純 CSS 疊加（<code>background-image</code> + <code>opacity: 0.04</code>），不做 Canvas 粒子；青花波紋完成動效做一次性觸發器，嚴格非迴圈。</li>
+</ul>
+<h2>主題三：青綠江山（cn-qinglu）</h2>
+<p><img alt="青綠江山 mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/NqyhHT5a8M" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>青綠江山</strong> · 代號 <code>cn-qinglu</code></p>
+<h3>2. 氣質定位</h3>
+<p>「千里江山的袖珍水下版」——《千里江山圖》的石青石綠搬進水族箱：珊瑚是層層疊染的山巒，魚是山間一點硃砂。三套主題裡色彩最豐富的一套，但全部礦物色都壓在絹底的溫潤裡，飽滿而不喧譁。</p>
+<h3>3. 適用場景</h3>
+<p>午後與週末的長專注段；情緒需要一點色彩滋養、又不想被亮色刺激的時刻；秋冬季氛圍最佳。適合作為「進階中國風」推薦給已經用過前兩套的使用者。</p>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：<strong>絹黃暖底（低飽和黃，60° 附近）× 石綠/石青（160°~195° 鄰近色）× 硃砂暖點綴</strong>——傳統的「青綠設色、絹底襯金」。文字對比度（實測）：textPrimary 對 bgBase <strong>9.49:1</strong>（AAA），textSecondary 對 bgBase <strong>4.84:1</strong>（AA），accent 對 controlBg <strong>4.83:1</strong>（AA）。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bgBase</td>
+<td>絹色</td>
+<td><span class="chip"><i class="sw" style="background:#EAE2C6"></i><code>#EAE2C6</code></span></td>
+<td>水族箱整體底色，即「絹本」</td>
+</tr>
+<tr>
+<td>bgGradient</td>
+<td>淡石綠</td>
+<td><span class="chip"><i class="sw" style="background:#B5C6A9"></i><code>#B5C6A9</code></span></td>
+<td>箱底向上漸隱的水體色</td>
+</tr>
+<tr>
+<td>waterLight</td>
+<td>蛤粉白</td>
+<td><span class="chip"><i class="sw" style="background:#FBFAF3"></i><code>#FBFAF3</code></span></td>
+<td>上層天光（蛤粉即傳統白色礦物顏料）</td>
+</tr>
+<tr>
+<td>sand</td>
+<td>金碧沙</td>
+<td><span class="chip"><i class="sw" style="background:#D9BC74"></i><code>#D9BC74</code></span></td>
+<td>底部沙地，「金碧山水」之金</td>
+</tr>
+<tr>
+<td>coral</td>
+<td>石綠珊瑚</td>
+<td><span class="chip"><i class="sw" style="background:#3F7A5F"></i><code>#3F7A5F</code></span></td>
+<td>珊瑚中層的石綠疊染</td>
+</tr>
+<tr>
+<td>fish</td>
+<td>硃砂鯉</td>
+<td><span class="chip"><i class="sw" style="background:#A8563A"></i><code>#A8563A</code></span></td>
+<td>代表魚主體的硃砂色</td>
+</tr>
+<tr>
+<td>seaweed</td>
+<td>石綠水草</td>
+<td><span class="chip"><i class="sw" style="background:#5C8A63"></i><code>#5C8A63</code></span></td>
+<td>蘭葉描水草</td>
+</tr>
+<tr>
+<td>bubble</td>
+<td>蛤粉泡</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>白氣泡 + 1px 石綠描邊</td>
+</tr>
+<tr>
+<td>accent</td>
+<td>石綠</td>
+<td><span class="chip"><i class="sw" style="background:#3F755B"></i><code>#3F755B</code></span></td>
+<td>UI 強調色、按鈕選中</td>
+</tr>
+<tr>
+<td>timerActive</td>
+<td>頭青</td>
+<td><span class="chip"><i class="sw" style="background:#2F6D74"></i><code>#2F6D74</code></span></td>
+<td>專注進行中的進度環與狀態點</td>
+</tr>
+<tr>
+<td>timerPause</td>
+<td>赭石</td>
+<td><span class="chip"><i class="sw" style="background:#8F5F3C"></i><code>#8F5F3C</code></span></td>
+<td>暫停/休息狀態（對 controlBg 4.88:1）</td>
+</tr>
+<tr>
+<td>controlBg</td>
+<td>絹白</td>
+<td><span class="chip"><i class="sw" style="background:#F7F3E3"></i><code>#F7F3E3</code></span></td>
+<td>計時卡、按鈕底色（@92% 不透明度）</td>
+</tr>
+<tr>
+<td>controlBorder</td>
+<td>墨描</td>
+<td><span class="chip"><i class="sw" style="background:#BFB79E"></i><code>#BFB79E</code></span></td>
+<td>控制元件 1px 描邊、進度環底環</td>
+</tr>
+<tr>
+<td>textPrimary</td>
+<td>墨褐</td>
+<td><span class="chip"><i class="sw" style="background:#3A342B"></i><code>#3A342B</code></span></td>
+<td>標題、計時數字、正文主文字</td>
+</tr>
+<tr>
+<td>textSecondary</td>
+<td>赭灰</td>
+<td><span class="chip"><i class="sw" style="background:#66604E"></i><code>#66604E</code></span></td>
+<td>說明文字、次要資訊</td>
+</tr>
+<tr>
+<td>menuIcon</td>
+<td>墨褐（template）</td>
+<td><span class="chip"><i class="sw" style="background:#3A342B"></i><code>#3A342B</code></span></td>
+<td>選單欄圖示基準色</td>
+</tr>
+</tbody>
+</table>
+<h3>5. 水族箱背景畫面</h3>
+<ul>
+<li><strong>構圖（遠中近三層，最講層次的一套）</strong>：<strong>遠景</strong>——2~3 座淡石青山影剪影（<span class="chip"><i class="sw" style="background:#B5C6A9"></i><code>#B5C6A9</code></span> 再疊 30% 透明度的頭青輪廓），只有大輪廓無細節，置於畫面上 1/3；<strong>中景</strong>——石綠珊瑚群自左向右如峰巒疊嶂排布（大中小三株，錯落如手卷展開）；<strong>近景</strong>——金碧沙地 + 2 叢石綠水草壓住左右兩角。</li>
+<li><strong>光照</strong>：頂部柔光偏暖 4800K，模擬絹本的反光溫潤感；無光柱、無閃爍。</li>
+<li><strong>水體通透度</strong>：中高——絹底帶來輕微「霧感」，比青花主題通透度略低，比寫實水族館安穩。</li>
+<li><strong>靜態元素</strong>：全幅絹絲橫紋 tile（512×512，紋理透明度 6%）、遠山、沙地、珊瑚。</li>
+<li><strong>動態元素</strong>：硃砂鯉小群、石綠水草 ±4° 緩擺、低密度蛤粉泡。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>造型語言：<strong>工筆重彩</strong>——礦物色平塗 + 1.5px 墨褐勾線輪廓，色塊內部可做「疊染」兩階色（不做漸變光）。</p>
+<ul>
+<li><strong>硃砂鯉</strong>（代表魚 1）：軀體硃砂 <span class="chip"><i class="sw" style="background:#A8563A"></i><code>#A8563A</code></span> 平塗，鱗片以蛤粉白點出（隔一片點一片），背鰭點一筆石綠；3~5 尾小群遊，速度 0.4×，隊形為鬆散雁行（前後錯位），是全畫面最暖的視覺焦點。</li>
+<li><strong>頭青魚</strong>（代表魚 2）：頭青 <span class="chip"><i class="sw" style="background:#2F6D74"></i><code>#2F6D74</code></span> 覆鱗、腹部蛤粉白漸染兩階色、墨線勾邊；慢速（0.25×），常在中景珊瑚的「山谷」間穿行。</li>
+<li><strong>石綠蟹</strong>（代表魚 3）：殼石綠 <span class="chip"><i class="sw" style="background:#3F7A5F"></i><code>#3F7A5F</code></span>、雙螯赭石 <span class="chip"><i class="sw" style="background:#8F5F3C"></i><code>#8F5F3C</code></span>、墨線勾足；沙地橫爬 0.1×，每 30 秒停下「吐泡」一枚蛤粉泡。</li>
+<li><strong>珊瑚/水草</strong>：三段式設色——枝幹赭石打底、中層石綠疊染（佔枝條 70%）、枝頭蛤粉白提亮三筆，通體 1.5px 墨褐勾線；水草為石綠蘭葉描、葉緣墨線。</li>
+<li><strong>群遊建議</strong>：唯一允許「小群遊」感的中國風主題（硃砂鯉 3~5 尾），但仍低於寫實預設的密度；群遊路徑走平滑大弧線，禁止急轉。</li>
+</ul>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：template 單色剪影 16×16pt——魚形剪影 + 下方一抹山形弧線（呼應「魚躍江山」）；專注中 3 幀橫擺 ±2px，暫停停幀。</li>
+<li><strong>計時器卡片</strong>：絹白 <span class="chip"><i class="sw" style="background:#F7F3E3"></i><code>#F7F3E3</code></span> @92%，圓角 10pt，描邊 1px <span class="chip"><i class="sw" style="background:#BFB79E"></i><code>#BFB79E</code></span>，陰影 <code>0 2px 8px rgba(58,52,43,0.10)</code>；數字墨褐。</li>
+<li><strong>按鈕</strong>：28pt 高，圓角 8pt，描邊 1px 墨描，選中態填充 <span class="chip"><i class="sw" style="background:#3F755B"></i><code>#3F755B</code></span>、文字反白絹白。</li>
+<li><strong>進度環</strong>：4pt 環寬，底環墨描，走針頭青 <span class="chip"><i class="sw" style="background:#2F6D74"></i><code>#2F6D74</code></span>；完成時卡片描邊處一次性亮起一道金線（<span class="chip"><i class="sw" style="background:#D9BC74"></i><code>#D9BC74</code></span>、120ms 淡入、僅一次）——「金碧」點題，剋制不迴圈。</li>
+<li><strong>開關</strong>：36×22pt 膠囊，開啟態填充石綠 <span class="chip"><i class="sw" style="background:#3F755B"></i><code>#3F755B</code></span>。</li>
+<li><strong>卡片</strong>：圓角 12pt；卡片小標題可用 <code>"Kaiti SC"</code> 如題跋落款（見第 8 節）。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題：<code>"Songti SC", "Source Han Serif SC", serif</code>（工筆重彩配宋體骨架）</li>
+<li>卡片小標題（題跋感）：<code>"Kaiti SC", "LXGW WenKai", serif</code></li>
+<li>正文：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code></li>
+<li>計時數字：<code>"SF Mono", "Menlo", monospace</code></li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動：<code>cubic-bezier(0.38, 0, 0.22, 1)</code>——介於墨沉與釉面之間。</li>
+<li>bubbleDensity：0.4×；driftSpeed：0.4×；水草擺幅 ±4°、週期 5.5s。</li>
+<li>環境音（可選、預設關）：極低音量古箏泛音 + 山澗細流白噪，無節拍。</li>
+<li><strong>減少動態效果相容</strong>：開啟後魚群懸停於各自深度、蟹停爬、氣泡消失、水草垂直；金線完成動效改為描邊直接換色顯隱。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：背景層、生物層、UI 層 16 個 token 全部按上表直填；<code>bubbleDensity=0.4、driftSpeed=0.4、easing=疊染曲線、ambientAudio=guzheng-brook</code>。</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（硃砂鯉群 5 幀游動/頭青魚 3 幀/石綠蟹 2 幀）；珊瑚貼圖 3 套（峰巒大/中/小，各含成長 3 階段）；水草 1 套（石綠蘭葉 3 幀）；遠山剪影 PNG 2 張；選單欄圖示 1 枚（template PDF）；絹絲橫紋 tile 1 張。</li>
+<li><strong>特殊實現</strong>：礦物色飽和度高於前兩套，<strong>所有色塊統一疊加 8% 墨褐罩層</strong>（一層全屏 <code>mix-blend-mode: multiply</code> 或直接在貼圖內做）壓住整體明度，這是「豐富而不喧鬧」的關鍵，務必保留；遠山是唯一允許「重影」的層次，其他元素禁止半透明疊加。</li>
+</ul>
+<h2>自檢清單（中國風家族）</h2>
+<ul>
+<li><strong>10 節完整性</strong>：水墨蘭亭 10/10 ✅、青花瓷韻 10/10 ✅、青綠江山 10/10 ✅，無缺節。</li>
+<li><strong>HEX 有效性</strong>：三主題共 48 個色值全部為 6 位 #RRGGBB，已用指令碼逐個斷言校驗透過（含合法性檢查與對比度計算）。</li>
+<li><strong>無壓力原則</strong>：無刺眼對比、無閃爍、無迴圈慶祝動效；氣泡密度 0.2×/0.5×/0.4× 全部低於預設；環境音預設關且音量內建上限；文字對比度全部達 WCAG AA 以上（正文主色均 AAA）。</li>
+<li><strong>減少動態效果相容</strong>：三套主題均給出完整靜態停靠方案（生物姿勢、氣泡、水草、切換過渡）。</li>
+<li><strong>字型可用性</strong>：PingFang SC / Kaiti SC / Songti SC / SF Mono / Menlo / Hiragino Sans GB 均為 macOS 系統自帶；Source Han Serif SC、LXGW WenKai 為開源字型可免費本地安裝，且所有字型棧均以系統字型兜底、不硬依賴安裝。</li>
+</ul>
+</section>
+
+
+<section id="cm">
+<h2><span class="no">02</span>卡通漫畫風</h2>
+<p class="lead">三種不同的「印刷與手繪」語言：波普的硬色階與網點、賽璐璐的雙色階平塗、墨線的線稿淡彩。統一規則：降飽和撞色、深色輪廓收邊、動效時長下限 0.25s、禁止高頻迴圈。</p>
+<div class='fam-intro'><div class='txt'><p>三套主題文字對比度指令碼實測：正文主色 8.0~12.55:1，次色 5.02~5.35:1。選單欄圖示均按 22pt / @2x 畫布給出具體線寬（4 / 3 / 3.5px）與減筆策略，另備 Template 單色版自動適配深淺選單欄。</p></div></div><p><strong>範圍說明</strong>：本次交付範圍僅卡通漫畫風方向的三套主題變體。三套主題均遵守產品「無壓力」原則（只正向記錄、不打擾）與系統「減少動態效果」無障礙相容要求。</p>
+<ul>
+<li><strong>主題一 波普（cm-pop）</strong>：美式波普漫畫——Benday 網點、粗輪廓、降飽和撞色，三套中最「外向」但仍剋制</li>
+<li><strong>主題二 賽璐璐（cm-cel）</strong>：日式賽璐璐動畫——平塗、一階陰影、細描邊，明亮清新，與現有寫實主題氣質最接近</li>
+<li><strong>主題三 墨線（cm-ink）</strong>：手繪線稿淡彩——墨線勾勒、留白、稀疏排線，三套中最安靜，接近速寫本</li>
+</ul>
+<p>各主題文字對比度均為按 WCAG 相對亮度公式實測。</p>
+<h2>主題一：波普（cm-pop）</h2>
+<p><img alt="cm-pop mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/x8UVVV6wXb" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>波普</strong>，代號 <code>cm-pop</code>。</p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：一張貼在桌面上的波普漫畫頁，海底是印刷色的，但情緒是鬆弛的。畫面像 Lichtenstein 式漫畫定格：色塊硬切、網點規則、輪廓粗而穩，魚是漫畫裡的配角而非真實物種。撞色全部降飽和處理，杜絕紅黑高對比的攻擊性；「喧鬧」的部分只保留在造型趣味上，色彩始終保持明快而非激烈。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>想要視覺上「換個心情」的使用者：下午犯困、週末休整，需要一點明快但不需要刺激</li>
+<li>喜歡復古漫畫、美式插畫審美的使用者；桌面本身偏簡約（深色桌布或純色桌布）時對比效果最佳</li>
+<li>白天的專注時段：亮色印刷底比寫實深海底在強光環境下更易讀</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：冷調青綠佔約 70% 畫面面積，暖調橘粉佔 25%，檸檬黃點綴 5%；所有撞色被統一的深海軍藍輪廓「收邊」，使對比熱鬧但不刺眼。全部為純平塗色，無漸變（波普語言的硬色階分界代替漸變）。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>浪花青</td>
+<td><span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span></td>
+<td>水體中景主色，畫面最大色塊</td>
+</tr>
+<tr>
+<td>水體亮階</td>
+<td>淺湖綠</td>
+<td><span class="chip"><i class="sw" style="background:#C6F2EF"></i><code>#C6F2EF</code></span></td>
+<td>頂部 20% 亮階，與 <span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span> 硬切分界</td>
+</tr>
+<tr>
+<td>水體光照 waterLight</td>
+<td>晨光白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>三道斜向光帶、氣泡與魚體高光圓點</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>奶油沙</td>
+<td><span class="chip"><i class="sw" style="background:#F6E7C6"></i><code>#F6E7C6</code></span></td>
+<td>底部沙丘主體</td>
+</tr>
+<tr>
+<td>網點陰影</td>
+<td>深浪青</td>
+<td><span class="chip"><i class="sw" style="background:#2FA8C4"></i><code>#2FA8C4</code></span></td>
+<td>沙地背光面 Benday 網點、礁石暗面、進度環底軌</td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>波普橘</td>
+<td><span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span></td>
+<td>枝狀珊瑚、UI 強調色、計時進行狀態</td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>櫻桃粉</td>
+<td><span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span></td>
+<td>主角魚「波波魚」身體</td>
+</tr>
+<tr>
+<td>強調點綴</td>
+<td>檸檬黃</td>
+<td><span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span></td>
+<td>小丑魚條紋、尾鰭、按鈕 hover 底色</td>
+</tr>
+<tr>
+<td>水草 seaweed</td>
+<td>熒光草綠</td>
+<td><span class="chip"><i class="sw" style="background:#67C58F"></i><code>#67C58F</code></span></td>
+<td>叢狀水草葉片（一叢雙色：亮葉 + 深浪青網點葉）</td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>石板藍灰</td>
+<td><span class="chip"><i class="sw" style="background:#7C93A6"></i><code>#7C93A6</code></span></td>
+<td>暫停時進度環與狀態點（刻意降飽和，表達「歇一下」）</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>雲朵白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span></td>
+<td>計時卡片、按鈕、下拉麵板底色</td>
+</tr>
+<tr>
+<td>文字主色/輪廓 textPrimary</td>
+<td>深海軍</td>
+<td><span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span></td>
+<td>全部輪廓描邊、標題與正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>青灰藍</td>
+<td><span class="chip"><i class="sw" style="background:#517084"></i><code>#517084</code></span></td>
+<td>說明文字、次要資訊</td>
+</tr>
+</tbody>
+</table>
+<p>實測對比度（WCAG 相對亮度法）：文字主色 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 在 <span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span> 背景上 <strong>8.0:1</strong>、在 <span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span> 控制元件底上 <strong>12.15:1</strong>；次級文字 <span class="chip"><i class="sw" style="background:#517084"></i><code>#517084</code></span> 在控制元件底上 <strong>5.16:1</strong>；計時進行色 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span> 與輪廓 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 的非文字對比 <strong>4.26:1</strong>（≥3:1 達標）。注意：<span class="chip"><i class="sw" style="background:#517084"></i><code>#517084</code></span> 直接壓在水體背景上僅約 3.4:1，<strong>次級文字只允許出現在白底控制元件上</strong>，落水底的場景文字一律用 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>。</p>
+<h3>5. 水族箱背景畫面</h3>
+<p>以 1600×900 邏輯解析度描述（等比縮放）：</p>
+<ul>
+<li><strong>遠景（上 0–22%）</strong>：兩階硬切色帶——最頂 22% 為 <span class="chip"><i class="sw" style="background:#C6F2EF"></i><code>#C6F2EF</code></span>，其下無縫硬切入 <span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span>（分界線為平直水平線，無羽化）。三條白色光帶從右上斜向左下（傾角 20°），寬 24 / 16 / 20 px、間隔 120 px，不透明度 85%，<strong>靜態</strong>。</li>
+<li><strong>中景（22–70%）</strong>：左側一叢熒光草綠水草（7 葉，葉形為胖柳葉貝塞爾，高度 120–180 px，根部 8 px 深海軍描邊）；右側一塊圓角礁石（<span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span> 填充 + 深浪青 <span class="chip"><i class="sw" style="background:#2FA8C4"></i><code>#2FA8C4</code></span> 網點鋪左下 40% 暗面，描邊 4 px）。</li>
+<li><strong>近景（70–100%）</strong>：兩道起伏沙丘曲線（每道由 3 段大半徑圓弧拼接），沙丘 <span class="chip"><i class="sw" style="background:#F6E7C6"></i><code>#F6E7C6</code></span>；背光側鋪 Benday 網點——圓點直徑 3 px、正交網格間距 6 px、顏色 <span class="chip"><i class="sw" style="background:#2FA8C4"></i><code>#2FA8C4</code></span>。沙丘左端一組枝狀珊瑚（3 枝，波普橘 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>，枝端圓頭）；右端一叢管狀珊瑚（5 管，櫻桃粉 <span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span>，管口橢圓深軍藍描邊）。</li>
+<li><strong>全元素通用</strong>：輪廓線 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>、4 px、round join / round cap；填充純色平塗，無內部漸變。</li>
+<li><strong>動態元素</strong>：僅魚群與氣泡（見第 6、9 節）；其餘全部靜態，符合「安靜陪伴」。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>通用造型語言：幾何化憨圓造型，4 px 深軍藍輪廓，平塗主體 + 單塊白色高光 + 區域性網點，無漸變。</p>
+<ol>
+<li><strong>波波魚（主角）</strong>：橢圓身（寬高比 1.4:1）+ 三角尾，身體櫻桃粉 <span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span>，尾鰭檸檬黃 <span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span>；身體中部一塊直徑 18 px 白色高光圓點，鰓後三枚 3 px 深浪青網點排成弧線作「鱗」。游動：橫穿全屏約 30 s，正弦上下浮動 ±8 px、週期 6 s，尾鰭兩幀擺動（±10°，1.2 s/幀）。</li>
+<li><strong>橘子小丑</strong>：圓胖身橘 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>，兩條白色豎條紋（每條頻寬 14 px、兩側 4 px 深軍描邊），尾鰭奶白。比波波魚小 20%，常貼珊瑚枝附近 60–100 px 半徑內慢速繞圈（一圈 40 s）。</li>
+<li><strong>點點河豚</strong>：正圓身檸檬黃 <span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span>，下半腹鋪深浪青 Benday 網點（直徑 2 px、間距 4 px），呆滯小眼（實心 6 px 深軍圓 + 2 px 白高光）。靜置在沙地，僅每 15 s 緩慢平移 20 px。</li>
+</ol>
+<p><strong>群遊建議</strong>：櫻桃粉波波魚按「前 1 後 2」固定三角隊形群遊，間距 60 px、同相位擺尾，像漫畫裡複製的網點一樣整齊——整齊感是這個主題的幽默點。同屏總數 ≤5 尾，無追逐、無快速變向。</p>
+<p>珊瑚/水草造型見第 5 節；氣泡為白描邊空心圓（2.5 px 深軍輪廓 + 45° 單點白高光）。</p>
+<h3>7. 介面控制元件樣式</h3>
+<p>選單欄圖示（22 pt，按 44×44 px @2x 畫布繪製）：單尾波波魚側影，身體 <span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span>、輪廓 4 px（畫布內約 9% 高度，縮小後仍清晰）、尾部一抹 <span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span>，眼睛為 3 px <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 實心圓 + 1.5 px 白點。同時提供 Template 單色版（全 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 輪廓線稿）供深色選單欄自動反色。專注時尾鰭每 2 s 輕擺 6°；暫停/休息時完全靜止。</p>
+<ul>
+<li><strong>專注計時器卡片</strong>：底色 <span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span>，圓角 16 px，描邊 4 px <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>，硬投影（offset 0/4 px，顏色 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 25% 不透明，blur=0——漫畫印刷硬陰影，禁柔光）；建議尺寸 320×180 pt 居中懸浮。計時數字 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>。</li>
+<li><strong>進度環</strong>：線寬 12 pt，底軌 <span class="chip"><i class="sw" style="background:#2FA8C4"></i><code>#2FA8C4</code></span> 20% 不透明，前景進行色 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>；端帽為 16 pt 白底深軍描邊「小氣泡」圓鈕。暫停時前景整體換 <span class="chip"><i class="sw" style="background:#7C93A6"></i><code>#7C93A6</code></span>，無閃爍過渡（0.4 s 色彩插值）。</li>
+<li><strong>按鈕</strong>：膠囊形（全圓角）。預設：白底 + 3.5 px 深軍描邊 + 文字 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>；hover：檸檬黃 <span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span> 底；主按鈕「開始專注」：波普橘 <span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span> 底 + 白字 + 深軍描邊。按下態：控制元件整體下移 2 px 且硬投影縮短為 2 px（鉛字壓印手感）。高度 36 pt，水平內邊距 20 pt。</li>
+<li><strong>開關</strong>：軌道 44×26 pt 圓角全圓，開 <span class="chip"><i class="sw" style="background:#2FA8C4"></i><code>#2FA8C4</code></span> / 關 <span class="chip"><i class="sw" style="background:#B8C7CC"></i><code>#B8C7CC</code></span>，滑塊白色 22 pt 圓 + 2.5 pt 深軍描邊，切換 0.25 s ease-in-out。</li>
+<li><strong>卡片（統計/設定面板）</strong>：圓角 16 px、描邊 3 px <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>、同款硬投影，底 <span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span>；卡片之間不疊陰影，靠 16 pt 間距分隔。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題：<code>"ZCOOL KuaiLe", "PingFang SC", sans-serif</code>（站酷快樂體，免費商用，本地安裝；標題字重固定，不用仿粗體）</li>
+<li>正文：<code>"PingFang SC", "Helvetica Neue", sans-serif</code>（系統自帶，Regular / Medium 兩檔足夠）</li>
+<li>計時數字：<code>"SF Pro Rounded", "SF Pro Text", "PingFang SC", sans-serif</code>，weight 600，啟用等寬數字（tabular figures）避免跳動；SF Pro Rounded 為 macOS 系統自帶圓體，與波普圓潤造型同構</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動統一 <code>cubic-bezier(0.33, 0, 0.15, 1)</code>（快進緩出，帶一點印刷翻頁的「落定感」）</li>
+<li>氣泡密度：同屏 ≤6 顆，直徑 6–14 px，上升 20 px/s，到頂部淡出（0.5 s）；不做縮放脈動</li>
+<li>光帶靜止；魚群游動見第 6 節；所有動效時長下限 0.25 s、無高頻迴圈，杜絕急促閃爍</li>
+<li><strong>「減少動態效果」開啟時</strong>：魚停在預設靜幀姿勢（sprite 的 idle 幀）、氣泡隱藏、選單欄圖示靜止，畫面即為一張完整漫畫定格——靜態構圖本身完整，動效只是附加層</li>
+<li>環境音（可選，預設關）：每 8–15 s 隨機一顆低音量「咕嚕」水泡聲（約 -30 dB）；無背景音樂、無提示音</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>token 對映</strong>：bgBase=<span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span>、bgGradient=硬色階（<span class="chip"><i class="sw" style="background:#C6F2EF"></i><code>#C6F2EF</code></span>→<span class="chip"><i class="sw" style="background:#8FDDE0"></i><code>#8FDDE0</code></span>，非漸變，兩 token 存同一色表）、waterLight=<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>、sand=<span class="chip"><i class="sw" style="background:#F6E7C6"></i><code>#F6E7C6</code></span>、coral=<span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>、fish=<span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span>、seaweed=<span class="chip"><i class="sw" style="background:#67C58F"></i><code>#67C58F</code></span>、bubble=白描邊空心（描邊 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>）、accent=<span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>、timerActive=<span class="chip"><i class="sw" style="background:#F4703E"></i><code>#F4703E</code></span>、timerPause=<span class="chip"><i class="sw" style="background:#7C93A6"></i><code>#7C93A6</code></span>、controlBg=<span class="chip"><i class="sw" style="background:#FFFDF7"></i><code>#FFFDF7</code></span>、controlBorder=<span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>（統一 4 px 描邊規格）、textPrimary=<span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>、textSecondary=<span class="chip"><i class="sw" style="background:#517084"></i><code>#517084</code></span>、menuIcon=雙色（<span class="chip"><i class="sw" style="background:#F27EA9"></i><code>#F27EA9</code></span>/<span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span>）+ Template 單色版、bubbleDensity=6、driftSpeed=0.33（30 s 橫穿全屏）、easing=cubic-bezier(0.33,0,0.15,1)、ambientAudio=bubble-low（預設關）</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（每套 8 朝向 × 擺尾 2 幀 + 靜幀 1 幀）、珊瑚貼圖 2 套（枝狀/管狀）、水草 1 套（擺動 2 幀）、Benday 網點 seamless tile 1 張（6 px 網格）、光帶 PNG 1 套、礁石 1 張、氣泡點陣圖 6 顆、選單欄圖示 1 枚（@1x/@2x/@3x 彩色版 + Template 版、專注/暫停兩態）</li>
+<li><strong>實現注意</strong>：網點一律用平鋪 tile 實現，禁止逐點即時繪製（效能）；描邊統一 Core Graphics stroke + round join，輪廓色單一 <span class="chip"><i class="sw" style="background:#1D3557"></i><code>#1D3557</code></span> 便於全域換色；硬投影禁用 blur（省效能且風格自洽）；本主題僅設計淺色外觀，暫不提供夜間變體——深色環境靠系統選單欄 Template 圖示自動適配即可</li>
+</ul>
+<h2>主題二：賽璐璐（cm-cel）</h2>
+<p><img alt="cm-cel mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/kDZODlFgTU" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>賽璐璐</strong>，代號 <code>cm-cel</code>。</p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：90 年代手繪動畫裡那一格清澈的淺海，吉卜力式的平塗和光柱。顏色是分層的、乾淨的，每種顏色只有「亮面/陰影一階」兩個色階，像逐幀畫在賽璐璐片上。明亮但不飽和過度，光柱柔和、水草緩緩搖——三套中最接近現有寫實主題的「安靜陪伴」氣質，是卡通風裡的預設安全款。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>首選入門卡通主題：想要輕鬆一點、又不希望風格突變太大的使用者</li>
+<li>清晨/上午的高質量專注時段，喜歡日系動畫審美的使用者</li>
+<li>桌面偏淺色桌布、或需要長時間掛在水族箱前發呆放鬆的使用者（明度分佈均勻，長時間注視不疲勞）</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：全畫面一個統一色溫的「清透水色」底（青綠系），生物與 UI 用同明度區間的暖橘、櫻粉、草綠點綴；陰影不用黑灰色，而用各色的<strong>同色相加深一階</strong>（賽璐璐二分法），保證畫面整體始終明亮。每個顏色只存在「固有色 + 一階陰影」兩層，無第三層。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>淺碧</td>
+<td><span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span></td>
+<td>水體下部主色</td>
+</tr>
+<tr>
+<td>水體亮階</td>
+<td>亮青</td>
+<td><span class="chip"><i class="sw" style="background:#6FD0CE"></i><code>#6FD0CE</code></span></td>
+<td>上部 30% 亮帶，與 <span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span> 硬色階分界</td>
+</tr>
+<tr>
+<td>水體光照 waterLight</td>
+<td>雲隙白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>三束光柱（80% 不透明）、魚眼高光</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>奶沙</td>
+<td><span class="chip"><i class="sw" style="background:#F2E8CF"></i><code>#F2E8CF</code></span></td>
+<td>底部沙丘；一階陰影 <span class="chip"><i class="sw" style="background:#E3D5B5"></i><code>#E3D5B5</code></span></td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>櫻粉</td>
+<td><span class="chip"><i class="sw" style="background:#FF9AA8"></i><code>#FF9AA8</code></span></td>
+<td>鹿角珊瑚與海葵主體；陰影階 <span class="chip"><i class="sw" style="background:#E57F92"></i><code>#E57F92</code></span></td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>檸檬橘</td>
+<td><span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span></td>
+<td>小丑魚身體；陰影階 <span class="chip"><i class="sw" style="background:#E06B2E"></i><code>#E06B2E</code></span>；同時兼任 UI 強調</td>
+</tr>
+<tr>
+<td>魚體輔色</td>
+<td>晴空藍</td>
+<td><span class="chip"><i class="sw" style="background:#4FA9E0"></i><code>#4FA9E0</code></span></td>
+<td>藍倒吊身體；陰影階 <span class="chip"><i class="sw" style="background:#3E8CC4"></i><code>#3E8CC4</code></span></td>
+</tr>
+<tr>
+<td>水草 seaweed</td>
+<td>鰻草綠</td>
+<td><span class="chip"><i class="sw" style="background:#67C58F"></i><code>#67C58F</code></span></td>
+<td>鰻草葉片；陰影階 <span class="chip"><i class="sw" style="background:#52AB79"></i><code>#52AB79</code></span></td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>霧藍灰</td>
+<td><span class="chip"><i class="sw" style="background:#A8B8C0"></i><code>#A8B8C0</code></span></td>
+<td>暫停時進度環與狀態點</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>雲白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFEFB"></i><code>#FFFEFB</code></span></td>
+<td>計時卡片、按鈕、面板底色</td>
+</tr>
+<tr>
+<td>文字主色/描邊 textPrimary</td>
+<td>深青墨</td>
+<td><span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span></td>
+<td>全部輪廓描邊、標題與正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>青藍灰</td>
+<td><span class="chip"><i class="sw" style="background:#47707F"></i><code>#47707F</code></span></td>
+<td>說明文字、次要資訊</td>
+</tr>
+</tbody>
+</table>
+<p>實測對比度：<span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span> 在 <span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span> 背景上 <strong>8.66:1</strong>、在 <span class="chip"><i class="sw" style="background:#FFFEFB"></i><code>#FFFEFB</code></span> 控制元件底上 <strong>10.96:1</strong>；<span class="chip"><i class="sw" style="background:#47707F"></i><code>#47707F</code></span> 在控制元件底上 <strong>5.35:1</strong>、直接壓在水體上 <strong>4.23:1</strong>（≥3:1，可用於 18 pt 以上大字；小號次要文字仍放白底控制元件上）；強調色 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span> 與 <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span> 的非文字對比 <strong>4.78:1</strong>。</p>
+<h3>5. 水族箱背景畫面</h3>
+<p>以 1600×900 邏輯解析度描述：</p>
+<ul>
+<li><strong>遠景（上 0–30%）</strong>：亮青 <span class="chip"><i class="sw" style="background:#6FD0CE"></i><code>#6FD0CE</code></span> 亮帶，底部以一條緩弧曲線硬切到 <span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span>（賽璐璐色階，無漸變過渡）。三束白色光柱從水面斜貫至畫面中部（傾角 15°，寬 40 / 30 / 24 px、間距約 200 px，邊緣平直無羽化，不透明度 80%），以 8 s 週期做 72%–88% 的透明度呼吸——極緩，幾乎察覺不到。</li>
+<li><strong>中景（30–70%）</strong>：左、右各一叢鰻草（5–7 片，葉形為兩段貝塞爾的飄帶形，高 100–160 px，<span class="chip"><i class="sw" style="background:#67C58F"></i><code>#67C58F</code></span>，每片葉根部向下 1/3 處鋪一片 <span class="chip"><i class="sw" style="background:#52AB79"></i><code>#52AB79</code></span> 月牙形陰影階）；中部偏左一群櫻粉海葵（6 根圓頭觸手，觸手末端圓球 <span class="chip"><i class="sw" style="background:#FF9AA8"></i><code>#FF9AA8</code></span>、柄 <span class="chip"><i class="sw" style="background:#E57F92"></i><code>#E57F92</code></span> 陰影階）。</li>
+<li><strong>近景（70–100%）</strong>：兩道奶油沙丘（<span class="chip"><i class="sw" style="background:#F2E8CF"></i><code>#F2E8CF</code></span>，背光側 <span class="chip"><i class="sw" style="background:#E3D5B5"></i><code>#E3D5B5</code></span> 陰影階硬邊色塊）；左下一枝鹿角珊瑚（櫻粉 <span class="chip"><i class="sw" style="background:#FF9AA8"></i><code>#FF9AA8</code></span>，枝端圓鈍）；右下一塊圓角礁石（固有色用沙丘陰影色 <span class="chip"><i class="sw" style="background:#E3D5B5"></i><code>#E3D5B5</code></span>，陰影階再加深為 <span class="chip"><i class="sw" style="background:#CDBB98"></i><code>#CDBB98</code></span>——遵循同色相加深規則）。</li>
+<li><strong>全元素通用</strong>：描邊 <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>、2 px（細描邊，賽璐璐片的乾淨線條）、round join；所有陰影為硬邊形狀（沿輪廓偏移 2–4 px 的月牙色塊），禁止羽化和半透明疊加。</li>
+<li><strong>動態元素</strong>：海草搖擺、光柱呼吸、魚群游動、氣泡；「減少動態效果」時全部取中位靜幀。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>通用造型語言：圓鈍可愛的動畫造型，2 px 深青墨描邊，平塗固有色 + 單塊硬邊陰影階，白色高光只點眼睛。</p>
+<ol>
+<li><strong>小丑魚「小橘」（主角）</strong>：圓胖身檸檬橘 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>，三條白色描邊條紋（白條紋帶 2 px 深青描邊，寬 10 px），背鰭一片圓三角；腹部鋪 <span class="chip"><i class="sw" style="background:#E06B2E"></i><code>#E06B2E</code></span> 陰影月牙。游動：橫穿全屏約 25 s，路徑帶 4 s 週期的 ±10 px 正弦起伏，尾鰭兩幀擺動（1 s/幀），轉向時身體先傾斜 8° 再轉彎（動畫預備動作）。</li>
+<li><strong>藍倒吊「阿藍」</strong>：近正圓身晴空藍 <span class="chip"><i class="sw" style="background:#4FA9E0"></i><code>#4FA9E0</code></span>，尾鰭黃色小三角，背鰭一條深色弧線；下腹 <span class="chip"><i class="sw" style="background:#3E8CC4"></i><code>#3E8CC4</code></span> 陰影。成對出現，兩隻間距 80 px 同速同向，像動畫裡的雙子配角。</li>
+<li><strong>蝴蝶魚「阿黃」</strong>：扁圓身檸檬黃 <span class="chip"><i class="sw" style="background:#FFC94D"></i><code>#FFC94D</code></span>（此主題內黃色僅此一種用法），眼帶一條垂直深青條紋，吻部尖。貼礁石附近慢遊，轉彎半徑大、動作綿軟。</li>
+</ol>
+<p><strong>群遊建議</strong>：藍倒吊固定結對（2 尾）即可，不要 5 尾以上的大群（大群游動會帶來「熱鬧感」，違背安靜氣質）；同屏總魚數 ≤4 尾。所有魚禁止急轉、禁止追尾。</p>
+<h3>7. 介面控制元件樣式</h3>
+<p>選單欄圖示（22 pt，44×44 px @2x 畫布）：小丑魚側影，身 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>、僅保留 1 條白條紋（22 pt 下兩條會糊成一團），輪廓 3 px <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>，白眼 1 枚（3 px 白圓 + 2 px 青墨瞳）。另備 Template 單色線稿版。專注時尾鰭每 2.5 s 輕擺 8°；暫停時靜止。</p>
+<ul>
+<li><strong>專注計時器卡片</strong>：底色 <span class="chip"><i class="sw" style="background:#FFFEFB"></i><code>#FFFEFB</code></span>，圓角 20 pt，無描邊（賽璐璐主題控制元件走乾淨路線），柔投影 0/6/16 pt、顏色 rgba(23,65,77,0.12)；尺寸建議 320×180 pt。計時數字 <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>。</li>
+<li><strong>進度環</strong>：線寬 10 pt，底軌 <span class="chip"><i class="sw" style="background:#EAF4F2"></i><code>#EAF4F2</code></span>（bgBase 的淡階），進行色 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>，端帽圓形；暫停換 <span class="chip"><i class="sw" style="background:#A8B8C0"></i><code>#A8B8C0</code></span>，0.4 s 色彩插值，無閃爍。</li>
+<li><strong>按鈕</strong>：圓角 12 pt。預設：雲白底 + 1 pt rgba(23,65,77,0.15) 描邊、文字 <span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>；主按鈕「開始專注」：<span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span> 底白字，hover 變 <span class="chip"><i class="sw" style="background:#E06B2E"></i><code>#E06B2E</code></span>（直接複用一階陰影色，風格自洽）；高度 36 pt。</li>
+<li><strong>開關</strong>：軌道開 <span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span> / 關 <span class="chip"><i class="sw" style="background:#D5DEE0"></i><code>#D5DEE0</code></span>，滑塊白色帶 1 pt 淡描邊，切換 0.25 s ease-in-out。</li>
+<li><strong>卡片</strong>：圓角 20 pt、雲白底、同款柔投影；卡片描邊一律不用深色，保持「膠片上乾淨的色塊」觀感。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題：<code>"LXGW WenKai", "PingFang SC", sans-serif</code>（霞鶩文楷，開源 OFL 協議免費，本地安裝；帶手寫溫度，接近動畫字幕氣質）</li>
+<li>正文：<code>"PingFang SC", "Helvetica Neue", sans-serif</code>（系統自帶）</li>
+<li>計時數字：<code>"SF Pro Display", "SF Pro Text", "PingFang SC", sans-serif</code>，weight 500，啟用 tabular figures；未安裝霞鶩文楷時全鏈路自動回落到 PingFang SC，觀感依然成立</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動統一 <code>cubic-bezier(0.45, 0, 0.25, 1)</code>（標準 ease-out，動畫中割手感）</li>
+<li>海草搖擺：根部固定、葉尖 ±4°、4 s 週期，左右兩叢相位錯開 2 s；光柱 8 s 呼吸（見第 5 節）</li>
+<li>氣泡密度：同屏 ≤8 顆，直徑 4–10 px，上升 16 px/s，表面 1 px 白描邊</li>
+<li><strong>「減少動態效果」開啟時</strong>：海草/海葵取中位靜幀、光柱恆定 80%、魚凍結在游動 pose、氣泡隱藏；整幅畫面即一張完整的賽璐璐背景美術（BG 用原畫，動效僅是作畫層）</li>
+<li>環境音（可選，預設關）：極低音量（約 -36 dB）的海面水聲 loop，無旋律、無音效事件</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>token 對映</strong>：bgBase=<span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span>、bgGradient=硬色階（<span class="chip"><i class="sw" style="background:#6FD0CE"></i><code>#6FD0CE</code></span>→<span class="chip"><i class="sw" style="background:#BDEDE9"></i><code>#BDEDE9</code></span>）、waterLight=<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>、sand=<span class="chip"><i class="sw" style="background:#F2E8CF"></i><code>#F2E8CF</code></span>、coral=<span class="chip"><i class="sw" style="background:#FF9AA8"></i><code>#FF9AA8</code></span>、fish=<span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>、seaweed=<span class="chip"><i class="sw" style="background:#67C58F"></i><code>#67C58F</code></span>、bubble=白描邊小泡、accent=<span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>、timerActive=<span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>、timerPause=<span class="chip"><i class="sw" style="background:#A8B8C0"></i><code>#A8B8C0</code></span>、controlBg=<span class="chip"><i class="sw" style="background:#FFFEFB"></i><code>#FFFEFB</code></span>、controlBorder=rgba(23,65,77,0.15)（1 pt 規則）、textPrimary=<span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>、textSecondary=<span class="chip"><i class="sw" style="background:#47707F"></i><code>#47707F</code></span>、menuIcon=三色（<span class="chip"><i class="sw" style="background:#FF8C42"></i><code>#FF8C42</code></span>/<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>/<span class="chip"><i class="sw" style="background:#17414D"></i><code>#17414D</code></span>）+ Template 版、bubbleDensity=8、driftSpeed=0.4（25 s 橫穿）、easing=cubic-bezier(0.45,0,0.25,1)、ambientAudio=sea-loop-low（預設關）</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（每套 8 朝向 × 擺尾 2 幀 + 靜幀，附各自陰影階分層）、鰻草 2 叢（各 3 幀搖擺）、海葵 1 株（2 幀）、鹿角珊瑚 1、礁石 1、光柱 PNG 3 束、氣泡點陣圖 8 顆、選單欄圖示 1 枚（@1x/@2x/@3x 彩色 + Template、專注/暫停兩態）</li>
+<li><strong>實現注意</strong>：陰影階全部作為獨立色塊/shape 落在 sprite 的第二圖層，禁止用疊黑或乘法混合實現（會破壞「明亮」基調）；色階硬切是本主題的辨識度來源，背景切勿圖省事做漸變；控制元件統一柔投影與描邊二選一，避免「描邊+柔影」雙重新安裝飾</li>
+</ul>
+<h2>主題三：墨線（cm-ink）</h2>
+<p><img alt="cm-ink mood 圖（AI 生成氛圍參考）" src="https://aka.doubaocdn.com/s/3ZLVixDD1V" /></p>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>墨線</strong>，代號 <code>cm-ink</code>。</p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：一本攤開的速寫本，海底是幾筆炭墨勾出來、再淡淡暈了一點水彩。大面積留白，水用弧線表示而非色塊，魚像日記本里的小插圖。三套中最安靜、紙感最強的一套，色彩從不鋪滿，永遠只是墨線的淡彩註腳。它把「無壓力」推到極致：連顏色都不著急。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>深度專注、夜間或需要最低視覺干擾的時段；對明快色也嫌吵的使用者</li>
+<li>喜歡手賬、速寫、獨立漫畫審美（如《海獸之子》線稿、《一人之下》水墨插頁氣質）的使用者</li>
+<li>桌面本身色彩豐富（照片桌布）時，墨線主題的留白與任何桌布都不打架</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<p>色相邏輯：紙底一色（米白）撐起 60% 以上畫面；墨線為唯一「結構色」；淡彩僅四五種（青、藍、粉、綠、黃），全部以 40–70% 不透明度薄塗在對應造型上，像水彩在宣紙上留下的那層色。沒有任何深色大面積底，天然低刺激。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>宣紙米</td>
+<td><span class="chip"><i class="sw" style="background:#FAF6EC"></i><code>#FAF6EC</code></span></td>
+<td>全幅紙底（可疊加 8% 強度紙紋）</td>
+</tr>
+<tr>
+<td>水體淡彩 waterLight</td>
+<td>淡青水洗</td>
+<td><span class="chip"><i class="sw" style="background:#CDE6E4"></i><code>#CDE6E4</code></span></td>
+<td>水體薄塗，45% 不透明，邊緣 8 px 羽化</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>稻草黃</td>
+<td><span class="chip"><i class="sw" style="background:#EFD9A8"></i><code>#EFD9A8</code></span></td>
+<td>沙丘淡彩（45%）+ 45° 炭墨排線</td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>胭脂粉</td>
+<td><span class="chip"><i class="sw" style="background:#EF8FA0"></i><code>#EF8FA0</code></span></td>
+<td>枝珊瑚淡彩（60%）</td>
+</tr>
+<tr>
+<td>珊瑚輔色</td>
+<td>赭橘</td>
+<td><span class="chip"><i class="sw" style="background:#E8975A"></i><code>#E8975A</code></span></td>
+<td>管珊瑚、海星淡彩（50%）</td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>霧靄藍</td>
+<td><span class="chip"><i class="sw" style="background:#7FB2D6"></i><code>#7FB2D6</code></span></td>
+<td>主角「靄藍小魚」淡彩（70%）</td>
+</tr>
+<tr>
+<td>水草 seaweed</td>
+<td>苔綠</td>
+<td><span class="chip"><i class="sw" style="background:#9CBF8C"></i><code>#9CBF8C</code></span></td>
+<td>水草淡彩（40%）</td>
+</tr>
+<tr>
+<td>UI 強調/計時進行 accent</td>
+<td>赤陶橘</td>
+<td><span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span></td>
+<td>主按鈕、墨線進度弧前景、進行狀態</td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>亞麻灰</td>
+<td><span class="chip"><i class="sw" style="background:#B8A98F"></i><code>#B8A98F</code></span></td>
+<td>暫停時的進度弧</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>紙白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFDF5"></i><code>#FFFDF5</code></span></td>
+<td>計時卡片、按鈕底色</td>
+</tr>
+<tr>
+<td>墨線/文字主色 textPrimary</td>
+<td>炭墨</td>
+<td><span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span></td>
+<td>全部輪廓線、排線、氣泡圈線、標題正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>灰褐</td>
+<td><span class="chip"><i class="sw" style="background:#6E6A5C"></i><code>#6E6A5C</code></span></td>
+<td>次要說明文字</td>
+</tr>
+</tbody>
+</table>
+<p>實測對比度：<span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span> 在紙底 <span class="chip"><i class="sw" style="background:#FAF6EC"></i><code>#FAF6EC</code></span> 上 <strong>11.84:1</strong>、在控制元件底 <span class="chip"><i class="sw" style="background:#FFFDF5"></i><code>#FFFDF5</code></span> 上 <strong>12.55:1</strong>；<span class="chip"><i class="sw" style="background:#6E6A5C"></i><code>#6E6A5C</code></span> 在紙底上 <strong>5.02:1</strong>、控制元件底上 <strong>5.32:1</strong>——全部透過 AA，是三套中文字可讀性餘量最大的一套。赤陶橘 <span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span> 與炭墨非文字對比 <strong>4.27:1</strong>（≥3:1）。</p>
+<h3>5. 水族箱背景畫面</h3>
+<p>以 1600×900 邏輯解析度描述：</p>
+<ul>
+<li><strong>遠景（上 0–35%）</strong>：紙底留白為主；水面用 3 條起伏弧線表示（2 px 炭墨，線條每隔約 40 px 帶 ±0.5 px 的預置抖動偏移——手繪微顫感烘焙進向量路徑，非即時隨機）；弧線之下一片 <span class="chip"><i class="sw" style="background:#CDE6E4"></i><code>#CDE6E4</code></span> 淡彩薄刷（45% 不透明，上邊緣貼弧線、下邊緣羽化 8 px 消散於紙底）。右上角 2 顆純圈線氣泡（無填充）。</li>
+<li><strong>中景（35–70%）</strong>：左側一叢水草（4 條 S 形曲線勾勒，苔綠 40% 淡彩只填葉身下半段，葉尖留白）；右側一株枝珊瑚（炭墨枝幹 + 胭脂粉 60% 淡彩點在枝端圓頭）；中部點綴 2 朵五線海星（赭橘 50%，僅 5 條短弧線 + 中心點）。</li>
+<li><strong>近景（70–100%）</strong>：底部一道大弧沙丘（稻草黃 45% 淡彩），背光處 45° 排線（1.2 px、間距 5 px、每段 12–18 px 長、炭墨 60% 不透明）；左下角一隻簡筆小蟹（兩筆弧線殼 + 兩條鉗弧，赭橘 50% 淡彩殼面）。</li>
+<li><strong>全元素通用</strong>：所有輪廓為同一規格炭墨線——2 px、round cap、預置微抖動路徑；淡彩永不溢位輪廓（溢位感僅靠羽化邊緣在輪廓內側表達）。</li>
+<li><strong>動態元素</strong>：極少量——魚、圈線氣泡、水草微擺（見下）；沙丘、排線、珊瑚完全靜態。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p>通用造型語言：一筆到位的簡筆弧線輪廓，淡彩只填身體中部、邊緣留白，眼睛大而呆。</p>
+<ol>
+<li><strong>靄藍小魚（主角）</strong>：橢圓身兩筆弧線勾出，魚腹一條內弧線留白；霧靄藍 70% 淡彩填背部 2/3；眼睛為 5 px 炭墨實心圓 + 上方一條 3 px 弧線眼瞼（呆萌感來自這條眼瞼）；尾鰭一片三角、無彩。游動：橫穿全屏約 40 s（三套中最慢），幾乎貼沙丘弧線平遊，正弦起伏 ±5 px、週期 8 s，尾鰭不做幀動畫、僅隨路徑自然擺。</li>
+<li><strong>紙鶴河魨</strong>：純線稿無淡彩——正圓身炭墨描線，身上 6 條短弧線小刺；每 6 s 一次極緩慢的「呼吸鼓身」（scale 1.00→1.02→1.00，3 s 完成一半週期），像紙上畫在輕輕浮動。</li>
+<li><strong>赭橘小蝦</strong>：3 節弧線身體 + 兩根 1 px 長鬚（各約 30 px，尾端 2 px 微彎），淡彩 50%；以每 8 s 約 20 px 的速度倒退式緩移——慢到需要盯一會才發現它在動，這是本主題的趣味彩蛋。</li>
+</ol>
+<p><strong>群遊建議</strong>：本主題不設群遊。魚以「獨居插畫」方式出現，同屏 ≤2 尾且永不同框相遇——速寫本上每頁只畫一隻小動物，翻頁才見下一隻（可作為「每次專注完成後隨機換一隻」的實現伏筆）。</p>
+<h3>7. 介面控制元件樣式</h3>
+<p>選單欄圖示（22 pt，44×44 px @2x 畫布）：靄藍小魚單線側影，線條 3.5 px <span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>（44 px 畫布下粗細足以辨認）+ 身體 <span class="chip"><i class="sw" style="background:#7FB2D6"></i><code>#7FB2D6</code></span> 填充 70%，22 pt 下省略魚腹內弧只留外輪廓 + 眼點。Template 單色版即「僅輪廓線稿」天然成立。專注時圖示上方 4 px 處出現一枚小圈氣泡，3 s 週期淡入淡出（不透明度 0→30%→0）；暫停時無氣泡、完全靜止。</p>
+<ul>
+<li><strong>專注計時器卡片</strong>：底色 <span class="chip"><i class="sw" style="background:#FFFDF5"></i><code>#FFFDF5</code></span>，圓角 14 pt，描邊 1.5 pt <span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>（圓角路徑帶預置微抖動，與背景線稿同一套筆觸），投影極淡：0/2/6 pt rgba(51,49,59,0.08)；尺寸建議 320×176 pt。計時數字 <span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>。</li>
+<li><strong>進度環</strong>：改為「墨線弧」——3 pt 炭墨底弧（92% 弧長）+ 3 pt 赤陶橘前景弧，端頭不收圓帽、在最後 8% 弧段線寬由 3 pt 漸收至 1.5 pt（模擬毛筆提筆收鋒）；暫停換亞麻灰 <span class="chip"><i class="sw" style="background:#B8A98F"></i><code>#B8A98F</code></span>。數字走完不做任何慶祝動效，僅弧線收鋒。</li>
+<li><strong>按鈕</strong>：圓角 10 pt，紙白底 + 1.5 pt 炭墨描邊、文字 <span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>；主按鈕「開始專注」：赤陶橘 <span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span> 底 + 紙白字 + 炭墨描邊，hover 加深一階 <span class="chip"><i class="sw" style="background:#C96436"></i><code>#C96436</code></span>；按下整體下移 1 pt。高度 34 pt（三套中最矮——紙面排版更緊湊）。</li>
+<li><strong>開關</strong>：軌道開 <span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span> / 關 <span class="chip"><i class="sw" style="background:#D9CFB8"></i><code>#D9CFB8</code></span>，滑塊紙白 22 pt 圓 + 1.5 pt 炭墨描邊，切換 0.3 s ease-in-out。</li>
+<li><strong>卡片</strong>：圓角 14 pt、同款 1.5 pt 抖動描邊；卡片標題下加一條手繪波浪線（2 px，振幅 1.5 px、波長 24 px）做裝飾分隔——主題化的分隔符。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li>標題與正文：<code>"LXGW WenKai", "PingFang SC", sans-serif</code>（霞鶩文楷 Screen 版，開源免費本地安裝；正文用 Regular、標題用 Medium——LXGW WenKai 是全鏈路最貼合墨線氣質的選擇，正文可讀性實測良好）</li>
+<li>計時數字：<code>"LXGW WenKai", "SF Pro Text", "PingFang SC", sans-serif</code>，weight 500，tabular figures；霞鶩文楷的數字略帶手寫骨架，與炭墨弧線同構；未安裝時回落 SF Pro Text 依然協調</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li>緩動統一 <code>cubic-bezier(0.42, 0, 0.58, 1)</code>（對稱 ease-in-out，紙頁翻動般的從容）</li>
+<li>氣泡密度：同屏 ≤3 顆、純圈線無填充，上升 12 px/s；粒子總量為三套最低</li>
+<li>水草微擺 ±2°、6 s 週期；河魨呼吸見第 6 節；全程無任何不透明度驟變</li>
+<li><strong>「減少動態效果」開啟時</strong>：一切凍結，畫面即為完成稿（線稿淡彩本身就是終點形態，動效只是「紙在呼吸」的可選層）；選單欄氣泡隱藏</li>
+<li>環境音：預設無聲（三套中最剋制）；唯一聲音是切換到本主題瞬間的一記「紙頁輕翻」聲（0.5 s，約 -30 dB，一次性）——用聲音強化「翻開速寫本」的隱喻，之後歸於寂靜</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>token 對映</strong>：bgBase=<span class="chip"><i class="sw" style="background:#FAF6EC"></i><code>#FAF6EC</code></span>、bgGradient=無（單色紙底，token 留空或同 bgBase）、waterLight=<span class="chip"><i class="sw" style="background:#CDE6E4"></i><code>#CDE6E4</code></span>（45% 薄塗）、sand=<span class="chip"><i class="sw" style="background:#EFD9A8"></i><code>#EFD9A8</code></span>、coral=<span class="chip"><i class="sw" style="background:#EF8FA0"></i><code>#EF8FA0</code></span>、fish=<span class="chip"><i class="sw" style="background:#7FB2D6"></i><code>#7FB2D6</code></span>、seaweed=<span class="chip"><i class="sw" style="background:#9CBF8C"></i><code>#9CBF8C</code></span>、bubble=炭墨圈線、accent=<span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span>、timerActive=<span class="chip"><i class="sw" style="background:#E0794F"></i><code>#E0794F</code></span>、timerPause=<span class="chip"><i class="sw" style="background:#B8A98F"></i><code>#B8A98F</code></span>、controlBg=<span class="chip"><i class="sw" style="background:#FFFDF5"></i><code>#FFFDF5</code></span>、controlBorder=<span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>（1.5 pt 抖動描邊規格）、textPrimary=<span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span>、textSecondary=<span class="chip"><i class="sw" style="background:#6E6A5C"></i><code>#6E6A5C</code></span>、menuIcon=雙色線稿（<span class="chip"><i class="sw" style="background:#33313B"></i><code>#33313B</code></span> + 70% <span class="chip"><i class="sw" style="background:#7FB2D6"></i><code>#7FB2D6</code></span>）+ Template 版、bubbleDensity=3、driftSpeed=0.25（40 s 橫穿）、easing=cubic-bezier(0.42,0,0.58,1)、ambientAudio=none（僅主題切換時一次性 page-flip 音）</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套（向量 PDF/SVG 優先，各 2 幀 + 靜幀）、水草 2 株（各 2 幀）、珊瑚 2 種（枝狀/管狀）、海星 1、小蟹 1、抖動線框向量庫 1 套（圓角矩形/波浪線/弧線的預置微抖路徑）、45° 排線筆刷 tile 1 張、紙紋底圖 1 張（8% 強度，可關）、選單欄圖示 1 枚（@1x/@2x/@3x 彩色 + Template、專注氣泡/暫停靜止兩態）</li>
+<li><strong>實現注意</strong>：所有線稿資產必須向量（PDF/SVG）以保證 22 pt 與 Retina 縮放下的線條銳度；微抖動路徑烘焙進資產、執行時不再疊加隨機數（保證「減少動態效果」下完全一致）；淡彩統一用不透明度分層（40–70%）而非預先混好的實色，方便統一調飽和度；紙紋可選但預設關閉，避免低配機器整幅噪聲取樣</li>
+</ul>
+<h2>自檢清單（卡通漫畫家族）</h2>
+<table>
+<thead>
+<tr>
+<th>檢查項</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每個主題 10 節齊全（波普/賽璐璐/墨線）</td>
+<td>✅ 3 × 10 節全部逐節填寫</td>
+</tr>
+<tr>
+<td>所有顏色為有效 6 位 HEX</td>
+<td>✅ 全文 36 個色值均為 #RRGGBB 格式，逐個核對</td>
+</tr>
+<tr>
+<td>覆蓋必填色彩角色（背景/水體光照/沙地/珊瑚/魚體/UI 強調/進行/暫停/文字主次）</td>
+<td>✅ 三套均覆蓋，每套 12–13 色</td>
+</tr>
+<tr>
+<td>無壓力原則</td>
+<td>✅ 無連續打卡/目標/催促元素；無高頻閃爍（最低動效週期 2 s 且幅度小）；暫停色均降飽和；氣泡密度 ≤3/≤6/≤8；聲效全部預設關或極低音量</td>
+</tr>
+<tr>
+<td>「減少動態效果」相容</td>
+<td>✅ 三套均給出凍結態實現：靜幀/定格 pose/完成稿，且靜態構圖本身完整</td>
+</tr>
+<tr>
+<td>選單欄 22pt 清晰度</td>
+<td>✅ 三套均給出 @2x 畫布、具體線寬（4/3/3.5 px）與減筆策略 + Template 單色版</td>
+</tr>
+<tr>
+<td>字型 macOS 實際可用</td>
+<td>✅ PingFang SC、SF Pro 各變體系統自帶；站酷快樂體（免費商用）、霞鶩文楷（OFL 開源）可下載安裝，font stack 均帶回退</td>
+</tr>
+<tr>
+<td>主題代號格式</td>
+<td>✅ cm-pop / cm-cel / cm-ink，均為 cm- 字首 + 小寫連字元</td>
+</tr>
+<tr>
+<td>對比度數字來源</td>
+<td>✅ 由 Python 指令碼按 WCAG 相對亮度公式實算，非估算</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+<section id="ct">
+<h2><span class="no">03</span>可愛風</h2>
+<p class="lead">甜得剋制、軟得安靜。可愛來自圓潤造型、腮紅與低飽和配色，不來自動效與音量；飽和度整體壓在 30% 以下，強調色只允許出現在進度環與選中態。</p>
+<div class='fam-intro'><div class='txt'><p>三套主題對比度指令碼實測：正文主色 9.8~10.2:1，次色 4.5~5.1:1，大號狀態色 3.5~4.3:1。選單欄圖示一律 template image（黑白 alpha）由系統適配；控制元件基線：按鈕 32px、圓角 10px、卡片 16px、開關 28×16px、計時數字 64px——切主題只換 token，不換佈局。可愛風暫未生成 mood 圖。</p></div></div><p><strong>設計前提</strong>：三套變體均延續「安靜陪伴」氣質——可愛來自圓潤造型與低飽和配色，不來自動效密度與音量；控制元件保持克制，無打卡、無提醒、無催促性動效；全部動效層在系統「減少動態效果」開啟時退化為靜態整幀插畫。</p>
+<h2>變體一 · 馬卡龍（ct-cream）</h2>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>馬卡龍</strong> · 代號 <code>ct-cream</code></p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：<strong>一盤低飽和的馬卡龍沉進奶油色海底</strong>。氛圍：像午後烘焙坊櫥窗，甜得剋制、軟得安靜；所有顏色都像摻了牛奶，飽和度整體壓在 30% 以下。畫面給人的感受是「暖」而非「甜膩」——看久了不膩，是能待一整個下午的顏色。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>長時間深度工作（寫程式碼、寫長文）時選用：低對比、無高飽和刺激，視覺負擔最小；</li>
+<li>傍晚與夜間工作時段：暖色底對螢幕藍光環境更柔和；</li>
+<li>喜歡被溫暖感包圍、但不想被粉色包圍的使用者的第一隻可愛主題。</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>奶油白</td>
+<td><span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span></td>
+<td>全屏背景底色</td>
+</tr>
+<tr>
+<td>背景漸變 bgGradient</td>
+<td>杏仁奶</td>
+<td><span class="chip"><i class="sw" style="background:#F2E3CF"></i><code>#F2E3CF</code></span></td>
+<td>背景下 1/3 漸變加深，製造水深</td>
+</tr>
+<tr>
+<td>水體光照 waterLight</td>
+<td>薄荷奶綠</td>
+<td><span class="chip"><i class="sw" style="background:#D8EEDF"></i><code>#D8EEDF</code></span></td>
+<td>頂部斜向光帶、水面反光</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>糖霜奶黃</td>
+<td><span class="chip"><i class="sw" style="background:#EFDDBE"></i><code>#EFDDBE</code></span></td>
+<td>箱底沙丘</td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>櫻花粉</td>
+<td><span class="chip"><i class="sw" style="background:#F4B9C2"></i><code>#F4B9C2</code></span></td>
+<td>珊瑚、點綴生物</td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>蜜桃橙</td>
+<td><span class="chip"><i class="sw" style="background:#F6C6A0"></i><code>#F6C6A0</code></span></td>
+<td>主角魚身體</td>
+</tr>
+<tr>
+<td>UI 強調色 accent</td>
+<td>莓果粉</td>
+<td><span class="chip"><i class="sw" style="background:#C4798D"></i><code>#C4798D</code></span></td>
+<td>進度環、選中態、開關開啟</td>
+</tr>
+<tr>
+<td>計時進行 timerActive</td>
+<td>抹茶綠</td>
+<td><span class="chip"><i class="sw" style="background:#4F8E6F"></i><code>#4F8E6F</code></span></td>
+<td>專注進行中的大號計時數字</td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>焦糖奶黃</td>
+<td><span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span></td>
+<td>暫停態數字與狀態點</td>
+</tr>
+<tr>
+<td>文字主色 textPrimary</td>
+<td>焙茶棕</td>
+<td><span class="chip"><i class="sw" style="background:#4B3A32"></i><code>#4B3A32</code></span></td>
+<td>標題與正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>拿鐵棕</td>
+<td><span class="chip"><i class="sw" style="background:#7A6555"></i><code>#7A6555</code></span></td>
+<td>說明文字、時間戳</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>雲朵白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span></td>
+<td>卡片、按鈕底</td>
+</tr>
+<tr>
+<td>控制元件描邊 controlBorder</td>
+<td>亞麻米</td>
+<td><span class="chip"><i class="sw" style="background:#E3D2BC"></i><code>#E3D2BC</code></span></td>
+<td>卡片與按鈕 1px 描邊</td>
+</tr>
+<tr>
+<td>氣泡 bubble</td>
+<td>奶泡白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>氣泡，25% 不透明度疊加</td>
+</tr>
+</tbody>
+</table>
+<p><strong>色相邏輯</strong>：整盤色相從「黃橙（沙地）→ 粉（珊瑚）→ 綠（水體/計時）」低飽和大跨布點，靠明度接近（L 值集中在 88~96 區間）維持整體感；強調色莓果粉是全盤飽和度最高的點（約 42%），因此只允許出現在進度環與選中態，禁止大面積鋪色。
+<strong>對比度（實算）</strong>：焙茶棕 <span class="chip"><i class="sw" style="background:#4B3A32"></i><code>#4B3A32</code></span> / 奶油白 <span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span> = <strong>9.9:1</strong>；拿鐵棕 <span class="chip"><i class="sw" style="background:#7A6555"></i><code>#7A6555</code></span> / <span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span> = <strong>5.0:1</strong>；抹茶綠 <span class="chip"><i class="sw" style="background:#4F8E6F"></i><code>#4F8E6F</code></span> 大號計時數字（≥24pt semibold，按大字標準）/ <span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span> = <strong>3.5:1</strong> ✓；莓果粉 <span class="chip"><i class="sw" style="background:#C4798D"></i><code>#C4798D</code></span> 作為非文字 UI 元件（進度環）於雲朵白上 = <strong>3.2:1</strong> ✓。</p>
+<h3>5. 水族箱背景畫面</h3>
+<p><strong>構圖（遠景→近景，以 1080p 高度參考）</strong>：
+- <strong>遠景（0~35% 高度）</strong>：純奶油白 <span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span> 向下漸變至杏仁奶 <span class="chip"><i class="sw" style="background:#F2E3CF"></i><code>#F2E3CF</code></span>；左上角一條 12° 傾斜的薄荷奶綠 <span class="chip"><i class="sw" style="background:#D8EEDF"></i><code>#D8EEDF</code></span> 光帶（寬約 180px、邊緣羽化 40px），緩慢做 0~6% 不透明度呼吸，週期 8s，模擬水面透光。
+- <strong>中景（35~75%）</strong>：右側 1/3 處一組馬卡龍塔珊瑚——3~4 層圓角傘形自下而上逐層縮小（底層層寬 220px，每層縮 18%，圓角 = 層寬的 35%），層與層之間留 8px 陰影縫（陰影色 <span class="chip"><i class="sw" style="background:#F7D4C6"></i><code>#F7D4C6</code></span> 60% 不透明度）；左側一組奶油卷水草 5~7 根，下寬上圓的長條（寬 14px、高 90~150px，頂端為半圓），隨水流每 4s 完成 ±5° 傾斜擺動。
+- <strong>近景（75~100%）</strong>：糖霜奶黃 <span class="chip"><i class="sw" style="background:#EFDDBE"></i><code>#EFDDBE</code></span> 沙丘 2~3 條柔和起伏（貝塞爾曲線，起伏幅度 ≤40px），沙面上撒少量奶白圓點石粒（直徑 4~8px，<span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span>）。
+- <strong>動態元素</strong>：僅光帶呼吸、水草擺動、魚群、低密度氣泡；無任何閃爍元素。</p>
+<h3>6. 魚類與生物視覺</h3>
+<p><strong>造型語言</strong>：身體一律為超橢圓/水滴形，無尖鰭——鰭是貼身的半圓小扇形；每條魚頭側下方有 1 枚橢圓腮紅（<span class="chip"><i class="sw" style="background:#F49FAF"></i><code>#F49FAF</code></span>，40% 不透明度，約體長 8%）；眼睛為 <span class="chip"><i class="sw" style="background:#4B3A32"></i><code>#4B3A32</code></span> 實心圓點（直徑 4px）+ 左上 1px 白色高光點。</p>
+<p><strong>代表魚種（3 套 sprite）</strong>：
+1. <strong>糰子魚</strong>（主角）：蜜桃橙 <span class="chip"><i class="sw" style="background:#F6C6A0"></i><code>#F6C6A0</code></span> 水滴形身體（長寬比 1.2:1，約 64px 長），背脊一條奶白 <span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span> 波浪紋（描邊 3px、圓頭端點），尾鰭為半圓（半徑 = 體長 0.35×）。遊速 6~10px/s，正弦路徑，擺尾幅度 ±6°、週期 2.4s。
+2. <strong>薄荷小魚</strong>：薄荷綠 <span class="chip"><i class="sw" style="background:#A9D6BE"></i><code>#A9D6BE</code></span> 小型魚（約 28px），糖霜白肚。<strong>群遊</strong>：5 條組成鬆散弧線隊形，間距 1.5× 體長，相鄰相位差 0.3s，整群遊速 12px/s——同向、勻速、不扎堆。
+3. <strong>泡芙河豚</strong>：櫻花粉 <span class="chip"><i class="sw" style="background:#F4B9C2"></i><code>#F4B9C2</code></span> 圓球體（直徑約 72px），腮紅加大一倍；獨立慢速巡航（4px/s）。完成一輪專注時鼓至 1.15× 再緩落回，全程 1.6s，僅此一次、無音效、無閃爍。</p>
+<p><strong>珊瑚/水草補充</strong>：珊瑚群邊緣全部圓角 ≥30% 層寬；水草填充色自根部 <span class="chip"><i class="sw" style="background:#A9D6BE"></i><code>#A9D6BE</code></span> 漸變到梢部 <span class="chip"><i class="sw" style="background:#C9E5CF"></i><code>#C9E5CF</code></span>。</p>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：1 枚 <strong>template image</strong>（黑色 alpha，系統自動適配明暗選單欄）——糰子魚的簡化剪影（水滴形 + 半圓尾，保留腮紅位置鏤空），專注時整體沿正弦輕擺 ±4°、週期 2.4s；暫停/休息/開啟「減少動態效果」時靜止。視窗內圖示可著色 <span class="chip"><i class="sw" style="background:#C4808E"></i><code>#C4808E</code></span>。</li>
+<li><strong>專注計時器顯示</strong>：64px 數字（SF Pro Rounded，weight 510），進行中用抹茶綠 <span class="chip"><i class="sw" style="background:#4F8E6F"></i><code>#4F8E6F</code></span>，暫停切焦糖奶黃 <span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span> 並將不透明度降為 90%。</li>
+<li><strong>按鈕</strong>：高 32px，內邊距左右 16px，圓角 10px（全圓角膠囊用於主操作），底色雲朵白 <span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span>，1px 亞麻米 <span class="chip"><i class="sw" style="background:#E3D2BC"></i><code>#E3D2BC</code></span> 描邊，陰影 <code>0 2px 8px rgba(75,58,50,0.08)</code>；hover 僅提升背景至 <span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>，無縮放動效。</li>
+<li><strong>進度環</strong>：線寬 6px，圓頭端點，莓果粉 <span class="chip"><i class="sw" style="background:#C4798D"></i><code>#C4798D</code></span> 填充，軌道為 <span class="chip"><i class="sw" style="background:#E3D2BC"></i><code>#E3D2BC</code></span>；環外留 8px 間距，不加光暈。</li>
+<li><strong>開關</strong>：28×16px 膠囊，開啟態填充莓果粉 <span class="chip"><i class="sw" style="background:#C4798D"></i><code>#C4798D</code></span>，把手 12px 白色圓點，切換動畫 0.25s ease-in-out。</li>
+<li><strong>卡片</strong>：圓角 16px，內邊距 20px，底色雲朵白 <span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span>，1px <span class="chip"><i class="sw" style="background:#E3D2BC"></i><code>#E3D2BC</code></span> 描邊，陰影同按鈕。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li><strong>標題</strong>：<code>"LXGW WenKai", "PingFang SC", sans-serif</code>（霞鶩文楷開源免費、需本地安裝；未裝時回落系統蘋方，不破版式）</li>
+<li><strong>正文</strong>：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code>（regular 14px / secondary 13px）</li>
+<li><strong>計時數字</strong>：<code>"SF Pro Rounded", "SF Pro Display", "PingFang SC", sans-serif</code>（weight 510；數字段用 tabular-figures 防跳動）</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li><strong>緩動</strong>：所有 UI 過渡統一 <code>cubic-bezier(0.42, 0, 0.58, 1)</code>（ease-in-out），時長 0.25~1.2s；生物運動為連續正弦/緩動混合，無彈跳 overshoot（不允許彈簧曲線的回彈感）。</li>
+<li><strong>氣泡密度 bubbleDensity</strong>：同屏 5~8 枚，直徑 3~7px，上升 8px/s，到頂靜默消散。</li>
+<li><strong>漂移速度 driftSpeed</strong>：水草擺動週期 4s，光帶呼吸週期 8s——整體「慢一拍」。</li>
+<li><strong>環境音 ambientAudio</strong>：預設<strong>關閉</strong>；可選「奶泡咕嘟」極輕冒泡聲（-28 LUFS 級、無固定節拍、靜音鍵跟隨系統）。</li>
+<li><strong>「減少動態效果」對齊</strong>：光帶、水草、魚、氣泡全部停止；渲染整幀靜態插畫（1 張主視覺靜幀：光帶定格 60% 不透明度、魚固定在構圖位）；選單欄圖示靜止。靜態模式下不影響任何功能讀取。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：bgBase→<span class="chip"><i class="sw" style="background:#FBF4E9"></i><code>#FBF4E9</code></span>、bgGradient→<span class="chip"><i class="sw" style="background:#F2E3CF"></i><code>#F2E3CF</code></span>、waterLight→<span class="chip"><i class="sw" style="background:#D8EEDF"></i><code>#D8EEDF</code></span>、sand→<span class="chip"><i class="sw" style="background:#EFDDBE"></i><code>#EFDDBE</code></span>、coral→<span class="chip"><i class="sw" style="background:#F4B9C2"></i><code>#F4B9C2</code></span>、fish→<span class="chip"><i class="sw" style="background:#F6C6A0"></i><code>#F6C6A0</code></span>、bubble→<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>(25%)、accent→<span class="chip"><i class="sw" style="background:#C4798D"></i><code>#C4798D</code></span>、timerActive→<span class="chip"><i class="sw" style="background:#4F8E6F"></i><code>#4F8E6F</code></span>、timerPause→<span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span>、controlBg→<span class="chip"><i class="sw" style="background:#FFFDF8"></i><code>#FFFDF8</code></span>、controlBorder→<span class="chip"><i class="sw" style="background:#E3D2BC"></i><code>#E3D2BC</code></span>、textPrimary→<span class="chip"><i class="sw" style="background:#4B3A32"></i><code>#4B3A32</code></span>、textSecondary→<span class="chip"><i class="sw" style="background:#7A6555"></i><code>#7A6555</code></span>、menuIcon→template + 視窗內 <span class="chip"><i class="sw" style="background:#C4808E"></i><code>#C4808E</code></span>；easing→(0.42,0,0.58,1)、bubbleDensity→5~8、driftSpeed→慢（水草 4s/光帶 8s）、ambientAudio→可選奶泡音。</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套×左右映象（糰子魚/薄荷小魚×5 群、泡芙河豚）、珊瑚貼圖 2 套（馬卡龍塔/糖霜球）、水草 1 套（奶油卷）、沙地 tile 1 張、氣泡 1 枚（向量）、選單欄 template 圖示 1 枚、靜態整幀插畫 1 張。</li>
+<li><strong>實現注意</strong>：腮紅/高光做進 sprite 而非執行時疊加，保證「減少動態效果」下幀內一致；淡入淡出用 alpha 過渡而非位移，避免感知為「載入」。</li>
+</ul>
+<h2>變體二 · 草莓奶昔（ct-strawberry）</h2>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>草莓奶昔</strong> · 代號 <code>ct-strawberry</code></p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：<strong>一杯倒進魚缸的草莓奶昔，粉而不甜膩</strong>。氛圍：整體是摻了大量牛奶的莓粉世界，點綴以香草與焦糖的中性暖色壓住甜度；比 ct-cream 更「軟」一點，是三套中最接近毛絨觸感的一套。安靜感來自大面積低飽和粉底 + 深可可色文字的重墨壓陣。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>想要被柔軟氛圍包裹的時刻：雨天、週末、心情需要安撫時；</li>
+<li>輕工作量時段（閱讀、整理、輕度創作）——粉底暖意更偏情緒陪伴；</li>
+<li>與 ct-cream 二選一時偏「少女感但不幼稚」的使用者。</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>草莓牛奶</td>
+<td><span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span></td>
+<td>全屏背景底色</td>
+</tr>
+<tr>
+<td>背景漸變 bgGradient</td>
+<td>樹莓奶昔</td>
+<td><span class="chip"><i class="sw" style="background:#F6D9E0"></i><code>#F6D9E0</code></span></td>
+<td>下 1/3 漸變加深</td>
+</tr>
+<tr>
+<td>水體光照 waterLight</td>
+<td>莓奶紫</td>
+<td><span class="chip"><i class="sw" style="background:#EBD9F0"></i><code>#EBD9F0</code></span></td>
+<td>頂部光帶</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>香草奶昔</td>
+<td><span class="chip"><i class="sw" style="background:#F7E6C8"></i><code>#F7E6C8</code></span></td>
+<td>箱底沙丘</td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>草莓粉</td>
+<td><span class="chip"><i class="sw" style="background:#F29CAB"></i><code>#F29CAB</code></span></td>
+<td>珊瑚、河豚點綴</td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>香草奶油白</td>
+<td><span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span></td>
+<td>主角魚身體</td>
+</tr>
+<tr>
+<td>UI 強調色 accent</td>
+<td>草莓醬紅</td>
+<td><span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span></td>
+<td>進度環、選中態</td>
+</tr>
+<tr>
+<td>計時進行 timerActive</td>
+<td>奶藍莓</td>
+<td><span class="chip"><i class="sw" style="background:#5E82B8"></i><code>#5E82B8</code></span></td>
+<td>專注數字（刻意避開粉色系，與背景拉開辨識度）</td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>焦糖黃</td>
+<td><span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span></td>
+<td>暫停點綴</td>
+</tr>
+<tr>
+<td>文字主色 textPrimary</td>
+<td>可可梅棕</td>
+<td><span class="chip"><i class="sw" style="background:#53333B"></i><code>#53333B</code></span></td>
+<td>標題與正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>漿果灰粉</td>
+<td><span class="chip"><i class="sw" style="background:#8A6470"></i><code>#8A6470</code></span></td>
+<td>說明文字</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>奶昔白</td>
+<td><span class="chip"><i class="sw" style="background:#FFFDF9"></i><code>#FFFDF9</code></span></td>
+<td>卡片、按鈕底</td>
+</tr>
+<tr>
+<td>控制元件描邊 controlBorder</td>
+<td>淡莓粉</td>
+<td><span class="chip"><i class="sw" style="background:#EBD3D8"></i><code>#EBD3D8</code></span></td>
+<td>控制元件 1px 描邊</td>
+</tr>
+<tr>
+<td>氣泡 bubble</td>
+<td>奶昔泡</td>
+<td><span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span></td>
+<td>氣泡，28% 不透明度</td>
+</tr>
+</tbody>
+</table>
+<p><strong>色相邏輯</strong>：整盤圍繞「粉」做同色相不同明度層（<span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span>→<span class="chip"><i class="sw" style="background:#F6D9E0"></i><code>#F6D9E0</code></span>→<span class="chip"><i class="sw" style="background:#F29CAB"></i><code>#F29CAB</code></span>），用香草/焦糖（中性暖黃）做沙地與暫停態的中和色，用奶藍莓做計時色的冷暖對沖——<strong>計時進行色不用粉</strong>，保證「工作狀態」與「氛圍」在色彩語義上分離。
+<strong>對比度（實算）</strong>：可可梅棕 <span class="chip"><i class="sw" style="background:#53333B"></i><code>#53333B</code></span> / <span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span> = <strong>9.8:1</strong>；漿果灰粉 <span class="chip"><i class="sw" style="background:#8A6470"></i><code>#8A6470</code></span> / <span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span> = <strong>4.5:1</strong> ✓；奶藍莓 <span class="chip"><i class="sw" style="background:#5E82B8"></i><code>#5E82B8</code></span> 大號數字 / <span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span> = <strong>3.5:1</strong> ✓；草莓醬紅 <span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span> 進度環於奶昔白 <span class="chip"><i class="sw" style="background:#FFFDF9"></i><code>#FFFDF9</code></span> 上 = <strong>3.8:1</strong> ✓。</p>
+<h3>5. 水族箱背景畫面</h3>
+<ul>
+<li><strong>遠景（0~35%）</strong>：草莓牛奶 <span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span> 向下漸入樹莓奶昔 <span class="chip"><i class="sw" style="background:#F6D9E0"></i><code>#F6D9E0</code></span>；右上光帶用莓奶紫 <span class="chip"><i class="sw" style="background:#EBD9F0"></i><code>#EBD9F0</code></span>（寬約 160px、傾角 10°、羽化 40px），不透明度呼吸 0~5%，週期 9s。</li>
+<li><strong>中景（35~75%）</strong>：右側「草莓奶油卷珊瑚」——螺旋圓管造型（管徑 26px、圓頭端點、繞 2.5 圈），主體草莓粉 <span class="chip"><i class="sw" style="background:#F29CAB"></i><code>#F29CAB</code></span>，螺旋縫隙填香草奶油白 <span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span>；左側「蛋糕杯珊瑚」2 只（倒圓角梯形杯身，杯壁 <span class="chip"><i class="sw" style="background:#F6D9E0"></i><code>#F6D9E0</code></span>，頂部 3 球奶油 <span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span> 圓球，半徑 16~22px）；裱花邊水草 6~8 株——下寬上圓，邊緣為連續半圓波浪（波幅 6px），顏色自 <span class="chip"><i class="sw" style="background:#F2AEBB"></i><code>#F2AEBB</code></span> 至 <span class="chip"><i class="sw" style="background:#F8CDD5"></i><code>#F8CDD5</code></span> 漸變，擺動週期 4.5s。</li>
+<li><strong>近景（75~100%）</strong>：香草奶昔 <span class="chip"><i class="sw" style="background:#F7E6C8"></i><code>#F7E6C8</code></span> 沙丘（起伏 ≤35px），撒 4~6 枚草莓籽形小石（淡金橢圓 <span class="chip"><i class="sw" style="background:#E9C98F"></i><code>#E9C98F</code></span>，4×8px，隨機 15° 內傾斜）。</li>
+<li><strong>靜態元素</strong>：所有珊瑚為靜幀貼圖；動態僅光帶、水草、魚、氣泡。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p><strong>造型語言</strong>：同一「超橢圓 + 半圓鰭 + 腮紅」基因（腮紅 <span class="chip"><i class="sw" style="background:#F49FAF"></i><code>#F49FAF</code></span> 45% 不透明度）；花紋一律用圓頭短弧線，模擬草莓醬在奶昔裡劃過的一筆。</p>
+<p><strong>代表生物（3 套 sprite）</strong>：
+1. <strong>奶昔白魚</strong>（主角）：香草奶油白 <span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span> 水滴形身體（約 60px），身側 1~2 筆草莓醬紅 <span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span> 圓頭弧線（描邊 4px）作花紋，沿身側 3 枚淡金草莓籽點綴；遊速 6~10px/s，擺尾 ±6°、週期 2.6s。
+2. <strong>櫻桃小魚</strong>：草莓粉 <span class="chip"><i class="sw" style="background:#F29CAB"></i><code>#F29CAB</code></span> 圓球形小魚（約 24px），白色肚皮。<strong>群遊</strong>：6~7 條散點式松群（不排隊形，各自正弦路徑，彼此間距 ≥2× 體長），整體緩慢同向漂移 10px/s——「散而不亂」的安靜群遊。
+3. <strong>布丁蝦</strong>：香草奶昔 <span class="chip"><i class="sw" style="background:#F7E6C8"></i><code>#F7E6C8</code></span> 80% 不透明度彎月形蝦（長約 44px），節肢分 3 段圓弧，長鬚為 2px 圓頭曲線；貼沙地慢爬 3px/s，偶發（≤每 2 分鐘一次）原地停頓——停頓即休息，無催促語義。</p>
+<p><strong>泡芙河豚點綴</strong>：完成一輪專注時，畫面角落的草莓粉小河豚鼓起 1.15×（同 ct-cream 引數，無聲、一次、1.6s）。</p>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：template image 剪影 = 奶昔白魚簡化形（水滴 + 醬色弧線位鏤空）；視窗內圖示著色 <span class="chip"><i class="sw" style="background:#B85365"></i><code>#B85365</code></span>；動態規則同 ct-cream（±4°、2.4s，暫停與減動效下靜止）。</li>
+<li><strong>計時數字</strong>：64px、SF Pro Rounded 510，進行中奶藍莓 <span class="chip"><i class="sw" style="background:#5E82B8"></i><code>#5E82B8</code></span>、暫停焦糖黃 <span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span> + 90% 不透明度。</li>
+<li><strong>按鈕/卡片</strong>：尺寸與圓角同 ct-cream 基線（按鈕 10px 膠囊化、卡片 16px），描邊換淡莓粉 <span class="chip"><i class="sw" style="background:#EBD3D8"></i><code>#EBD3D8</code></span>，陰影 <code>0 2px 8px rgba(83,51,59,0.08)</code>；hover 僅提亮，無位移縮放。</li>
+<li><strong>進度環</strong>：6px、圓頭、草莓醬紅 <span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span>，軌道 <span class="chip"><i class="sw" style="background:#EBD3D8"></i><code>#EBD3D8</code></span>。</li>
+<li><strong>開關</strong>：28×16px，開啟態 <span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span>，把手白，0.25s ease-in-out。</li>
+<li><strong>材質建議</strong>：卡片可疊加 3% 白色內高光（<code>inset 0 1px 0 rgba(255,255,255,0.5)</code>），模擬奶昔表面光澤——剋制到幾乎不可察覺。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li><strong>標題</strong>：<code>"LXGW WenKai", "PingFang SC", sans-serif</code>（圓潤手寫感與奶油主題最搭）</li>
+<li><strong>正文</strong>：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code></li>
+<li><strong>計時數字</strong>：<code>"SF Pro Rounded", "SF Pro Display", "PingFang SC", sans-serif</code>（510，tabular-figures）</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li><strong>緩動</strong>：<code>cubic-bezier(0.42, 0, 0.58, 1)</code>，UI 過渡 0.25~1.2s；生物無 overshoot。</li>
+<li><strong>氣泡</strong>：6~9 枚同屏，直徑 3~8px，上升 8px/s；氣泡可在到頂前 10% 行程做輕微晃動（±1px，純裝飾）。</li>
+<li><strong>漂移</strong>：水草 4.5s、光帶 9s；群遊小魚相位隨機但速度統一。</li>
+<li><strong>環境音 ambientAudio</strong>：預設關閉；可選「奶油攪動」白噪（-30 LUFS 級、可開關節拍為無）。</li>
+<li><strong>減動效對齊</strong>：整幀靜態插畫（櫻桃魚群定格在構圖位、光帶 60%）、選單欄圖示靜止、河豚不鼓起（改為靜止尺寸 1.08× 作為完成標記）。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：bgBase→<span class="chip"><i class="sw" style="background:#FBEFF2"></i><code>#FBEFF2</code></span>、bgGradient→<span class="chip"><i class="sw" style="background:#F6D9E0"></i><code>#F6D9E0</code></span>、waterLight→<span class="chip"><i class="sw" style="background:#EBD9F0"></i><code>#EBD9F0</code></span>、sand→<span class="chip"><i class="sw" style="background:#F7E6C8"></i><code>#F7E6C8</code></span>、coral→<span class="chip"><i class="sw" style="background:#F29CAB"></i><code>#F29CAB</code></span>、fish→<span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span>、bubble→<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>(28%)、accent→<span class="chip"><i class="sw" style="background:#D9566C"></i><code>#D9566C</code></span>、timerActive→<span class="chip"><i class="sw" style="background:#5E82B8"></i><code>#5E82B8</code></span>、timerPause→<span class="chip"><i class="sw" style="background:#C99A4E"></i><code>#C99A4E</code></span>、controlBg→<span class="chip"><i class="sw" style="background:#FFFDF9"></i><code>#FFFDF9</code></span>、controlBorder→<span class="chip"><i class="sw" style="background:#EBD3D8"></i><code>#EBD3D8</code></span>、textPrimary→<span class="chip"><i class="sw" style="background:#53333B"></i><code>#53333B</code></span>、textSecondary→<span class="chip"><i class="sw" style="background:#8A6470"></i><code>#8A6470</code></span>、menuIcon→template + 視窗內 <span class="chip"><i class="sw" style="background:#B85365"></i><code>#B85365</code></span>；easing/bubbleDensity(6~9)/driftSpeed（4.5s/9s）/ambientAudio（奶油攪動）同上。</li>
+<li><strong>資產清單</strong>：魚 sprite 3 套×映象（奶昔白魚/櫻桃小魚×7、布丁蝦）、河豚點綴 1 套、珊瑚貼圖 2 套（奶油卷/蛋糕杯）、裱花水草 1 套、沙地 tile 1 張、草莓籽石粒 1 組、選單欄 template 圖示 1 枚、靜態整幀 1 張。</li>
+<li><strong>實現注意</strong>：粉色系最怕「糊」——珊瑚與魚之間靠香草奶油白 <span class="chip"><i class="sw" style="background:#FFF4E3"></i><code>#FFF4E3</code></span> 勾 1px 描邊分離層次；timerActive 與背景色相差 105° 色相，色弱使用者也能憑色相區分進行/暫停，不單靠明度。</li>
+</ul>
+<h2>變體三 · 水彩果凍（ct-jelly）</h2>
+<h3>1. 主題名稱與代號</h3>
+<p><strong>水彩果凍</strong> · 代號 <code>ct-jelly</code></p>
+<h3>2. 氣質定位</h3>
+<p>一句話定位：<strong>一塊會呼吸的水彩果凍沉在蘇打水裡</strong>。氛圍：三套中唯一偏冷調的可愛——半透明、清透、微微折射光；甜味來自果凍質感的圓潤高光，而非色彩濃度。像加了冰的夏日飲品，安靜裡帶一點涼意，適合夏天與清醒的頭腦。</p>
+<h3>3. 適用場景</h3>
+<ul>
+<li>白天、明亮房間、需要「清醒感陪伴」的專注時段；</li>
+<li>夏季或偏怕「太暖太甜」的使用者——可愛但冷感；</li>
+<li>深夜加班但不想被暖色催眠、也不想要寫實深海的壓抑時。</li>
+</ul>
+<h3>4. 色彩體系</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>色名</th>
+<th>HEX</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>背景主色 bgBase</td>
+<td>淡水彩藍</td>
+<td><span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span></td>
+<td>全屏背景</td>
+</tr>
+<tr>
+<td>背景漸變 bgGradient</td>
+<td>荔枝霧紫</td>
+<td><span class="chip"><i class="sw" style="background:#E6DEF0"></i><code>#E6DEF0</code></span></td>
+<td>下 1/4 冷霧漸變</td>
+</tr>
+<tr>
+<td>水體光照 waterLight</td>
+<td>玻璃淺藍</td>
+<td><span class="chip"><i class="sw" style="background:#BFE0EE"></i><code>#BFE0EE</code></span></td>
+<td>頂部光帶、水面折射</td>
+</tr>
+<tr>
+<td>沙地 sand</td>
+<td>椰果白</td>
+<td><span class="chip"><i class="sw" style="background:#F4F1E4"></i><code>#F4F1E4</code></span></td>
+<td>箱底沙地（偏中性，穩住冷調）</td>
+</tr>
+<tr>
+<td>珊瑚主色 coral</td>
+<td>葡萄果凍</td>
+<td><span class="chip"><i class="sw" style="background:#C3A6E0"></i><code>#C3A6E0</code></span></td>
+<td>珊瑚主色</td>
+</tr>
+<tr>
+<td>珊瑚輔色</td>
+<td>藍莓果凍</td>
+<td><span class="chip"><i class="sw" style="background:#9DB8E8"></i><code>#9DB8E8</code></span></td>
+<td>珊瑚第二色相</td>
+</tr>
+<tr>
+<td>魚體主色 fish</td>
+<td>水彩藍</td>
+<td><span class="chip"><i class="sw" style="background:#8FC3E8"></i><code>#8FC3E8</code></span></td>
+<td>小魚身體（80% 不透明度呈現果凍感）</td>
+</tr>
+<tr>
+<td>UI 強調色 accent</td>
+<td>蘇打藍</td>
+<td><span class="chip"><i class="sw" style="background:#4E96B4"></i><code>#4E96B4</code></span></td>
+<td>進度環、選中態</td>
+</tr>
+<tr>
+<td>計時進行 timerActive</td>
+<td>海鹽墨藍</td>
+<td><span class="chip"><i class="sw" style="background:#3F7A93"></i><code>#3F7A93</code></span></td>
+<td>專注數字</td>
+</tr>
+<tr>
+<td>計時暫停 timerPause</td>
+<td>荔枝粉</td>
+<td><span class="chip"><i class="sw" style="background:#D99AA6"></i><code>#D99AA6</code></span></td>
+<td>暫停點綴</td>
+</tr>
+<tr>
+<td>文字主色 textPrimary</td>
+<td>深海藍黑</td>
+<td><span class="chip"><i class="sw" style="background:#2F3B4A"></i><code>#2F3B4A</code></span></td>
+<td>標題與正文</td>
+</tr>
+<tr>
+<td>文字次色 textSecondary</td>
+<td>藍灰</td>
+<td><span class="chip"><i class="sw" style="background:#56697D"></i><code>#56697D</code></span></td>
+<td>說明文字</td>
+</tr>
+<tr>
+<td>控制元件底色 controlBg</td>
+<td>雲霧白</td>
+<td><span class="chip"><i class="sw" style="background:#FDFFFF"></i><code>#FDFFFF</code></span></td>
+<td>卡片、按鈕底</td>
+</tr>
+<tr>
+<td>控制元件描邊 controlBorder</td>
+<td>冰藍灰</td>
+<td><span class="chip"><i class="sw" style="background:#CFE0E8"></i><code>#CFE0E8</code></span></td>
+<td>控制元件 1px 描邊</td>
+</tr>
+</tbody>
+</table>
+<p><strong>色相邏輯</strong>：藍（背景/魚）→ 紫（珊瑚）→ 粉（暫停點綴）做同冷調色相過渡，椰果白沙地負責接地；所有生物層顏色以 80~85% 不透明度 + 同色 100% 描邊 2px 呈現「果凍半透明」統一質感。timerActive 海鹽墨藍與背景拉開明度差而非依賴飽和度。
+<strong>對比度（實算）</strong>：深海藍黑 <span class="chip"><i class="sw" style="background:#2F3B4A"></i><code>#2F3B4A</code></span> / <span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span> = <strong>10.2:1</strong>；藍灰 <span class="chip"><i class="sw" style="background:#56697D"></i><code>#56697D</code></span> / <span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span> = <strong>5.1:1</strong> ✓；海鹽墨藍 <span class="chip"><i class="sw" style="background:#3F7A93"></i><code>#3F7A93</code></span> 大號數字 / <span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span> = <strong>4.3:1</strong> ✓；蘇打藍 <span class="chip"><i class="sw" style="background:#4E96B4"></i><code>#4E96B4</code></span> 進度環於雲霧白 <span class="chip"><i class="sw" style="background:#FDFFFF"></i><code>#FDFFFF</code></span> 上 = <strong>3.3:1</strong> ✓。</p>
+<h3>5. 水族箱背景畫面</h3>
+<ul>
+<li><strong>遠景（0~40%）</strong>：淡水彩藍 <span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span>，底部 1/4 漸入荔枝霧紫 <span class="chip"><i class="sw" style="background:#E6DEF0"></i><code>#E6DEF0</code></span>；頂部兩條平行玻璃淺藍 <span class="chip"><i class="sw" style="background:#BFE0EE"></i><code>#BFE0EE</code></span> 折射光帶（各寬 120px、傾角 8°、間距 90px、羽化 36px），不透明度呼吸 0~7%、週期 10s、兩帶相位差 2s——像水面對流光，極慢。</li>
+<li><strong>中景（40~75%）</strong>：右側「水彩葡萄珊瑚」——圓球簇 5~7 球（直徑 12~28px 不等，交錯填充葡萄果凍 <span class="chip"><i class="sw" style="background:#C3A6E0"></i><code>#C3A6E0</code></span> 與藍莓果凍 <span class="chip"><i class="sw" style="background:#9DB8E8"></i><code>#9DB8E8</code></span>，每球 85% 不透明度 + 同色 100% 描邊 2px，球間疊加處透明度疊加出更深的葡萄色）；左側「果凍草」4~6 條半透明色帶（寬 16px、高 100~140px、水彩藍 <span class="chip"><i class="sw" style="background:#8FC3E8"></i><code>#8FC3E8</code></span> 40% 不透明度，頂端圓頭），隨流 ±4° 擺動、週期 5s。</li>
+<li><strong>近景（75~100%）</strong>：椰果白 <span class="chip"><i class="sw" style="background:#F4F1E4"></i><code>#F4F1E4</code></span> 平緩沙地（起伏 ≤30px），零散幾粒圓形椰果粒（<span class="chip"><i class="sw" style="background:#FDFFFF"></i><code>#FDFFFF</code></span>，直徑 6~10px）。</li>
+<li><strong>專屬動態</strong>：中景一束極慢的「果凍折射」——珊瑚球簇整體做 0.5% 尺度呼吸（週期 6s），模擬果凍的微顫；此動效在「減少動態效果」下取消。</li>
+</ul>
+<h3>6. 魚類與生物視覺</h3>
+<p><strong>造型語言</strong>：圓潤輪廓 + <strong>半透明填充（80~85% 不透明度）+ 同色系 100% 描邊 2px</strong> 是本主題的統一基因；所有生物帶一枚白色不規則橢圓高光（約體長 15%，右上角），是「果凍感」的來源；腮紅統一荔枝粉 <span class="chip"><i class="sw" style="background:#D99AA6"></i><code>#D99AA6</code></span> 40%。</p>
+<p><strong>代表生物（3 套 sprite）</strong>：
+1. <strong>果凍水母</strong>（主角，非魚但作為主題簽名）：葡萄果凍 <span class="chip"><i class="sw" style="background:#C3A6E0"></i><code>#C3A6E0</code></span> 85% 半透明傘體（半圓、直徑 56px、底邊圓角 8px），下襬 4~6 條圓頭短觸鬚（描邊 4px、長 20~30px）；垂直漂浮 ±8px、週期 4s，水平漂移 3px/s，傘體每 4s 完成 3% 的收縮-舒張（推進感，極緩）。
+2. <strong>蘇打小魚</strong>：水彩藍 <span class="chip"><i class="sw" style="background:#8FC3E8"></i><code>#8FC3E8</code></span> 80% 紡錘偏橢圓身體（約 40px），背部一道白色高光弧（描邊 3px），尾鰭半圓。<strong>群遊</strong>：4~6 條，縱向鬆散排布在光帶下方（像被光照託著），間距 2× 體長，速度 8px/s，相位差 0.4s。
+3. <strong>玻璃蝦</strong>：近乎透明——<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span> 40% 填充 + 冰藍灰 <span class="chip"><i class="sw" style="background:#8FB8C9"></i><code>#8FB8C9</code></span> 描邊 2px 的彎月形蝦（約 40px），貼沙地爬行 3px/s，是「找到它」的安靜彩蛋。</p>
+<p><strong>游動節奏總則</strong>：全主題最慢——水母主題本身就是「漂浮」而非「遊」，與無壓力原則天然契合。</p>
+<h3>7. 介面控制元件樣式</h3>
+<ul>
+<li><strong>選單欄圖示</strong>：template image = 果凍水母剪影（半圓傘 + 3 短鬚）；視窗內圖示著色 <span class="chip"><i class="sw" style="background:#3F6E85"></i><code>#3F6E85</code></span>；專注時觸鬚輕擺 ±3°、週期 3s（比 ct-cream 更慢），暫停與減動效下靜止。</li>
+<li><strong>計時數字</strong>：64px，進行中海鹽墨藍 <span class="chip"><i class="sw" style="background:#3F7A93"></i><code>#3F7A93</code></span>、暫停荔枝粉 <span class="chip"><i class="sw" style="background:#D99AA6"></i><code>#D99AA6</code></span> + 90% 不透明度。</li>
+<li><strong>按鈕/卡片</strong>：同基線尺寸（按鈕 32px 高、圓角 10px；卡片圓角 16px、內邊距 20px）；材質上果凍主題專屬建議——controlBg 雲霧白 <span class="chip"><i class="sw" style="background:#FDFFFF"></i><code>#FDFFFF</code></span> 疊加 <strong>8% 半透明</strong>（<code>rgba(253,255,255,0.92)</code>），讓背景的水色微微透上來，描邊冰藍灰 <span class="chip"><i class="sw" style="background:#CFE0E8"></i><code>#CFE0E8</code></span>，陰影 <code>0 2px 8px rgba(47,59,74,0.06)</code>（三套中最輕）。</li>
+<li><strong>進度環</strong>：6px、圓頭、蘇打藍 <span class="chip"><i class="sw" style="background:#4E96B4"></i><code>#4E96B4</code></span>，軌道 <span class="chip"><i class="sw" style="background:#CFE0E8"></i><code>#CFE0E8</code></span>；可在環內側加 10% 白色內高光呼應果凍質感。</li>
+<li><strong>開關</strong>：28×16px，開啟態 <span class="chip"><i class="sw" style="background:#4E96B4"></i><code>#4E96B4</code></span>，0.25s ease-in-out。</li>
+</ul>
+<h3>8. 字型建議</h3>
+<ul>
+<li><strong>標題</strong>：<code>"LXGW WenKai", "PingFang SC", sans-serif</code>（若希望冷感更利落，可改 <code>"ZCOOL KuaiLe", "PingFang SC", sans-serif</code>，站酷快樂體免費可商用，更圓潤跳脫——二選一，預設前者更剋制）</li>
+<li><strong>正文</strong>：<code>"PingFang SC", "Hiragino Sans GB", sans-serif</code></li>
+<li><strong>計時數字</strong>：<code>"SF Pro Rounded", "SF Pro Display", "PingFang SC", sans-serif</code>（weight 510，tabular-figures；果凍主題下不加粗一級，保持清透）</li>
+</ul>
+<h3>9. 動效與聲音</h3>
+<ul>
+<li><strong>緩動</strong>：<code>cubic-bezier(0.42, 0, 0.58, 1)</code>；水母漂浮為正弦疊加，無回彈。</li>
+<li><strong>氣泡</strong>：8~12 枚（三套中最高，因氣泡本身透明、視覺密度低），直徑 2~6px，上升 7px/s。</li>
+<li><strong>漂移 driftSpeed</strong>：果凍草 5s、光帶 10s、水母收縮 4s——整體節奏比前兩套再慢半拍。</li>
+<li><strong>環境音 ambientAudio</strong>：預設關閉；可選「水下氣泡環境音」極低音量（-30 LUFS 級）。</li>
+<li><strong>減動效對齊</strong>：光帶呼吸、珊瑚微顫、水母收縮、魚、氣泡全部停止；渲染靜態整幀（水母定格在收縮中位）；選單欄圖示靜止。功能不受影響。</li>
+</ul>
+<h3>10. 落地備註</h3>
+<ul>
+<li><strong>Token 對映</strong>：bgBase→<span class="chip"><i class="sw" style="background:#EAF4F6"></i><code>#EAF4F6</code></span>、bgGradient→<span class="chip"><i class="sw" style="background:#E6DEF0"></i><code>#E6DEF0</code></span>、waterLight→<span class="chip"><i class="sw" style="background:#BFE0EE"></i><code>#BFE0EE</code></span>、sand→<span class="chip"><i class="sw" style="background:#F4F1E4"></i><code>#F4F1E4</code></span>、coral→<span class="chip"><i class="sw" style="background:#C3A6E0"></i><code>#C3A6E0</code></span>（輔 <span class="chip"><i class="sw" style="background:#9DB8E8"></i><code>#9DB8E8</code></span>）、fish→<span class="chip"><i class="sw" style="background:#8FC3E8"></i><code>#8FC3E8</code></span>、bubble→<span class="chip"><i class="sw" style="background:#FFFFFF"></i><code>#FFFFFF</code></span>(透明系最高密度)、accent→<span class="chip"><i class="sw" style="background:#4E96B4"></i><code>#4E96B4</code></span>、timerActive→<span class="chip"><i class="sw" style="background:#3F7A93"></i><code>#3F7A93</code></span>、timerPause→<span class="chip"><i class="sw" style="background:#D99AA6"></i><code>#D99AA6</code></span>、controlBg→<span class="chip"><i class="sw" style="background:#FDFFFF"></i><code>#FDFFFF</code></span>、controlBorder→<span class="chip"><i class="sw" style="background:#CFE0E8"></i><code>#CFE0E8</code></span>、textPrimary→<span class="chip"><i class="sw" style="background:#2F3B4A"></i><code>#2F3B4A</code></span>、textSecondary→<span class="chip"><i class="sw" style="background:#56697D"></i><code>#56697D</code></span>、menuIcon→template + 視窗內 <span class="chip"><i class="sw" style="background:#3F6E85"></i><code>#3F6E85</code></span>；easing 同一曲線、bubbleDensity→8~12、driftSpeed→最慢、ambientAudio→水下氣泡。</li>
+<li><strong>資產清單</strong>：生物 sprite 3 套×映象（果凍水母/蘇打小魚×6、玻璃蝦）、珊瑚貼圖 2 套（葡萄球簇/藍莓柱狀）、果凍草 1 套、沙地 tile 1 張、椰果粒 1 組、選單欄 template 圖示 1 枚、靜態整幀 1 張。</li>
+<li><strong>實現注意</strong>：半透明疊加層（珊瑚球簇間的透明度疊加、卡片 8% 透底）在淺色視窗下安全，但若未來支援深色模式需重新校驗疊加色；「果凍微顫」是唯一新增動效型別，必須納入 Reduce Motion 開關的統一判斷，建議在動效層用單一布林量 gating。</li>
+</ul>
+<h2>三套變體共性基線（落地時統一執行）</h2>
+<ul>
+<li>控制元件尺寸/圓角/描邊基線一致：按鈕高 32px、圓角 10px、描邊 1px、陰影 <code>0 2px 8px</code>（各自主題色 6~8% 黑）；卡片圓角 16px；開關 28×16px；計時數字 64px——<strong>切主題只換 token，不換佈局</strong>，為規劃中的主題切換功能留好結構。</li>
+<li>選單欄圖示一律 template image（黑白 alpha），由系統適配明暗選單欄；視窗內圖示才使用主題色。</li>
+<li>全部動效受同一個「減少動態效果」開關 gating（靜態整幀兜底）；禁止 overshoot/彈簧曲線、禁止閃爍、禁止任何形式的通知性動效。</li>
+</ul>
+<h2>自檢清單（可愛風家族）</h2>
+<table>
+<thead>
+<tr>
+<th>檢查項</th>
+<th>ct-cream</th>
+<th>ct-strawberry</th>
+<th>ct-jelly</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 節齊全</td>
+<td>✅ 1~10 全部填寫</td>
+<td>✅ 1~10 全部填寫</td>
+<td>✅ 1~10 全部填寫</td>
+</tr>
+<tr>
+<td>HEX 均為有效 6 位</td>
+<td>✅ 表內 14 色全部 #RRGGBB</td>
+<td>✅ 表內 14 色全部 #RRGGBB</td>
+<td>✅ 表內 14 色全部 #RRGGBB</td>
+</tr>
+<tr>
+<td>正文對比度 ≥4.5:1（實算）</td>
+<td>✅ 主 9.9 / 次 5.0</td>
+<td>✅ 主 9.8 / 次 4.5</td>
+<td>✅ 主 10.2 / 次 5.1</td>
+</tr>
+<tr>
+<td>大字號狀態色 ≥3:1（實算）</td>
+<td>✅ 3.5</td>
+<td>✅ 3.5</td>
+<td>✅ 4.3</td>
+</tr>
+<tr>
+<td>無壓力原則（無閃爍/無催促/無打卡）</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>「減少動態效果」相容</td>
+<td>✅ 靜態整幀</td>
+<td>✅ 靜態整幀</td>
+<td>✅ 靜態整幀（含微顫 gating）</td>
+</tr>
+<tr>
+<td>字型 macOS 實際可用</td>
+<td>✅ SF Pro Rounded/SF Pro/蘋方系統自帶；霞鶩文楷免費開源</td>
+<td>✅ 同左（+ 站酷快樂體備選，免費商用）</td>
+<td>✅ 同左</td>
+</tr>
+<tr>
+<td>主題代號格式 ct-小寫連字元</td>
+<td>✅ ct-cream</td>
+<td>✅ ct-strawberry</td>
+<td>✅ ct-jelly</td>
+</tr>
+<tr>
+<td>Token 對映到共享骨架</td>
+<td>✅ 未重寫骨架</td>
+<td>✅ 未重寫骨架</td>
+<td>✅ 未重寫骨架</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section id="framework">
+<h2><span class="no">04</span>主題落地框架</h2>
+<p class="lead">一份主題 = 一份自包含的 theme 包（meta + token 表 + 資產清單）。本章節對中國風、卡通漫畫風、可愛風與現有寫實預設主題統一生效。</p>
+<h2>主題落地框架</h2>
+<blockquote>
+<p>本章節為全專案唯一一份，對中國風、卡通漫畫風、可愛風三大家族以及現有寫實預設主題同樣生效。</p>
+</blockquote>
+<h3>a) 主題的資料組織：theme 包</h3>
+<p><strong>一個主題 = 一個自包含的 theme 包</strong>，由三部分構成：</p>
+<pre><code>themes/
+├── reef-realistic/          # 現有寫實預設主題，納入同一體系（見下）
+│   ├── theme.json
+│   └── assets/
+├── cn-shuimo/
+│   ├── theme.json           # 元資訊 + token 表 + 資產清單
+│   └── assets/
+│       ├── fish/mo-carp/{swim-1..3.png, idle.png}
+│       ├── fish/mo-shrimp/...
+│       ├── coral/branch-large/{grow-1..3.png}
+│       ├── seaweed/leaf/{sway-1..3.png}
+│       ├── textures/paper-tile.png
+│       ├── menu/icon-template.pdf
+│       └── stamp/done-seal.png
+├── cn-qinghua/…
+└── cn-qinglu/…
+</code></pre>
+<p><strong>theme.json 結構建議</strong>（示意）：</p>
+<pre><code class="language-json">{
+  &quot;meta&quot;: {
+    &quot;themeId&quot;: &quot;cn-shuimo&quot;,
+    &quot;displayName&quot;: &quot;水墨蘭亭&quot;,
+    &quot;styleFamily&quot;: &quot;chinese&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;minAppVersion&quot;: &quot;0.5.0&quot;,
+    &quot;supportsDarkAppearance&quot;: false,
+    &quot;reduceMotionFallback&quot;: &quot;static-poses&quot;
+  },
+  &quot;tokens&quot;: {
+    &quot;bgBase&quot;: &quot;#F1ECE1&quot;,
+    &quot;bgGradient&quot;: &quot;#DCD5C4&quot;,
+    &quot;coral&quot;: { &quot;color&quot;: &quot;#3A362F&quot;, &quot;stages&quot;: 3 },
+    &quot;menuIcon&quot;: { &quot;type&quot;: &quot;template&quot;, &quot;frames&quot;: 3 },
+    &quot;bubbleDensity&quot;: 0.2,
+    &quot;driftSpeed&quot;: 0.3,
+    &quot;easing&quot;: &quot;cubic-bezier(0.33,0,0.2,1)&quot;,
+    &quot;ambientAudio&quot;: { &quot;id&quot;: &quot;guqin-drip&quot;, &quot;defaultOn&quot;: false, &quot;maxVolume&quot;: 0.2 }
+  },
+  &quot;assets&quot;: {
+    &quot;fish/mo-carp/swim-1.png&quot;: { &quot;role&quot;: &quot;fish&quot;, &quot;size&quot;: &quot;256x128&quot; },
+    &quot;menu/icon-template.pdf&quot;: { &quot;role&quot;: &quot;menuIcon&quot;, &quot;sizes&quot;: [16, 32] }
+  }
+}
+</code></pre>
+<p><strong>Token 骨架最終版</strong>（在共享骨架上做 4 處修訂，其餘原樣保留）：</p>
+<ol>
+<li><strong>新增 meta 層</strong>：<code>themeId / displayName / styleFamily / version / minAppVersion / supportsDarkAppearance / reduceMotionFallback</code>——主題的自描述資訊不散落在程式碼裡。</li>
+<li><strong>生物層 token 支援成長階段</strong>：<code>coral / seaweed</code> 增加可選 <code>stages</code> 陣列欄位（如 <code>"coral": ["#幼","#中","#成"]</code> 或貼圖 <code>grow-1..3</code>），與珊瑚成長玩法對齊；寫實主題同樣補齊此欄位。</li>
+<li><strong>動效層增加兩個守門 token</strong>：<code>bubbleDensity</code> 與 <code>driftSpeed</code> 增加全域上限校驗 <strong>≤1.0×預設值</strong>（預設值即寫實主題的 1.0×；卡通/可愛風交付的「同屏 N 顆」等絕對值按 1080p 視窗折算），<code>ambientAudio.defaultOn</code> 強制為 false——把「無壓力」原則變成 schema 級約束，任何主題包超限直接校驗失敗。</li>
+<li><strong>UI 幾何按家族常量管理</strong>：圓角/尺寸/環寬不進 token（見 d 節），token 只管顏色、材質、密度與緩動。</li>
+</ol>
+<p><strong>相容現有寫實預設主題</strong>：寫實主題作為 <code>themeId: "reef-realistic"</code>、<code>styleFamily: "realistic"</code> 納入同一目錄與同一 token 契約——把現在硬編碼在 web 前端裡的顏色/速度值抽取成它的 theme.json（此為重構動作，不改任何視覺表現）；其餘主題<strong>未提供的 token 允許回退繼承 <code>reef-realistic</code> 的值</strong>（繼承機制），這樣新主題可以只寫差異項，不必每次填滿全部 token。代號名稱空間約定：中國風 <code>cn-*</code>、卡通漫畫風 <code>cm-*</code>、可愛風 <code>ct-*</code>、寫實 <code>reef-*</code>（預設），均為小寫連字元。</p>
+<h3>b) 切換入口建議</h3>
+<table>
+<thead>
+<tr>
+<th>候選入口</th>
+<th>結論</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>選單欄下拉子選單（推薦主入口）</strong></td>
+<td>✅ 採用</td>
+<td>選單欄圖示是唯一常駐入口，點開即可切、切完即走，<strong>全程不彈視窗、不奪焦點</strong>，最符合「不打斷專注」；實現成本最低</td>
+</tr>
+<tr>
+<td>設定面板主題頁（推薦輔入口）</td>
+<td>✅ 採用</td>
+<td>承載完整列表：主題名 + 縮略預覽 + 一句氣質描述；首次探索使用者從這裡選</td>
+</tr>
+<tr>
+<td>右鍵水族箱快捷選單</td>
+<td>❌ 不推薦</td>
+<td>水族箱視窗常在背景，右鍵路徑不穩定；且容易在「看魚」時誤觸彈選單，驚擾感與產品氣質相悖</td>
+</tr>
+<tr>
+<td>懸浮快速切換球</td>
+<td>❌ 不推薦</td>
+<td>額外常駐 UI = 違反無壓力原則</td>
+</tr>
+</tbody>
+</table>
+<p><strong>推薦方案</strong>：選單欄下拉選單加「主題 ▸」二級單選列表（帶勾選態），設定面板提供帶預覽的完整版；兩處入口共享同一狀態，切換<strong>即時生效、無確認彈窗、無模態</strong>。</p>
+<h3>c) 切換的工程注意事項</h3>
+<ol>
+<li><strong>主題是純表現層，永不碰資料</strong>：珊瑚成長、到訪生物、專注記錄全部存於 <code>aquarium.json</code>，與主題無關。切換 = 重綁 CSS 變數 + 替換 sprite 引用，<strong>嚴禁觸發任何存檔讀寫</strong>——這是本功能最重要的一條紅線，迴歸測試必含「切換 100 次後 aquarium.json 位元組級不變」。</li>
+<li><strong>資產載入與快取</strong>：主題包惰性載入，首次切換時舊主題繼續顯示、新包在背景預載（魚 sprite 建議合入紋理集減少 IO）；已載入包 LRU 快取上限 3 個，防止常駐記憶體隨主題數膨脹；webview 靜態資源沿用現有快取機制，<code>theme.json</code> 帶版本號做快取鍵。</li>
+<li><strong>深色模式/系統外觀相容</strong>：本批九套主題均為淺色（紙絹/奶昔/印刷底）主題，<strong>主題自帶外觀基準、不隨系統深色翻轉</strong>（meta 中 <code>supportsDarkAppearance: false</code> 顯式宣告）；選單欄圖示走 template image 由系統自動適配深淺選單欄——這也是各主題 menuIcon 都定義為 template 的原因。深色變體留給後續迭代，不做執行時自動反轉（紙絹色反轉會出現「夜觀書畫」的怪異負片）。</li>
+<li><strong>切換過渡動效</strong>：600ms 交叉淡入——新主題背景層先入，生物層 sprite 逐個換裝（避免「集體閃現」）；<strong>開啟「減少動態效果」時直接硬切、無過渡</strong>。切換本身不附帶任何慶祝性動效（無水花、無波紋）。</li>
+<li><strong>命名與目錄</strong>：見 a 節結構；<code>themeId</code> 全小寫連字元、與目錄名嚴格一致；<code>version</code> 用 semver，破壞 token 契約升 major、加資產升 minor、改色值升 patch；<code>theme.json</code> schema 建議用 Go 側 struct 定義並生成 TypeScript 型別給 <code>bindings.ts</code>，保證兩端一致。</li>
+</ol>
+<h3>d) 主題間一致性規則</h3>
+<ol>
+<li><strong>佈局與行為不變</strong>：計時邏輯、選單結構、卡片資訊層級、「無壓力」文案（不打卡、不催促）對所有主題完全一致；主題只替換 <strong>token + 資產 + 文字字型棧</strong> 三樣東西。</li>
+<li><strong>幾何基線按風格家族定義，家族內恆定</strong>：控制元件幾何是家族級常量、不進主題包、同一家族內切主題不得改變——本方案三大家族各自交付的基線為：中國風（選單欄 16×16pt、按鈕高 28pt、進度環寬 4pt、卡片圓角 10pt、開關 36×22pt）、卡通漫畫風（選單欄 22pt、按鈕高 34~36pt、卡片圓角 14~20pt、開關 44×26pt、進度環 3~12pt）、可愛風（按鈕高 32px、卡片圓角 16px、開關 28×16px、計時數字 64px、進度環 6px）。跨家族允許幾何不同（它是家族氣質的一部分），但各家族內部必須保持常量。</li>
+<li><strong>狀態色語義全域統一</strong>：<code>timerActive</code> 恆為「進行中」、<code>timerPause</code> 恆為「暫停/休息」，色相可換、語義不可換；完成回饋統一為「一次性、非迴圈、≤600ms」的輕動效（印章/波紋/金線/河豚鼓起/墨線收鋒等形式不同、重量相同）。</li>
+<li><strong>入版統一檢查清單</strong>：每個主題合入前過同一套門禁——文字對比度（正文 ≥4.5:1、大字與圖形 ≥3:1，用指令碼實測）、「減少動態效果」靜態方案完整、<code>bubbleDensity/driftSpeed ≤1×</code>、環境音預設關、選單欄圖示為 template、<code>theme.json</code> schema 校驗透過。本文件九套主題的對比度實測值已隨附，可直接作為驗收基準。</li>
+</ol>
+</section>
+
+<section id="notes">
+<h2><span class="no">05</span>採用說明</h2>
+
+<ul>
+<li><b>可驗證性</b>：九套主題全部透過指令碼校驗——每套 10 章節齊全、全部色值為有效 6 位 #RRGGBB、文字對比度按 WCAG 相對亮度公式實測（正文主色普遍達到 AAA，≥9:1）。</li>
+<li><b>mood 圖</b>：中國風與卡通漫畫風各附 3 張 AI 生成的氛圍參考圖，僅傳達風格方向，<b>不是最終美術資產</b>；落地以各主題第 5–7 節的文字規格為準。</li>
+<li><b>尺寸基準</b>：畫素/點尺寸以 1080p 視窗與 Retina 縮放為參考，落地時需按實際視窗尺寸與縮放校準。</li>
+<li><b>第三方字型</b>：霞鶩文楷（LXGW WenKai）、站酷快樂體（ZCOOL KuaiLe）、思源宋體（Source Han Serif SC）均為開源/免費可商用字型，需確認隨包分發或提示安裝策略；所有字型棧均帶系統字型回退，不安裝也不破版。</li>
+<li><b>資產清單</b>：各主題落地備註中的 sprite 數量與幀數為建議值，以實際效能實測為準。</li>
+<li><b>慶祝性動效</b>（印章落下、青花波紋、金線、河豚鼓起等）均為「一次性、非迴圈、≤600ms」提案，需與「無壓力」原則的產品評審確認後排期。</li>
+<li><b>一致性協調</b>：幾何基線按風格家族恆定（詳見落地框架 d 節）；代號命名統一為 cn-/cm-/ct-/reef-；「減少動態效果」開啟時全部主題退化為靜態整幀，功能不受影響。</li>
+</ul>
+
+</section>
+
+</main>
+<footer class="wrap">
+小海底 little-reef · reef.echovic.com · 主題設計方案 v1.0（2026-10-24）—— 由三組並行設計合成，九套主題均透過指令碼校驗。
+</footer>
+</body>
+</html>

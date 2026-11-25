@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"io/fs"
 	"sync"
 	"time"
 
@@ -45,7 +42,7 @@ func (r *requestState) begin(id string, timeout time.Duration) bool {
 		r.mu.Lock()
 		if r.current == id {
 			r.current = ""
-			r.err = "操作超时"
+			r.err = "操作超時"
 			cb := r.onTimeout
 			r.mu.Unlock()
 			if cb != nil {
@@ -94,12 +91,6 @@ func (r *requestState) lastErr() string {
 }
 
 // --- volume draft (survives 1s Snapshot pushes while dragging) ---
-
-type volumeDraft struct {
-	mu     sync.Mutex
-	val    float64
-	active bool
-}
 
 // --- panel ---
 
@@ -162,223 +153,63 @@ func (d *Desktop) invalidateFlyout() {
 	})
 }
 
-// themeCache holds the parsed ui.Theme so we don't re-read theme.json on
-// every paint; invalidated when the theme ID changes.
-type themeCache struct {
-	mu      sync.Mutex
-	themeID string
-	uiTheme *ui.Theme
-}
-
-func (c *themeCache) get(themeID string, read func() (*ui.Theme, error)) *ui.Theme {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.themeID == themeID && c.uiTheme != nil {
-		return c.uiTheme
-	}
-	t, err := read()
-	if err != nil || t == nil {
-		return nil
-	}
-	c.themeID = themeID
-	c.uiTheme = t
-	return t
-}
-
 // statusLine derives a human-readable status from the snapshot.
 func (d *Desktop) statusLine(snap Snapshot) string {
 	switch snap.Session.Status {
 	case "running":
 		if snap.Session.Kind == "focus" {
-			return "专注进行中"
+			return "專注進行中"
 		}
-		return "休息进行中"
+		return "休息進行中"
 	case "paused":
-		return "已暂停"
+		return "已暫停"
 	case "complete":
 		if snap.Session.Kind == "focus" {
-			return "专注完成，建议休息"
+			return "專注完成，建議休息"
 		}
-		return "休息结束，开始下一轮"
+		return "休息結束，開始下一輪"
 	default: // idle
 		if snap.Notice != "" {
 			return snap.Notice
 		}
 		if snap.TodayRounds > 0 {
-			return "已完成今日 " + fmt.Sprintf("%d", snap.TodayRounds) + " 轮"
+			return "已完成今日 " + fmt.Sprintf("%d", snap.TodayRounds) + " 輪"
 		}
-		return "空闲"
+		return "空閒"
 	}
 }
 
-// parseTheme reads theme.json and builds a *ui.Theme. We start from
-// LightTheme/DarkTheme based on meta.supportsDarkAppearance, then override
-// the 8 tokens the panel uses.
-func (d *Desktop) parseTheme() (*ui.Theme, error) {
-	snap := d.a.Get()
-	return parseThemeJSON(snap.Theme)
-}
+// --- commands from the tray panel and menus ---
 
-// parseThemeJSON is the pure function extracted for testing.
-func parseThemeJSON(themeID string) (*ui.Theme, error) {
-	if themeID == "" {
-		return nil, nil
-	}
-	data, err := fs.ReadFile(frontend, "web/public/themes/"+themeID+"/theme.json")
-	if err != nil {
-		return nil, err
-	}
-	var t struct {
-		Meta struct {
-			SupportsDarkAppearance bool `json:"supportsDarkAppearance"`
-		} `json:"meta"`
-		Tokens struct {
-			Background string `json:"bgBase"`
-			Surface    string `json:"panelRaised"`
-			Border     string `json:"controlBorder"`
-			Text       string `json:"textPrimary"`
-			TextMuted  string `json:"textFaint"`
-			Accent     string `json:"accent"`
-			AccentText string `json:"accentInk"`
-			Focus      string `json:"activeBorder"`
-		} `json:"tokens"`
-	}
-	if err := json.Unmarshal(data, &t); err != nil {
-		return nil, err
-	}
-	var th ui.Theme
-	if t.Meta.SupportsDarkAppearance {
-		th = *ui.DarkTheme()
-	} else {
-		th = *ui.LightTheme()
-	}
-	th.Background = ui.Hex(t.Tokens.Background)
-	th.Surface = ui.Hex(t.Tokens.Surface)
-	th.Border = ui.Hex(t.Tokens.Border)
-	th.Text = ui.Hex(t.Tokens.Text)
-	th.TextMuted = ui.Hex(t.Tokens.TextMuted)
-	th.Accent = ui.Hex(t.Tokens.Accent)
-	th.AccentText = ui.Hex(t.Tokens.AccentText)
-	th.Focus = ui.Hex(t.Tokens.Focus)
-	return &th, nil
-}
-
-// --- command senders ---
-
-func (d *Desktop) broadcaster() broadcaster {
-	if d.bc != nil {
-		return d.bc
-	}
-	return mygoBroadcaster{}
-}
-
+// requestAudio toggles the ambience or sets its volume, as the main window's
+// own controls do.
 func (d *Desktop) requestAudio(command string, volume float64) {
-	id := fmt.Sprintf("audio-%d", time.Now().UnixNano())
-	// Clear the slider preview if the frontend never acknowledges the request.
-	d.req.setOnTimeout(func() {
-		d.vol.mu.Lock()
-		d.vol.active = false
-		d.vol.mu.Unlock()
-		d.invalidateFlyout()
-	})
-	if !d.req.begin(id, 12*time.Second) { // frontend uses 10s settle; buffer 2s
-		if command == "set-volume" {
-			d.vol.mu.Lock()
-			d.vol.val = volume
-			d.vol.active = true
-			d.vol.mu.Unlock()
+	d.update(func() {
+		switch command {
+		case "toggle":
+			d.ui.toggleSound()
+		case "set-volume":
+			d.ui.volumeDrag, d.ui.volumeActive = volume, true
+			d.ui.setVolume(volume)
 		}
-		return
-	}
-	ev := AudioRequestEvent{RequestID: id, Command: command}
-	if command == "set-volume" {
-		v := volume
-		ev.Volume = &v
-	}
-	d.broadcaster().broadcastAudio(ev)
+	})
 }
 
+// requestCompact switches the main window between the full aquarium and the
+// small always-on-top widget.
 func (d *Desktop) requestCompact(compact bool) {
-	id := fmt.Sprintf("ui-%d", time.Now().UnixNano())
-	d.uiReq.setOnTimeout(d.invalidateNativeMenus)
-	if !d.uiReq.begin(id, 3*time.Second) {
-		return
-	}
-	d.invalidateNativeMenus()
 	apply := func() {
 		if d.win != nil && !d.win.IsDestroyed() && !d.quitting.Load() {
 			d.applyCompactOn(d.win, compact)
 			d.show()
+		} else {
+			d.compact.Store(compact)
 		}
-		ev := UIRequestEvent{RequestID: id, Command: "set-compact", Compact: &compact}
-		d.broadcaster().broadcastUI(ev)
+		d.refreshNativeMenus()
 	}
 	if d.win != nil {
 		d.win.Update(apply)
 	} else {
 		apply()
 	}
-}
-
-// broadcaster abstracts event broadcast so tests can capture events.
-type broadcaster interface {
-	broadcastAudio(AudioRequestEvent)
-	broadcastUI(UIRequestEvent)
-}
-
-// mygoBroadcaster is the default production broadcaster.
-type mygoBroadcaster struct{}
-
-func (mygoBroadcaster) broadcastAudio(ev AudioRequestEvent) { _ = AudioRequested.Broadcast(ev) }
-func (mygoBroadcaster) broadcastUI(ev UIRequestEvent)       { _ = UIRequested.Broadcast(ev) }
-
-// ReportAudioState: frontend reports actual WebAudio playback state.
-// running means context.running && requested && started (not context.state alone).
-// Rules:
-//   - empty requestID: push observed state only, do NOT touch pending.
-//   - non-empty: only the current matching pending ACK mutates req/flush.
-//   - on success: coalesce latest draft if it differs from reported volume.
-//   - on error/needGesture: surface error, clear draft, NO flush/retry.
-//   - stale ACK (requestID mismatch): ignored, no state overwrite.
-func (d *Desktop) ReportAudioState(ctx context.Context, requestID string, st AudioState) {
-	if requestID == "" {
-		// Observed push: update actual ephemeral state only.
-		d.audio.set(st)
-		d.invalidateFlyout()
-		return
-	}
-	// Only accept if this ACK matches the current pending request.
-	if !d.req.isCurrent(requestID) {
-		return
-	}
-	d.audio.set(st)
-	d.req.done(requestID, st.Error == "" && !st.NeedGesture, st.Error)
-
-	// On failure: clear draft, show error, do NOT flush.
-	if st.Error != "" || st.NeedGesture {
-		d.vol.mu.Lock()
-		d.vol.active = false
-		d.vol.mu.Unlock()
-		d.invalidateFlyout()
-		return
-	}
-	// On success: flush coalesced draft if user kept dragging.
-	d.vol.mu.Lock()
-	needFlush := d.vol.active
-	latest := d.vol.val
-	d.vol.mu.Unlock()
-	if needFlush && st.Volume != latest {
-		d.requestAudio("set-volume", latest)
-	} else if needFlush {
-		d.vol.mu.Lock()
-		d.vol.active = false
-		d.vol.mu.Unlock()
-	}
-	d.invalidateFlyout()
-}
-
-// AckUIRequest: frontend ACKs a desktop:ui-request.
-func (d *Desktop) AckUIRequest(ctx context.Context, requestID string, ok bool, errMsg string) {
-	d.uiReq.done(requestID, ok, errMsg)
-	d.invalidateNativeMenus()
 }

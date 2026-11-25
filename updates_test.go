@@ -7,8 +7,9 @@ import (
 	"testing"
 )
 
-// The update signing key stays out of the repository: release builds get it
-// from MYGO_UPDATER_PRIVATE_KEY.
+// Updates come from the releases of yam8511/little-reef, signed with the key
+// whose public half is in mygo.json. The signing key stays out of the
+// repository: release builds get it from MYGO_UPDATER_PRIVATE_KEY.
 func TestUpdateConfiguration(t *testing.T) {
 	data, err := os.ReadFile("mygo.json")
 	if err != nil {
@@ -24,8 +25,8 @@ func TestUpdateConfiguration(t *testing.T) {
 	if err := json.Unmarshal(data, &config); err != nil {
 		t.Fatal(err)
 	}
-	if config.Updates.GitHub != "echoVic/little-reef" {
-		t.Errorf("updates.github = %q, want echoVic/little-reef", config.Updates.GitHub)
+	if config.Updates.GitHub != "yam8511/little-reef" {
+		t.Errorf("updates.github = %q, want yam8511/little-reef", config.Updates.GitHub)
 	}
 	if strings.TrimSpace(config.Updates.PublicKey) == "" {
 		t.Error("updates.publicKey must not be empty")
