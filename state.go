@@ -139,7 +139,7 @@ func newAquarium(path string) (*Aquarium, error) {
 			a.state.Session.Status = "paused"
 			a.state.Notice = "上次專注已暫停，準備好後再繼續。"
 		}
-		refreshVisitorNames(&a.state)
+		refreshLegacyText(&a.state)
 	}
 	a.state.LastVisitor = ""
 	a.state.Revision++
@@ -238,7 +238,7 @@ func (a *Aquarium) importArchive(ctx context.Context, text string) (Snapshot, er
 			return err
 		}
 		a.state = next
-		refreshVisitorNames(&a.state)
+		refreshLegacyText(&a.state)
 		if a.state.Session.Status == "running" {
 			a.state.Session.Status = "paused"
 		}
@@ -601,10 +601,11 @@ func (a *Aquarium) Feed() (Snapshot, error) {
 	})
 }
 
-// refreshVisitorNames shows every known visitor under its current name:
-// archives written before the app went Traditional Chinese saved names
-// such as 小丑鱼, which the species table now spells 小丑魚.
-func refreshVisitorNames(s *Snapshot) {
+// refreshLegacyText shows an archive in the app's current Traditional
+// Chinese: archives written before 0.5.0 saved visitor names such as 小丑鱼,
+// which the species table now spells 小丑魚, and a notice in Simplified
+// Chinese, such as 休息结束，准备好再开始下一轮。, that stays until the next one.
+func refreshLegacyText(s *Snapshot) {
 	for i, v := range s.Visitors {
 		for _, sp := range species {
 			if sp.Species == v.Species {
@@ -612,7 +613,33 @@ func refreshVisitorNames(s *Snapshot) {
 			}
 		}
 	}
+	s.Notice = legacyText.Replace(s.Notice)
+	s.LastVisitor = legacyText.Replace(s.LastVisitor)
 }
+
+// legacyText turns every notice and visitor name versions before 0.5.0 saved
+// in Simplified Chinese into the text this version writes.
+var legacyText = strings.NewReplacer(
+	"上次专注已暂停，准备好后再继续。", "上次專注已暫停，準備好後再繼續。",
+	"这是小海底的存档，已安全导入。", "這是小海底的存檔，已安全匯入。",
+	"海底回来了，一切如初。", "海底回來了，一切如初。",
+	"这段时间也算数。已有的水草与鱼儿都在，准备好再开始。", "這段時間也算數。已有的水草與魚兒都在，準備好再開始。",
+	"鱼儿吃饱啦，去看看窗外吧。", "魚兒吃飽啦，去看看窗外吧。",
+	"休息结束，准备好再开始下一轮。", "休息結束，準備好再開始下一輪。",
+	"专注完成，水草又长大了一点。", "專注完成，水草又長大了一點。",
+	"来做客了，已留下图鉴记录。", "來做客了，已留下圖鑑記錄。",
+	"检测到电脑休眠或计时中断，已暂停。回来后再继续。", "檢測到電腦休眠或計時中斷，已暫停。回來後再繼續。",
+	"存档暂时写入失败，当前进度仍保留在内存中。", "存檔暫時寫入失敗，當前進度仍保留在記憶體中。",
+	"小丑鱼", "小丑魚",
+	"蓝吊鱼", "藍吊魚",
+	"神仙鱼", "神仙魚",
+	"清洁虾", "清潔蝦",
+	"火焰虾", "火焰蝦",
+	"油彩蜡膜虾", "油彩蠟膜蝦",
+	"枪虾", "槍蝦",
+	"皮皮虾", "皮皮蝦",
+	"琵琶虾", "琵琶蝦",
+)
 
 // species lists every visitor, fish first, then shrimp and crabs. The ids
 // are saved in the visitor book and drawn by internal/reef.

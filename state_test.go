@@ -420,3 +420,26 @@ func TestOldArchivesShowVisitorsUnderTheirCurrentNames(t *testing.T) {
 		t.Fatalf("visitor names after loading an old archive: %+v", got)
 	}
 }
+
+func TestOldArchivesShowTheirNoticeInTraditionalChinese(t *testing.T) {
+	for old, want := range map[string]string{
+		"休息结束，准备好再开始下一轮。":                "休息結束，準備好再開始下一輪。",
+		"专注完成，水草又长大了一点。 枪虾来做客了，已留下图鉴记录。": "專注完成，水草又長大了一點。 槍蝦來做客了，已留下圖鑑記錄。",
+		"這已是繁體，不受影響。":                    "這已是繁體，不受影響。",
+	} {
+		dir := t.TempDir()
+		path := filepath.Join(dir, "aquarium.json")
+		archive := `{"preferences":{"focusMinutes":25,"breakMinutes":5,"sound":"waves","volume":0.35},` +
+			`"session":{"kind":"break","status":"complete","durationMs":300000,"elapsedMs":300000},"notice":"` + old + `"}`
+		if err := os.WriteFile(path, []byte(archive), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		a, err := newAquarium(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := a.Get().Notice; got != want {
+			t.Errorf("notice %q loaded as %q, want %q", old, got, want)
+		}
+	}
+}
