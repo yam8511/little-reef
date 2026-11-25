@@ -2,28 +2,6 @@ package main
 
 import "github.com/egoist/mygo"
 
-type ShortcutBinding struct {
-	Action      string `json:"action"`
-	Accelerator string `json:"accelerator"`
-}
-
-type ShortcutSnapshot struct {
-	Bindings     []ShortcutBinding `json:"bindings"`
-	SpaceEnabled bool              `json:"spaceEnabled"`
-}
-
-var ShortcutSettingsChanged = mygo.NewEvent[ShortcutSnapshot]("desktop:shortcuts-changed")
-
-// GetShortcutSettings returns a copy of the current presentation preferences.
-func (d *Desktop) GetShortcutSettings() ShortcutSnapshot {
-	cfg := d.shortcutSettings()
-	out := ShortcutSnapshot{Bindings: make([]ShortcutBinding, 0, len(shortcutDefinitions)), SpaceEnabled: cfg.SpaceEnabled}
-	for _, def := range shortcutDefinitions {
-		out.Bindings = append(out.Bindings, ShortcutBinding{def.ID, cfg.Bindings[def.ID]})
-	}
-	return out
-}
-
 func (d *Desktop) shortcutSettings() ShortcutSettings {
 	if d.shortcuts == nil {
 		return defaultShortcutSettings()

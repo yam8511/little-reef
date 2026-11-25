@@ -107,7 +107,7 @@ func (s *nativeSettings) saveShortcuts() {
 	}
 	s.shortcutDraft = s.desktop.shortcuts.snapshot()
 	s.desktop.syncShortcutMenus()
-	_ = ShortcutSettingsChanged.Broadcast(s.desktop.GetShortcutSettings())
+	s.desktop.invalidateMain() // the main window reads the Space setting as it draws
 	s.feedback(nil, "快捷鍵已儲存並生效。")
 }
 
