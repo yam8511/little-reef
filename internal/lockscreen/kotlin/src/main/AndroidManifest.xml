@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Merged into the app's manifest by Gradle. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Android 16: the countdown as a Live Update (status bar chip, Super Island). -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+
+    <application>
+        <!-- Keeps the focus timer counting, and its countdown on the lock
+             screen, while the phone is locked. -->
+        <service
+            android:name="little_reef.internal.lockscreen.TimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="A focus timer the user started, counting down on the lock screen with pause and resume." />
+        </service>
+        <!-- Brings the app to the front to end the round, which it asks to
+             confirm: a notification's button may start an activity, not a
+             broadcast that starts one. -->
+        <activity
+            android:name="little_reef.internal.lockscreen.EndActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <receiver
+            android:name="little_reef.internal.lockscreen.ActionReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The collapsed notification, as the lock screen shows it: the round and
+     the time left in large digits, with icon buttons to pause or resume and
+     to end the round. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/reef_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textAppearance="@android:style/TextAppearance.Material.Notification.Title" />
+
+        <Chronometer
+            android:id="@+id/reef_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:fontFeatureSettings="tnum"
+            android:includeFontPadding="false"
+            android:textAppearance="@android:style/TextAppearance.Material.Notification.Title"
+            android:textSize="34sp" />
+
+        <TextView
+            android:id="@+id/reef_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/reef_toggle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="10dp"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/reef_end"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="4dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="11dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/reef_stop" />
+</LinearLayout>

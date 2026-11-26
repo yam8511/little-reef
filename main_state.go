@@ -34,6 +34,11 @@ type mainUI struct {
 	toast    string
 	toastSeq int
 
+	// Phones ask once to let the app run in the background (phone_lock.go).
+	backgroundAsked, backgroundPrompt, notificationsPrompt bool
+	// settingsOpen shows the settings page over the window, on phones.
+	settingsOpen bool
+
 	reef      *reef.Reef
 	reefTheme string
 }

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -27,6 +29,7 @@ type nativeSettings struct {
 	breakMinutes               string
 	chime                      bool
 	busy                       bool
+	closed                     bool
 	confirmImport              bool
 	message                    string
 	error                      string
@@ -56,6 +59,10 @@ func (d *Desktop) OpenSettings() {
 		if d.quitting.Load() {
 			return
 		}
+		if onPhone && d.win != nil {
+			d.openSettingsPage()
+			return
+		}
 		if s := d.settings; s != nil && !s.win.IsDestroyed() {
 			s.win.Show()
 			s.win.Focus()
@@ -77,6 +84,31 @@ func (d *Desktop) OpenSettings() {
 		s.win.OnBlur(s.stopShortcutRecording)
 		s.win.Focus()
 	})
+}
+
+// onPhone is true on Android and iOS, which have no keyboard shortcuts to
+// set and show one screen at a time.
+var onPhone = runtime.GOOS == "android" || runtime.GOOS == "ios"
+
+// settingsTabs lists the settings pages this platform shows, and their names.
+func settingsTabs() ([]int, []string) {
+	if onPhone {
+		return []int{settingsGeneral, settingsAppearance, settingsArchive}, []string{"通用", "外觀", "備份與恢復"}
+	}
+	return []int{settingsGeneral, settingsAppearance, settingsShortcuts, settingsArchive}, []string{"通用", "外觀", "快捷鍵", "備份與恢復"}
+}
+
+// close takes the settings away, back to the aquarium: on phones the page
+// over the main window, else the settings window.
+func (s *nativeSettings) close() {
+	s.closed = true
+	if onPhone {
+		s.desktop.closeSettingsPage()
+		return
+	}
+	if s.win != nil && !s.win.IsDestroyed() {
+		s.win.Close()
+	}
 }
 
 func (s *nativeSettings) feedback(err error, message string) {
@@ -102,7 +134,10 @@ func (s *nativeSettings) savePreferences() {
 func (s *nativeSettings) view(c *ui.Context) {
 	ui.Column(c).Fill().Children(func() {
 		previousTab := s.tab
-		ui.Tabs(c, &s.tab, "通用", "外觀", "快捷鍵", "備份與恢復").Margin(16, 24, 0, 24)
+		tabs, labels := settingsTabs()
+		selected := max(0, slices.Index(tabs, s.tab))
+		ui.Tabs(c, &selected, labels...).Margin(16, 24, 0, 24)
+		s.tab = tabs[selected]
 		if previousTab != s.tab {
 			s.stopShortcutRecording()
 			s.feedback(nil, "")
@@ -130,6 +165,13 @@ func (s *nativeSettings) view(c *ui.Context) {
 				message = s.error
 			}
 			ui.Text(c, message).FontSize(12).Grow(1)
+			if onPhone {
+				// Phones show settings full screen with no title bar to
+				// close it from; Android's back gesture closes it too.
+				if ui.Button(c, "關閉").Clicked() {
+					s.close()
+				}
+			}
 			if s.tab != settingsGeneral && s.tab != settingsShortcuts {
 				return
 			}

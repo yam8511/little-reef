@@ -45,6 +45,7 @@ var soundStatusText = map[string]string{
 const (
 	soundStatusInitial = "選一段聲音，安靜陪著你"
 	soundStatusOff     = "聲音已關閉"
+	soundStatusLoading = "聲音載入中，第一次需要幾秒…"
 	soundLoadFailed    = "這段聲音暫時無法播放，計時不受影響"
 	// outputGain is the WebAudio master gain the ambience went through.
 	outputGain = 0.55
@@ -290,6 +291,18 @@ func (s *soundscape) fadeOutLocked(p *playingSound) {
 	s.rampLocked(p, 0, 450*time.Millisecond, func() { time.Sleep(50 * time.Millisecond); p.player.Stop() })
 }
 
+// preview sets the playing ambience's volume at once, as a slider drags,
+// without changing what is saved.
+func (s *soundscape) preview(volume float64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.current == nil || !s.requested {
+		return
+	}
+	s.volume = volume
+	s.rampLocked(s.current, volume*outputGain, 60*time.Millisecond, nil)
+}
+
 // cancel aborts any in-flight load so a late decode cannot silently start.
 func (s *soundscape) cancel() {
 	s.mu.Lock()
@@ -323,7 +336,13 @@ func (s *soundscape) request(playing bool, sound string, volume float64) {
 		s.status(soundStatusText[sound], false)
 		return
 	}
+	cached := s.loops[sound] != nil
 	s.mu.Unlock()
+	if !cached {
+		// Decoding a recording the first time takes a few seconds, longer on
+		// phones: say so, or the silence reads as broken.
+		s.status(soundStatusLoading, false)
+	}
 	go s.start(seq, sound, volume)
 }
 

@@ -64,6 +64,8 @@ func (m *mainUI) view(c *ui.Context) {
 		m.fullView(c, p, s, tv)
 	}
 	m.endDialog(c, p)
+	m.settingsPage(c, p)
+	m.backgroundDialog(c, p)
 	m.toastView(c, p)
 }
 
@@ -395,11 +397,12 @@ func (m *mainUI) soundPanel(c *ui.Context, p *palette, s Snapshot, mid bool) {
 			v := m.volumeShown() * 100
 			sl := ui.SliderBase(c, &v, 0, 100).Step(1).Size(88, 18).Label("音量").FocusRing(false).Cursor(ui.CursorPointer)
 			if sl.Changed() {
+				// The ambience follows the drag at once; the choice is saved
+				// as the pointer or finger lets go, or at each arrow key.
 				m.volumeDrag, m.volumeActive = math.Round(v)/100, true
+				m.d.sound.preview(m.volumeDrag)
 			}
-			if m.volumeActive && !sl.Pressed() && !sl.Focused() {
-				m.setVolume(m.volumeDrag)
-			} else if m.volumeActive && !sl.Pressed() && sl.Changed() {
+			if m.volumeActive && !sl.Pressed() && !m.busy {
 				m.setVolume(m.volumeDrag)
 			}
 			focused := sl.Focused() && sl.FocusVisible()
@@ -431,6 +434,9 @@ func (m *mainUI) soundPanel(c *ui.Context, p *palette, s Snapshot, mid bool) {
 		label := "開啟聲音"
 		if on {
 			label = "關閉聲音"
+		}
+		if on && m.soundStatus == soundStatusLoading {
+			label = "載入中…"
 		}
 		b := cssButton(c, m.busy, func(b ui.Element, h float32) {
 			b.Radius(9).Padding(10, 13).Selected(on)

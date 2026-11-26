@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/plugins/updater"
 	"github.com/egoist/mygo/ui"
+	"little-reef/internal/lockscreen"
 )
 
 const feedbackURL = "https://github.com/yam8511/little-reef/issues/new"
@@ -51,6 +53,12 @@ type Desktop struct {
 	// for the next frame of a view to run them on its thread.
 	pendingMu sync.Mutex
 	pending   []func()
+
+	// The round on a phone's lock screen (phone_lock.go); nil on desktops.
+	lock        lockscreen.Timer
+	lockActions io.Closer
+	lockKey     string
+	lockStyle   lockscreen.Style
 }
 
 func newDesktop(a *Aquarium) *Desktop {
@@ -246,6 +254,7 @@ func (d *Desktop) changed(s Snapshot) {
 	}
 	d.update(func() {
 		d.ui.apply(s)
+		d.syncLockScreen(s)
 		d.refreshNativeMenus()
 	})
 }
@@ -306,7 +315,10 @@ func (d *Desktop) run() error {
 				d.win.Hide()
 			}
 		})
-		mygo.App.OnActivate(func(bool) { d.show() })
+		mygo.App.OnActivate(func(bool) {
+			d.show()
+			d.update(d.resendLockScreen)
+		})
 		d.createTray()
 		d.a.onChange = d.changed
 		d.a.onDone = d.completed
@@ -314,7 +326,14 @@ func (d *Desktop) run() error {
 			log.Print("全域快捷鍵不可用：", err)
 		}
 		go func() { _ = mygo.App.Dock.SetIcon(markBadgePNG(512)) }()
-		mygo.Power.OnSuspend(func() { go func() { _, _ = d.a.Pause() }() })
+		if !onPhone {
+			// A computer's sleep pauses the round. A phone sleeps whenever it
+			// locks or the app goes to the background, and the round goes on,
+			// counting down on the lock screen.
+			mygo.Power.OnSuspend(func() { go func() { _, _ = d.a.Pause() }() })
+		}
+		d.startLockScreen()
+		d.syncLockScreen(d.a.Get())
 		go d.a.run()
 	})
 	mygo.App.OnBeforeQuit(func(*mygo.QuitEvent) { d.quitting.Store(true) })
@@ -326,6 +345,9 @@ func (d *Desktop) run() error {
 			d.stopSwim()
 		}
 		d.sound.dispose()
+		if d.lockActions != nil {
+			_ = d.lockActions.Close()
+		}
 		if err := d.a.shutdown(); err != nil {
 			log.Print("存檔失敗：", err)
 		}
@@ -358,5 +380,6 @@ func openAquarium(dir string) (*Aquarium, error) {
 	cfg := themeStore.loadConfig()
 	a.theme, a.themeAuto = cfg.Theme, cfg.Auto
 	a.themeShuffle, a.nextThemeShuffleMS = cfg.Shuffle, cfg.NextShuffleMS
+	a.wallClock = onPhone
 	return a, nil
 }

@@ -108,10 +108,14 @@ type Aquarium struct {
 	roll               func(n int) int // random number in [0, n); tests replace it
 	onChange           func(Snapshot)
 	onDone             func(Snapshot)
-	stop               chan struct{}
-	done               chan struct{}
-	shutdownOnce       sync.Once
-	shutdownErr        error
+	// wallClock counts every second that passes while a round runs, even
+	// when the app was frozen in between: phones freeze apps in the
+	// background, where the round goes on. Desktops treat a gap as sleep.
+	wallClock    bool
+	stop         chan struct{}
+	done         chan struct{}
+	shutdownOnce sync.Once
+	shutdownErr  error
 }
 
 func newAquarium(path string) (*Aquarium, error) {
@@ -734,7 +738,7 @@ func (a *Aquarium) tick() {
 		return
 	}
 	// A long scheduling gap is treated as sleep: never award offline focus.
-	if now.Sub(a.lastTick) > 5*time.Second {
+	if !a.wallClock && now.Sub(a.lastTick) > 5*time.Second {
 		a.state.Session.ElapsedMS += max(0, a.lastTick.Sub(a.segment).Milliseconds())
 		a.state.Session.ElapsedMS = min(a.state.Session.DurationMS, a.state.Session.ElapsedMS)
 		a.state.Session.Status = "paused"
